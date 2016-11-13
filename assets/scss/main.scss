@@ -1,0 +1,81 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+}
+
+#header {
+	height: 83px;
+	width: 820px;
+	margin: 50px 0px 0px 40px;
+	background-color: #1C688E;
+
+	#search-input {
+		margin: 22px 25px 25px 25px;
+		width: 770px;
+		height: 40px;
+		border-radius: 5px;
+	}
+}
+
+#sidebar {
+	float: left;
+	margin: 0px 0 0 40px;
+	padding: 28px 0 0 0;
+	width: 184px;
+	height: 433px;
+}
+
+#main {
+	width: 436px;
+	margin: 50px 0 0 0;
+	/*margin: ;*/
+	/*width: 74%;*/
+	margin-left: 184px;
+
+	#hits {
+		/*margin: 4px 0;*/
+		/*padding: 10px 0;*/
+		/*border-top: 2px solid #eee;*/
+		.hit {
+			font-size: 10;
+			/*padding: 8px 0;*/
+			border-bottom: 1px solid #eee;
+			.hit-image {
+				display: inline-block;
+				width: 80px;
+				img {
+					max-width: 80px;
+					max-height: 80px;
+				}
+			}
+			.hit-content {
+				/*font-size: 13px;*/
+				/*font-weight: 300;*/
+				display: inline-block;
+				margin-left: 1%;
+				vertical-align: top;
+				.hit-name {
+					margin: 0px 0 0 0;
+					/*font-size: 20px;*/
+					/*float: right;*/
+					/*margin-left: 20px;*/
+				}
+				.hit-food_type, .hit-neighborhood {
+					font-family: 'Helvetica Neue','Open Sans', sans-serif;
+					color: #707070;
+					margin: 0px 0 0 0;
+				}
+			}
+		}
+	}
+}
+
+/*.welcome-container {
+  margin: 50px 0 0 0;
+  text-align: center;
+  font-size: 2em;
+
+  p {
+    margin: 5px;
+  }
+}*/

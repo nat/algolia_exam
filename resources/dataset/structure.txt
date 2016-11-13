@@ -1,0 +1,29 @@
+restaurant_list.json
+
+{	"objectID":101422,
+	"name":"Town",
+	"address":"348 Main Street",
+	"area":"Denver / Colorado",
+	"city":"Carbondale",
+	"country":"US",
+	"image_url":"https://www.opentable.com/img/restimages/101422.jpg",
+	"mobile_reserve_url":"http://mobile.opentable.com/opentable/?restId=101422",
+	"payment_options":["AMEX","Discover","MasterCard","Visa"],
+	"phone":"9709636328",
+	"postal_code":"81623",
+	"price":2,
+	"reserve_url":"http://www.opentable.com/single.aspx?rid=101422",
+	"state":"CO",
+	"_geoloc":{"lat":39.400235,"lng":-107.210373}
+}
+
+restaurants_info.csv
+
+objectID; 116272
+food_type; Steak
+stars_count; 4.2
+reviews_count; 204
+neighborhood; Pepper Pike
+phone_number; (216) 378-8988
+price_range; $31 to $50
+dining_style Fine Dining
