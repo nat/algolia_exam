@@ -45,7 +45,35 @@
       </div>
       {{/hits}}
     </script>
+    
+    <!-- Stats template -->
+    <script type="text/template" id="stats-template">
+      {{ nbHits }} result{{#nbHits_plural}}s{{/nbHits_plural}} <span class="found-in">found in {{ processingTimeSeconds }} seconds</span>
+    </script>
 
+    <!-- Facet template -->
+    <script type="text/template" id="facet-template">
+      <div class="facet">
+        <h5>{{ title }}</h5>
+        <ul>
+          {{#values}}
+          <li>
+            <a href="" class="facet-link toggle-refine {{#disjunctive}}facet-disjunctive{{/disjunctive}} {{#isRefined}}facet-refined{{/isRefined}}" data-facet="{{ facet }}" data-value="{{ name }}">
+            {{ name }}<span class="facet-count">{{ count }}</span>
+            </a>
+          </li>
+          {{/values}}
+        </ul>
+      </div>
+    </script>
+
+
+    <!-- Pagination template -->
+    <script type="text/template" id="pagination-template">
+      <ul>
+        <li {{^next_page}}class="disabled"{{/next_page}}><a href="#" {{#next_page}}class="go-to-page" data-page="{{ next_page }}"{{/next_page}}>Show More</a></li>
+      </ul>
+    </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery-1.11.2.min.js"><\/script>')</script>

@@ -1,3 +1,5 @@
+$thumbnail_size: 80px;
+
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
@@ -37,15 +39,15 @@ body {
 		/*padding: 10px 0;*/
 		/*border-top: 2px solid #eee;*/
 		.hit {
-			font-size: 10;
+			font-size: 16;
 			/*padding: 8px 0;*/
 			border-bottom: 1px solid #eee;
 			.hit-image {
 				display: inline-block;
-				width: 80px;
+				width: $thumbnail_size;
 				img {
-					max-width: 80px;
-					max-height: 80px;
+					max-width: $thumbnail_size;
+					max-height: $thumbnail_size;
 				}
 			}
 			.hit-content {
@@ -61,6 +63,7 @@ body {
 					/*margin-left: 20px;*/
 				}
 				.hit-food_type, .hit-neighborhood {
+					font-size: 14px;
 					font-family: 'Helvetica Neue','Open Sans', sans-serif;
 					color: #707070;
 					margin: 0px 0 0 0;
@@ -68,6 +71,20 @@ body {
 			}
 		}
 	}
+	#pagination {
+		ul {
+			list-style-type: none;
+			text-align: center;
+		}
+		a {
+			padding: 8px 12px;
+			text-decoration: none;
+			font-size: 14px;
+			color: #000;
+			border: 1px solid #CDCDCD;
+		}
+	}
+	
 }
 
 /*.welcome-container {
