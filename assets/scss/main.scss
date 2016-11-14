@@ -40,8 +40,9 @@ body {
 		/*border-top: 2px solid #eee;*/
 		.hit {
 			font-size: 16;
+			margin: 10px 0 0 10px;
 			/*padding: 8px 0;*/
-			border-bottom: 1px solid #eee;
+			/*border-bottom: 1px solid #eee;*/
 			.hit-image {
 				display: inline-block;
 				width: $thumbnail_size;
@@ -51,14 +52,11 @@ body {
 				}
 			}
 			.hit-content {
-				/*font-size: 13px;*/
-				/*font-weight: 300;*/
 				display: inline-block;
 				margin-left: 1%;
 				vertical-align: top;
 				.hit-name {
 					margin: 0px 0 0 0;
-					/*font-size: 20px;*/
 					/*float: right;*/
 					/*margin-left: 20px;*/
 				}

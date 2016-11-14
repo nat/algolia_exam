@@ -106,5 +106,9 @@ $(function () {
 		$('html, body').animate({scrollTop: 0}, '500', 'swing');
 		algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
 	});
+	$(document).on('click', '.toggle-refine', function(e) {
+  		e.preventDefault();
+  		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
+	});
 
 });
