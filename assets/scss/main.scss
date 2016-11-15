@@ -2,7 +2,8 @@
 
 $thumbnail_size: 80px;
 /* note: sidebar_width is increased from the sketch source due to the width of data */
-$sidebar_width: 200px; 
+$sidebar_width: 200px;
+$left_margin: 50px;
 $primary_background_color: #fff;
 
 body {
@@ -14,7 +15,7 @@ body {
 #header {
 	height: 83px;
 	width: 820px;
-	margin: 50px 0px 0px 40px;
+	margin: $left_margin 0px 0px 40px;
 	background-color: #1C688E;
 
 	#search-input {
@@ -28,15 +29,20 @@ body {
 #sidebar {
 	float: left;
 	margin: 0px 0 0 40px;
-	padding: 28px 0 0 0;
+	padding: 5px 0 0 10px;
 	width: $sidebar_width;
-	height: 433px;
+	height: 437px;
 	background-color: $primary_background_color;
+	border-right: 1px solid #CDCDCD;
 
 	/* FACETS
 	// ------------------------- */
 
 	.facet {
+		h5 {
+			margin-left: 2px;
+			font-size: 14px;
+		}
 		font-size: 13px;
 		ul {
 			margin: 0;
@@ -76,13 +82,12 @@ body {
 }
 
 #main {
-	width: 560px;
+	width: 508px;
 	height: 400px;
-	margin: 0px 0 0 0;
-	padding: 50px 100px 12px 0;
-	/*width: 74%;*/
-	margin-left: $sidebar_width;
+	margin: 0px 0 0 $sidebar_width + $left_margin;
+	padding: 30px 100px 12px 0px;
 	background-color: $primary_background_color;
+	border: 1px solid #CDCDCD;
 
 	/* HITS
 	// ------------------------- */
@@ -100,8 +105,11 @@ body {
 				display: inline-block;
 				width: $thumbnail_size;
 				img {
-					max-width: $thumbnail_size;
-					max-height: $thumbnail_size;
+					width: $thumbnail_size;
+					height: $thumbnail_size;
+					border-radius: 2px;
+					border-width: 1px;
+					border-color: #000;
 				}
 			}
 			.hit-content {
