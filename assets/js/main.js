@@ -48,7 +48,18 @@ $(function () {
 	});
 
 	function renderHits(content) {
-		$hits.html(hitTemplate.render(content));
+		$hits.html(hitTemplate.render(addMetadataToHits(content)));
+	}
+
+	function addMetadataToHits(content){
+		var numHits = content.hits.length;
+		console.log(content);
+		for (var i = 0; i < numHits; i++) {
+			// normalize stars so they always consistently show a single decimal place
+    		stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
+    		content.hits[i]['stars_count_fixed'] = parseFloat(content.hits[i].stars_count).toFixed(1);
+		}
+		return content;
 	}
 
 	function renderStats(content) {
@@ -101,7 +112,7 @@ $(function () {
 		};
 		$pagination.html(paginationTemplate.render(pagination));
 	}
-	
+
 	$(document).on('click', '.go-to-page', function(e) {
 		e.preventDefault();
 		$('html, body').animate({scrollTop: 0}, '500', 'swing');
