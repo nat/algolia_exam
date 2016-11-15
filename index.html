@@ -69,7 +69,9 @@
     <!-- Pagination template -->
     <script type="text/template" id="pagination-template">
       <ul>
+      {{#next_page}}
         <li {{^next_page}}class="disabled"{{/next_page}}><a href="#" {{#next_page}}class="go-to-page" data-page="{{ next_page }}"{{/next_page}}>Show More</a></li>
+      {{/next_page}}
       </ul>
     </script>
 
