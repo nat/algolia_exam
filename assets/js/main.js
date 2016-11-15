@@ -101,6 +101,7 @@ $(function () {
 		};
 		$pagination.html(paginationTemplate.render(pagination));
 	}
+	
 	$(document).on('click', '.go-to-page', function(e) {
 		e.preventDefault();
 		$('html, body').animate({scrollTop: 0}, '500', 'swing');

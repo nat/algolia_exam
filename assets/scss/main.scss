@@ -1,8 +1,14 @@
+@import 'mixin_background2x';
+
 $thumbnail_size: 80px;
+/* note: sidebar_width is increased from the sketch source due to the width of data */
+$sidebar_width: 200px; 
+$primary_background_color: #fff;
 
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
+  @include background-2x( 'background', 'png', 46px, 29px, center center, repeat );
 }
 
 #header {
@@ -23,16 +29,63 @@ body {
 	float: left;
 	margin: 0px 0 0 40px;
 	padding: 28px 0 0 0;
-	width: 184px;
+	width: $sidebar_width;
 	height: 433px;
+	background-color: $primary_background_color;
+
+	/* FACETS
+	// ------------------------- */
+
+	.facet {
+		font-size: 13px;
+		ul {
+			margin: 0;
+			padding: 0;
+			list-style-type: none;
+		}
+		li {
+			padding: 5px 5px 0px 5px;
+			margin: 0px 7px 3px 0px;
+		}
+		li:hover {
+			a {
+				color: #fff;
+			}
+			background-color: #2897C5;
+			border-radius: 8px;
+		}
+		.facet-link {
+			line-height: 1.2;
+			text-decoration: none;
+			color: #000;
+		}
+		.facet-link:hover, .facet-link.facet-refined {
+			color: #fff;
+			background-color: #2897C5;
+		}
+		.facet-count {
+			position: relative;
+			float: right;
+			color: #9A9A9A;
+			margin-right: 5px;
+		}
+		.facet-count:hover {
+			color: #fff;
+		}
+	} 
 }
 
 #main {
 	width: 560px;
-	margin: 50px 0 0 0;
-	/*margin: ;*/
+	height: 400px;
+	margin: 0px 0 0 0;
+	padding: 50px 100px 12px 0;
 	/*width: 74%;*/
-	margin-left: 184px;
+	margin-left: $sidebar_width;
+	background-color: $primary_background_color;
+
+	/* HITS
+	// ------------------------- */
 
 	#hits {
 		/*margin: 4px 0;*/
@@ -69,6 +122,10 @@ body {
 			}
 		}
 	}
+
+	/* PAGINATION
+	// ------------------------- */
+
 	#pagination {
 		ul {
 			list-style-type: none;
