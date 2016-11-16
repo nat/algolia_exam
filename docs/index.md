@@ -8,7 +8,7 @@ Algolia exam POC (proof of concept) site of Nathan Wharton.
 * ruby (version 2.3.0 was used for development)(only needed if you want to implement this POC in your own Algolia index)
 
 ## Download
-* Clone the git repository to your local machine.
+* Clone the git repository (using e.g: `git clone https://github.com/nat/algolia_exam.git`) to your local machine.
 * Run `npm install` to download the dependencies (from the project root)
 * Or run `npm run server`
 
@@ -35,6 +35,9 @@ Algolia exam POC (proof of concept) site of Nathan Wharton.
 * Run `npm install` to download the dependencies
 * Then run `npm run dev` to create a server, and automatically refresh the page every time on of the `*.scss`, `*.less`, `*.html` files get updated.
 * Or run `npm run server` if you only want to run the server
+
+## Type!
+* Enter 'a' or anything in the search bar - and you'll start seeing results.
 
 ## Original Exam Instructions (for reference):
 
