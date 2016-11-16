@@ -1,5 +1,6 @@
 ### CSE Test - Place2Eat
 Algolia exam POC (proof of concept) site of Nathan Wharton.
+See the source code here: https://github.com/nat/algolia_exam
 
 # Instructions for Installation of CSE Test - Place2Eat
 
