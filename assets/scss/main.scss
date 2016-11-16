@@ -23,6 +23,10 @@ body {
 		width: 770px;
 		height: 40px;
 		border-radius: 5px;
+		font-size: 15px;
+		::placeholder {
+			color: #B3B3B3;
+		}
 	}
 }
 

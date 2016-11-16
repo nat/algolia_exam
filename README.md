@@ -39,6 +39,12 @@ Algolia exam POC (proof of concept) site of Nathan Wharton.
 ## Type!
 * Enter 'a' or anything in the search bar - and you'll start seeing results.
 
+If you have any questions, do not hesitate to contact me!
+
+## Addendum
+If I had extra time, I'd start implementing the display of stars as described here:
+http://stackoverflow.com/questions/1987524/turn-a-number-into-star-rating-display-using-jquery-and-css among other things! :)
+
 ## Original Exam Instructions (for reference):
 
 Our sales team has recently been contacted by a large restaurant reservation website, for who it as identified as strategic to build a demo. As a Customer Solutions Engineer, you're asked to build a small prototype that, using the dataset and UI they have provided us, highlights the benefits of a great search experience.
