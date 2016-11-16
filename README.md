@@ -16,7 +16,7 @@ See the source code here: https://github.com/nat/algolia_exam
 # If you want to install from scratch in your own environment do the following:
 
 ## Index Algolia
-* Open your terminal to the root of the project and execute `ruby import.rb`.
+* Open your terminal to the root of the project and execute `ruby combine_and_export_as_json.rb`.
 * The program will generate a new file, `export_for_algolia.json` in the root of the project.
 * import `export_for_algolia.json` to a new algolia index using Algolia's web interface.
 
