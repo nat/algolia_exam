@@ -65,7 +65,8 @@ body {
 			text-decoration: none;
 			color: #000;
 		}
-		.facet-link:hover, .facet-link.facet-refined {
+		li:hover .facet-count, .facet-link:hover, .facet-link.facet-refined, 
+		.facet-count.facet-refined, li.facet-refined {
 			color: #fff;
 			background-color: #2897C5;
 		}
