@@ -44,7 +44,7 @@ Our sales team has recently been contacted by a large restaurant reservation web
 * Produce the HTML markup and CSS needed to reproduce the UI provided by the client. To do so, you can write with vanilla CSS or a processor of your choice. We've provided configs for Sass and LESS.
 * Using the Algolia JS Helper ([documentation](https://www.algolia.com/doc/guides/search/instant-search/algoliahelperjs)), implement an as-you-type search experience that enables users to easily find restaurants: both by passing a search query and/or filtering on the "type of cuisine".
 
-![image](./resources/mockups/regular-version.png)
+![image](https://github.com/nat/algolia_exam/blob/master/resources/mockups/regular-version.png)
 *Screenshot of the demo once completed*
 
 **Important Notes**
@@ -62,7 +62,7 @@ Our sales team has recently been contacted by a large restaurant reservation web
 ### Bonus
 If you have time, feel free to add a star-based rating in the search results, and eventually in the sidebar.
 
-![image](./resources/mockups/full-version.png)
+![image](https://github.com/nat/algolia_exam/blob/master/resources/mockups/full-version.png)
 
 
 # Evaluation criteria:
