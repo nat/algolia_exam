@@ -1,17 +1,19 @@
-// import $ from 'jquery';
-// import algoliasearch from 'algoliasearch';
+import $ from 'jquery';
+import algoliasearch from 'algoliasearch';
+import algoliasearchHelper from 'algoliasearch-helper';
+import Hogan from 'hogan.js';
 $(function () {
-	var APPLICATION_ID = 'XFR58PCS2L';
-	var SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
-	var INDEX_NAME = 'poc_restaurants';
-	var PARAMS = {
+	const APPLICATION_ID = 'XFR58PCS2L';
+	const SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
+	const INDEX_NAME = 'poc_restaurants';
+	const PARAMS = {
   		hitsPerPage: 3,
   		maxValuesPerFacet: 7,
   		index: INDEX_NAME,
   		facets: ['food_type']
 	};
-	var FACETS_ORDER_OF_DISPLAY = ['food_type'];
-	var FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
+	const FACETS_ORDER_OF_DISPLAY = ['food_type'];
+	const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
 
 	// Client + Helper initialization
 	var algolia = algoliasearch(APPLICATION_ID, SEARCH_ONLY_API_KEY);
@@ -56,11 +58,10 @@ $(function () {
 
 	function addMetadataToHits(content){
 		var numHits = content.hits.length;
-		console.log(content);
 		for (var i = 0; i < numHits; i++) {
 			// normalize stars so they always consistently show a single decimal place
     		var stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
-    		content.hits[i]['stars_count_fixed'] = parseFloat(content.hits[i].stars_count).toFixed(1);
+    		content.hits[i].stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
 		}
 		return content;
 	}

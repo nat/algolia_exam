@@ -3,7 +3,7 @@ var webpack = require('webpack');
 module.exports = {
     entry: './assets/js/main.js',
     output: {
-        path: './assets/js',
+        path: './bin',
         filename: 'app.bundle.js',
     },
     module: {
@@ -15,11 +15,13 @@ module.exports = {
     },
     plugins: [
         new webpack.ProvidePlugin({
-            $: "jquery",
+            // You can optionally assign namespaces here
+            // $: "jquery",
             // jQuery: "jquery",
             // "window.jQuery": "jquery",
-            "algoliasearch": 'algoliasearch' //,
+            // "algoliasearch": 'algoliasearch' //,
             // "window.algoliasearchHelper": 'algoliasearch-helper'
+            // Hogan: "hogan.js"
         })
     //     new webpack.optimize.UglifyJsPlugin({
     //         compress: {
