@@ -47,8 +47,8 @@
 	'use strict';
 
 	$(function () {
-		var APPLICATION_ID = '0OCVIREAOB';
-		var SEARCH_ONLY_API_KEY = 'a4a59fd80b0436442ed0e8dbaf48e449';
+		var APPLICATION_ID = 'XFR58PCS2L';
+		var SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
 		var INDEX_NAME = 'poc_restaurants';
 		var PARAMS = {
 			hitsPerPage: 3,
@@ -62,7 +62,7 @@
 		// Client + Helper initialization
 		var algolia = algoliasearch(APPLICATION_ID, SEARCH_ONLY_API_KEY);
 		var algoliaHelper = algoliasearchHelper(algolia, INDEX_NAME, PARAMS);
-
+		console.log($hello = undefined);
 		// DOM BINDING
 		$searchInput = $('#search-input');
 		$main = $('#main');

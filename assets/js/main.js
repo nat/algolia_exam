@@ -14,7 +14,7 @@ $(function () {
 	// Client + Helper initialization
 	var algolia = algoliasearch(APPLICATION_ID, SEARCH_ONLY_API_KEY);
 	var algoliaHelper = algoliasearchHelper(algolia, INDEX_NAME, PARAMS);
-
+	
 	// DOM BINDING
 	$searchInput = $('#search-input');
 	$main = $('#main');
