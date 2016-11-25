@@ -20,7 +20,11 @@
     "webpack": "^1.13.3"
   },
   "dependencies": {
+    "algoliasearch": "^3.19.1",
+    "algoliasearch-helper": "^2.15.0",
     "babel-polyfill": "^6.16.0",
+    "hogan": "^1.0.2",
+    "install": "^0.8.2",
     "jquery": "^3.1.1"
   }
 }

@@ -1,3 +1,5 @@
+// import $ from 'jquery';
+// import algoliasearch from 'algoliasearch';
 $(function () {
 	var APPLICATION_ID = 'XFR58PCS2L';
 	var SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
@@ -14,15 +16,16 @@ $(function () {
 	// Client + Helper initialization
 	var algolia = algoliasearch(APPLICATION_ID, SEARCH_ONLY_API_KEY);
 	var algoliaHelper = algoliasearchHelper(algolia, INDEX_NAME, PARAMS);
-	
+
 	// DOM BINDING
-	$searchInput = $('#search-input');
-	$main = $('#main');
+	var $searchInput = $('#search-input');
+
+	var $main = $('#main');
 	// $sortBySelect = $('#sort-by-select');
-	$hits = $('#hits');
-	$stats = $('#stats');
-	$facets = $('#facets');
-	$pagination = $('#pagination');
+	var $hits = $('#hits');
+	var $stats = $('#stats');
+	var $facets = $('#facets');
+	var $pagination = $('#pagination');
 
 	// Hogan templates binding
 	var hitTemplate = Hogan.compile($('#hit-template').text());
@@ -56,7 +59,7 @@ $(function () {
 		console.log(content);
 		for (var i = 0; i < numHits; i++) {
 			// normalize stars so they always consistently show a single decimal place
-    		stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
+    		var stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
     		content.hits[i]['stars_count_fixed'] = parseFloat(content.hits[i].stars_count).toFixed(1);
 		}
 		return content;

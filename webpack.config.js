@@ -14,6 +14,13 @@ module.exports = {
         }]
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            // jQuery: "jquery",
+            // "window.jQuery": "jquery",
+            "algoliasearch": 'algoliasearch' //,
+            // "window.algoliasearchHelper": 'algoliasearch-helper'
+        })
     //     new webpack.optimize.UglifyJsPlugin({
     //         compress: {
     //             warnings: false,
