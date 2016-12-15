@@ -7,7 +7,8 @@ var less = require('gulp-less-sourcemap');
 // Static Server
 gulp.task('serve', function() {
     browserSync.init({
-        server: "."
+        server: ".",
+        open: false
     });
 });
 
