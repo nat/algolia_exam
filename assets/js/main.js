@@ -13,10 +13,10 @@ $(function () {
 	const SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
 	const INDEX_NAME = 'poc_restaurants';
 	const PARAMS = {
-  		hitsPerPage: 3,
-  		maxValuesPerFacet: 7,
-  		index: INDEX_NAME,
-  		facets: ['food_type']
+		hitsPerPage: 3,
+		maxValuesPerFacet: 7,
+		index: INDEX_NAME,
+		facets: ['food_type']
 	};
 	const FACETS_ORDER_OF_DISPLAY = ['food_type'];
 	const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
@@ -45,14 +45,14 @@ $(function () {
 	// Input binding
 	$searchInput
 	.on('keyup', function() {
-	  var query = $(this).val();
-	  algoliaHelper.setQuery(query).search();
+		var query = $(this).val();
+		algoliaHelper.setQuery(query).search();
 	})
 	.focus();
 
 	// Search results
 	algoliaHelper.on('result', function(content, state) {
-  		renderHits(content);
+		renderHits(content);
 		renderStats(content);
 		renderFacets(content, state);
 		renderPagination(content);
@@ -66,8 +66,8 @@ $(function () {
 		var numHits = content.hits.length;
 		for (var i = 0; i < numHits; i++) {
 			// normalize stars so they always consistently show a single decimal place
-    		var stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
-    		content.hits[i].stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
+			var stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
+			content.hits[i].stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
 		}
 		return content;
 	}
@@ -129,8 +129,8 @@ $(function () {
 		algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
 	});
 	$(document).on('click', '.toggle-refine', function(e) {
-  		e.preventDefault();
-  		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
+		e.preventDefault();
+		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
 	});
 
 });
