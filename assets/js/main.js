@@ -1,7 +1,13 @@
+import React from 'react';
+import {render} from 'react-dom';
 import $ from 'jquery';
 import algoliasearch from 'algoliasearch';
 import algoliasearchHelper from 'algoliasearch-helper';
 import Hogan from 'hogan.js';
+import App from './App';
+
+render(<App/>, document.getElementById('app'));
+
 $(function () {
 	const APPLICATION_ID = 'BH0GW7H4EJ';
 	const SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
