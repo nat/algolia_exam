@@ -1,14 +1,19 @@
 var webpack = require('webpack');
+var path = require('path');
+
+var SRC_DIR = path.resolve(__dirname, 'assets/js');
+var BIN_DIR = path.resolve(__dirname, 'bin');
 
 module.exports = {
-    entry: './assets/js/main.js',
+    entry: SRC_DIR + '/main.js',
     output: {
-        path: './bin',
+        path: BIN_DIR,
         filename: 'app.bundle.js',
     },
     module: {
         loaders: [{
             test: /\.js?$/,
+            include: SRC_DIR,
             exclude: /node_modules/,
             loader: 'babel-loader',
         }]

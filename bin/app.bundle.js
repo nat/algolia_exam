@@ -64,6 +64,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	console.log('Hello World!');
+
 	(0, _jquery2.default)(function () {
 		var APPLICATION_ID = 'XFR58PCS2L';
 		var SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
@@ -10433,8 +10435,8 @@
 	module.exports = AlgoliaSearch;
 
 	var Index = __webpack_require__(4);
-	var deprecate = __webpack_require__(17);
-	var deprecatedMessage = __webpack_require__(18);
+	var deprecate = __webpack_require__(10);
+	var deprecatedMessage = __webpack_require__(11);
 	var AlgoliaSearchCore = __webpack_require__(22);
 	var inherits = __webpack_require__(5);
 	var errors = __webpack_require__(8);
@@ -10518,7 +10520,7 @@
 	 *  content: the server answer that contains the task ID
 	 */
 	AlgoliaSearch.prototype.getLogs = function(offset, length, callback) {
-	  var clone = __webpack_require__(11);
+	  var clone = __webpack_require__(13);
 	  var params = {};
 	  if (typeof offset === 'object') {
 	    // getLogs(params)
@@ -10670,7 +10672,7 @@
 	 * @see {@link https://www.algolia.com/doc/rest_api#AddKey|Algolia REST API Documentation}
 	 */
 	AlgoliaSearch.prototype.addUserKey = function(acls, params, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: client.addUserKey(arrayOfAcls[, params, callback])';
 
 	  if (!isArray(acls)) {
@@ -10755,7 +10757,7 @@
 	 * @see {@link https://www.algolia.com/doc/rest_api#UpdateIndexKey|Algolia REST API Documentation}
 	 */
 	AlgoliaSearch.prototype.updateUserKey = function(key, acls, params, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: client.updateUserKey(key, arrayOfAcls[, params, callback])';
 
 	  if (!isArray(acls)) {
@@ -10856,7 +10858,7 @@
 	 * }], cb)
 	 */
 	AlgoliaSearch.prototype.batch = function(operations, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: client.batch(operations[, callback])';
 
 	  if (!isArray(operations)) {
@@ -10896,8 +10898,8 @@
 
 	var inherits = __webpack_require__(5);
 	var IndexCore = __webpack_require__(6);
-	var deprecate = __webpack_require__(17);
-	var deprecatedMessage = __webpack_require__(18);
+	var deprecate = __webpack_require__(10);
+	var deprecatedMessage = __webpack_require__(11);
 	var exitPromise = __webpack_require__(19);
 	var errors = __webpack_require__(8);
 
@@ -10948,7 +10950,7 @@
 	*  content: the server answer that updateAt and taskID
 	*/
 	Index.prototype.addObjects = function(objects, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: index.addObjects(arrayOfObjects[, callback])';
 
 	  if (!isArray(objects)) {
@@ -11015,7 +11017,7 @@
 	*  content: the server answer that updateAt and taskID
 	*/
 	Index.prototype.partialUpdateObjects = function(objects, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: index.partialUpdateObjects(arrayOfObjects[, callback])';
 
 	  if (!isArray(objects)) {
@@ -11071,7 +11073,7 @@
 	*  content: the server answer that updateAt and taskID
 	*/
 	Index.prototype.saveObjects = function(objects, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: index.saveObjects(arrayOfObjects[, callback])';
 
 	  if (!isArray(objects)) {
@@ -11136,8 +11138,8 @@
 	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
 	*/
 	Index.prototype.deleteObjects = function(objectIDs, callback) {
-	  var isArray = __webpack_require__(15);
-	  var map = __webpack_require__(16);
+	  var isArray = __webpack_require__(17);
+	  var map = __webpack_require__(18);
 
 	  var usage = 'Usage: index.deleteObjects(arrayOfObjectIDs[, callback])';
 
@@ -11176,8 +11178,8 @@
 	*  error: null or Error('message')
 	*/
 	Index.prototype.deleteByQuery = function(query, params, callback) {
-	  var clone = __webpack_require__(11);
-	  var map = __webpack_require__(16);
+	  var clone = __webpack_require__(13);
+	  var map = __webpack_require__(18);
 
 	  var indexObj = this;
 	  var client = indexObj.as;
@@ -11287,7 +11289,7 @@
 	    query = undefined;
 	  }
 
-	  var merge = __webpack_require__(10);
+	  var merge = __webpack_require__(12);
 
 	  var IndexBrowser = __webpack_require__(20);
 
@@ -11749,7 +11751,7 @@
 	* @see {@link https://www.algolia.com/doc/rest_api#AddIndexKey|Algolia REST API Documentation}
 	*/
 	Index.prototype.addUserKey = function(acls, params, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: index.addUserKey(arrayOfAcls[, params, callback])';
 
 	  if (!isArray(acls)) {
@@ -11832,7 +11834,7 @@
 	* @see {@link https://www.algolia.com/doc/rest_api#UpdateIndexKey|Algolia REST API Documentation}
 	*/
 	Index.prototype.updateUserKey = function(key, acls, params, callback) {
-	  var isArray = __webpack_require__(15);
+	  var isArray = __webpack_require__(17);
 	  var usage = 'Usage: index.updateUserKey(key, arrayOfAcls[, params, callback])';
 
 	  if (!isArray(acls)) {
@@ -11905,6 +11907,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var buildSearchMethod = __webpack_require__(7);
+	var deprecate = __webpack_require__(10);
+	var deprecatedMessage = __webpack_require__(11);
 
 	module.exports = IndexCore;
 
@@ -12056,7 +12060,7 @@
 	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
 	*/
 	IndexCore.prototype.browse = function(query, queryParameters, callback) {
-	  var merge = __webpack_require__(10);
+	  var merge = __webpack_require__(12);
 
 	  var indexObj = this;
 
@@ -12137,8 +12141,8 @@
 	};
 
 	/*
-	* Search in facets
-	* https://www.algolia.com/doc/rest-api/search#search-in-a-facet
+	* Search for facet values
+	* https://www.algolia.com/doc/rest-api/search#search-for-facet-values
 	*
 	* @param {string} params.facetName Facet name, name of the attribute to search for values in.
 	* Must be declared as a facet
@@ -12148,10 +12152,10 @@
 	* Pagination is not supported. The page and hitsPerPage parameters will be ignored.
 	* @param callback (optional)
 	*/
-	IndexCore.prototype.searchFacet = function(params, callback) {
-	  var clone = __webpack_require__(11);
-	  var omit = __webpack_require__(12);
-	  var usage = 'Usage: index.searchFacet({facetName, facetQuery, ...params}[, callback])';
+	IndexCore.prototype.searchForFacetValues = function(params, callback) {
+	  var clone = __webpack_require__(13);
+	  var omit = __webpack_require__(14);
+	  var usage = 'Usage: index.searchForFacetValues({facetName, facetQuery, ...params}[, callback])';
 
 	  if (params.facetName === undefined || params.facetQuery === undefined) {
 	    throw new Error(usage);
@@ -12172,6 +12176,13 @@
 	    callback: callback
 	  });
 	};
+
+	IndexCore.prototype.searchFacet = deprecate(function(params, callback) {
+	  return this.searchForFacetValues(params, callback);
+	}, deprecatedMessage(
+	  'index.searchFacet(params[, callback])',
+	  'index.searchForFacetValues(params[, callback])'
+	));
 
 	IndexCore.prototype._search = function(params, url, callback) {
 	  return this.as._jsonRequest({
@@ -12231,8 +12242,8 @@
 	* @param objectIDs the array of unique identifier of objects to retrieve
 	*/
 	IndexCore.prototype.getObjects = function(objectIDs, attributesToRetrieve, callback) {
-	  var isArray = __webpack_require__(15);
-	  var map = __webpack_require__(16);
+	  var isArray = __webpack_require__(17);
+	  var map = __webpack_require__(18);
 
 	  var usage = 'Usage: index.getObjects(arrayOfObjectIDs[, callback])';
 
@@ -12443,6 +12454,41 @@
 
 /***/ },
 /* 10 */
+/***/ function(module, exports) {
+
+	module.exports = function deprecate(fn, message) {
+	  var warned = false;
+
+	  function deprecated() {
+	    if (!warned) {
+	      /* eslint no-console:0 */
+	      console.log(message);
+	      warned = true;
+	    }
+
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = function deprecatedMessage(previousUsage, newUsage) {
+	  var githubAnchorLink = previousUsage.toLowerCase()
+	    .replace('.', '')
+	    .replace('()', '');
+
+	  return 'algoliasearch: `' + previousUsage + '` was replaced by `' + newUsage +
+	    '`. Please see https://github.com/algolia/algoliasearch-client-js/wiki/Deprecated#' + githubAnchorLink;
+	};
+
+
+/***/ },
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var foreach = __webpack_require__(9);
@@ -12467,7 +12513,7 @@
 
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = function clone(obj) {
@@ -12476,11 +12522,11 @@
 
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function omit(obj, test) {
-	  var keys = __webpack_require__(13);
+	  var keys = __webpack_require__(15);
 	  var foreach = __webpack_require__(9);
 
 	  var filtered = {};
@@ -12496,7 +12542,7 @@
 
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12505,7 +12551,7 @@
 	var has = Object.prototype.hasOwnProperty;
 	var toStr = Object.prototype.toString;
 	var slice = Array.prototype.slice;
-	var isArgs = __webpack_require__(14);
+	var isArgs = __webpack_require__(16);
 	var isEnumerable = Object.prototype.propertyIsEnumerable;
 	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
 	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
@@ -12642,7 +12688,7 @@
 
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12665,7 +12711,7 @@
 
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports) {
 
 	var toString = {}.toString;
@@ -12676,7 +12722,7 @@
 
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var foreach = __webpack_require__(9);
@@ -12687,41 +12733,6 @@
 	    newArr.push(fn(item, itemIndex, arr));
 	  });
 	  return newArr;
-	};
-
-
-/***/ },
-/* 17 */
-/***/ function(module, exports) {
-
-	module.exports = function deprecate(fn, message) {
-	  var warned = false;
-
-	  function deprecated() {
-	    if (!warned) {
-	      /* eslint no-console:0 */
-	      console.log(message);
-	      warned = true;
-	    }
-
-	    return fn.apply(this, arguments);
-	  }
-
-	  return deprecated;
-	};
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-	module.exports = function deprecatedMessage(previousUsage, newUsage) {
-	  var githubAnchorLink = previousUsage.toLowerCase()
-	    .replace('.', '')
-	    .replace('()', '');
-
-	  return 'algoliasearch: `' + previousUsage + '` was replaced by `' + newUsage +
-	    '`. Please see https://github.com/algolia/algoliasearch-client-js/wiki/Deprecated#' + githubAnchorLink;
 	};
 
 
@@ -13132,9 +13143,9 @@
 	function AlgoliaSearchCore(applicationID, apiKey, opts) {
 	  var debug = __webpack_require__(23)('algoliasearch');
 
-	  var clone = __webpack_require__(11);
-	  var isArray = __webpack_require__(15);
-	  var map = __webpack_require__(16);
+	  var clone = __webpack_require__(13);
+	  var isArray = __webpack_require__(17);
+	  var map = __webpack_require__(18);
 
 	  var usage = 'Usage: algoliasearch(applicationID, apiKey, opts)';
 
@@ -13575,8 +13586,8 @@
 	 * @return {Promise|undefined} Returns a promise if no callback given
 	 */
 	AlgoliaSearchCore.prototype.search = function(queries, opts, callback) {
-	  var isArray = __webpack_require__(15);
-	  var map = __webpack_require__(16);
+	  var isArray = __webpack_require__(17);
+	  var map = __webpack_require__(18);
 
 	  var usage = 'Usage: client.search(arrayOfQueries[, callback])';
 
@@ -14518,7 +14529,7 @@
 	  }
 
 	  function algoliasearch(applicationID, apiKey, opts) {
-	    var cloneDeep = __webpack_require__(11);
+	    var cloneDeep = __webpack_require__(13);
 
 	    var getDocumentProtocol = __webpack_require__(35);
 
@@ -16154,7 +16165,7 @@
 
 	function createPlacesClient(algoliasearch) {
 	  return function places(appID, apiKey, opts) {
-	    var cloneDeep = __webpack_require__(11);
+	    var cloneDeep = __webpack_require__(13);
 
 	    opts = opts && cloneDeep(opts) || {};
 	    opts.hosts = opts.hosts || [
@@ -16205,7 +16216,7 @@
 
 	'use strict';
 
-	module.exports = '3.19.1';
+	module.exports = '3.19.2';
 
 
 /***/ },
@@ -16472,6 +16483,30 @@
 	        _originalResponse: content
 	      };
 	    });
+	};
+
+	/**
+	 * Search for facet values based on an query and the name of a facetted attribute. This
+	 * triggers a search and will retrun a promise. On top of using the query, it also sends
+	 * the parameters from the state so that the search is narrowed to only the possible values.
+	 * @param {string} query the string query for the search
+	 * @param {string} facet the name of the facetted attribute
+	 * @return {promise<FacetSearchResult>} the results of the search
+	 */
+	AlgoliaSearchHelper.prototype.searchForFacetValues = function(facet, query) {
+	  var state = this.state;
+	  var index = this.client.initIndex(this.state.index);
+	  var isDisjunctive = state.isDisjunctiveFacet(facet);
+	  var algoliaQuery = requestBuilder.getSearchForFacetQuery(facet, query, this.state);
+	  return index.searchForFacetValues(algoliaQuery).then(function addIsRefined(content) {
+	    content.facetHits = forEach(content.facetHits, function(f) {
+	      f.isRefined = isDisjunctive ?
+	        state.isDisjunctiveFacetRefined(facet, f.value) :
+	        state.isFacetRefined(facet, f.value);
+	    });
+
+	    return content;
+	  });
 	};
 
 	/**
@@ -30165,6 +30200,17 @@
 
 	    var parentLevel = hierarchicalRefinement.split(separator).length - 1;
 	    return hierarchicalFacet.attributes.slice(0, parentLevel + 1);
+	  },
+
+	  getSearchForFacetQuery: function(facetName, query, state) {
+	    var stateForSearchForFacetValues = state.isDisjunctiveFacet(facetName) ?
+	      state.clearRefinements(facetName) :
+	      state;
+	    var queries = merge(requestBuilder._getHitsSearchParams(stateForSearchForFacetValues), {
+	      facetQuery: query,
+	      facetName: facetName
+	    });
+	    return queries;
 	  }
 	};
 
@@ -31871,7 +31917,7 @@
 
 	'use strict';
 
-	module.exports = '2.15.0';
+	module.exports = '2.16.0';
 
 
 /***/ },

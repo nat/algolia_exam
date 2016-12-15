@@ -1,3 +1,4 @@
+console.log('Hello World!');
 import $ from 'jquery';
 import algoliasearch from 'algoliasearch';
 import algoliasearchHelper from 'algoliasearch-helper';
