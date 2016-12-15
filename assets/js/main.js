@@ -4,7 +4,7 @@ import $ from 'jquery';
 import algoliasearch from 'algoliasearch';
 import algoliasearchHelper from 'algoliasearch-helper';
 import Hogan from 'hogan.js';
-import App from './App';
+import App from './components/App';
 
 render(<App/>, document.getElementById('app'));
 
