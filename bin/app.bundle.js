@@ -67,8 +67,8 @@
 	console.log('Hello World!');
 
 	(0, _jquery2.default)(function () {
-		var APPLICATION_ID = 'XFR58PCS2L';
-		var SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
+		var APPLICATION_ID = 'BH0GW7H4EJ';
+		var SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
 		var INDEX_NAME = 'poc_restaurants';
 		var PARAMS = {
 			hitsPerPage: 3,

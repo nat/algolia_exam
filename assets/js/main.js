@@ -1,11 +1,10 @@
-console.log('Hello World!');
 import $ from 'jquery';
 import algoliasearch from 'algoliasearch';
 import algoliasearchHelper from 'algoliasearch-helper';
 import Hogan from 'hogan.js';
 $(function () {
-	const APPLICATION_ID = 'XFR58PCS2L';
-	const SEARCH_ONLY_API_KEY = 'e9c56390c8795d4c2835ce70d9f28e76';
+	const APPLICATION_ID = 'BH0GW7H4EJ';
+	const SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
 	const INDEX_NAME = 'poc_restaurants';
 	const PARAMS = {
   		hitsPerPage: 3,
