@@ -72,13 +72,17 @@
 
 	var _App2 = _interopRequireDefault(_App);
 
+	var _AlgoliaClient = __webpack_require__(516);
+
+	var AlgoliaClient = _interopRequireWildcard(_AlgoliaClient);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	(0, _reactDom.render)(_react2.default.createElement(_App2.default, null), document.getElementById('app'));
 
 	(0, _jquery2.default)(function () {
-		var APPLICATION_ID = 'BH0GW7H4EJ';
-		var SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
 		var INDEX_NAME = 'poc_restaurants';
 		var PARAMS = {
 			hitsPerPage: 3,
@@ -90,7 +94,7 @@
 		var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
 
 		// Client + Helper initialization
-		var algolia = (0, _algoliasearch2.default)(APPLICATION_ID, SEARCH_ONLY_API_KEY);
+		var algolia = (0, _algoliasearch2.default)(AlgoliaClient.APPLICATION_ID, AlgoliaClient.SEARCH_ONLY_API_KEY);
 		var algoliaHelper = (0, _algoliasearchHelper2.default)(algolia, INDEX_NAME, PARAMS);
 
 		// DOM BINDING
@@ -53999,18 +54003,31 @@
 			var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
 			_this.state = {
-				searchQuery: ''
+				searchQuery: '',
+				facetFoodType: ''
 			};
+			_this.setQuery = _this.setQuery.bind(_this);
+			_this.sendQuery = _this.sendQuery.bind(_this);
 			return _this;
 		}
 
 		_createClass(App, [{
+			key: 'sendQuery',
+			value: function sendQuery() {}
+		}, {
+			key: 'setQuery',
+			value: function setQuery(searchQuery) {
+				// set state to include the searchQuery
+				this.setState({ searchQuery: searchQuery });
+				this.sendQuery();
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
 					'div',
 					{ className: 'app-restaurants' },
-					_react2.default.createElement(_Header2.default, null),
+					_react2.default.createElement(_Header2.default, { setQuery: this.setQuery }),
 					_react2.default.createElement(_Sidebar2.default, null),
 					_react2.default.createElement(_MainColumn2.default, null)
 				);
@@ -54056,12 +54073,6 @@
 		}
 
 		_createClass(Header, [{
-			key: "prepareQuery",
-			value: function prepareQuery(e) {
-				console.log(e);
-				console.log(this.searchinput.value);
-			}
-		}, {
 			key: "render",
 			value: function render() {
 				var _this2 = this;
@@ -54080,7 +54091,7 @@
 						autoCorrect: "off",
 						placeholder: "Search for Restaurants by Name, Cuisine, Location",
 						onChange: function onChange(e) {
-							return _this2.prepareQuery(e);
+							return _this2.props.setQuery(_this2.searchinput.value);
 						}
 					})
 				);
@@ -54191,6 +54202,18 @@
 	}(_react2.default.Component);
 
 	exports.default = MainColumn;
+
+/***/ },
+/* 516 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var APPLICATION_ID = exports.APPLICATION_ID = 'BH0GW7H4EJ';
+	var SEARCH_ONLY_API_KEY = exports.SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
 
 /***/ }
 /******/ ]);

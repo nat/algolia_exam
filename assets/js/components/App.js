@@ -7,14 +7,26 @@ class App extends React.Component {
 	constructor(){
 		super();
 		this.state = {
-			searchQuery: ''
+			searchQuery: '',
+			facetFoodType: ''
 		};
+		this.setQuery = this.setQuery.bind(this);
+		this.sendQuery = this.sendQuery.bind(this);
+	}
+
+	sendQuery(){
+	}
+
+	setQuery(searchQuery){
+		// set state to include the searchQuery
+		this.setState({searchQuery: searchQuery});
+		this.sendQuery();
 	}
 
 	render() {
 		return(
 			<div className="app-restaurants">
-				<Header/>
+				<Header setQuery={this.setQuery}/>
 				<Sidebar/>
 				<MainColumn/>
 			</div>

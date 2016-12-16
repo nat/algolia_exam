@@ -5,12 +5,11 @@ import algoliasearch from 'algoliasearch';
 import algoliasearchHelper from 'algoliasearch-helper';
 import Hogan from 'hogan.js';
 import App from './components/App';
+import * as AlgoliaClient from './AlgoliaClient';
 
 render(<App/>, document.getElementById('app'));
 
 $(function () {
-	const APPLICATION_ID = 'BH0GW7H4EJ';
-	const SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
 	const INDEX_NAME = 'poc_restaurants';
 	const PARAMS = {
 		hitsPerPage: 3,
@@ -22,7 +21,8 @@ $(function () {
 	const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
 
 	// Client + Helper initialization
-	var algolia = algoliasearch(APPLICATION_ID, SEARCH_ONLY_API_KEY);
+	var algolia = algoliasearch(AlgoliaClient.APPLICATION_ID, 
+		AlgoliaClient.SEARCH_ONLY_API_KEY);
 	var algoliaHelper = algoliasearchHelper(algolia, INDEX_NAME, PARAMS);
 
 	// DOM BINDING

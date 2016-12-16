@@ -5,11 +5,6 @@ class Header extends React.Component {
 		super();
 	}
 
-	prepareQuery(e){
-		console.log(e);
-		console.log(this.searchinput.value);
-	}
-
 	render(){
 		return (
 			<div id="header">
@@ -21,7 +16,8 @@ class Header extends React.Component {
 					spellCheck="false" 
 					autoCorrect="off" 
 					placeholder="Search for Restaurants by Name, Cuisine, Location"
-					onChange={(e) => this.prepareQuery(e)}
+					onChange={(e) => 
+						this.props.setQuery(this.searchinput.value)}
 				/>
 			</div>
 		);
