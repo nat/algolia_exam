@@ -8,7 +8,7 @@ var less = require('gulp-less-sourcemap');
 gulp.task('serve', function() {
     browserSync.init({
         server: ".",
-        open: false
+        open: "local"
     });
 });
 
@@ -16,6 +16,7 @@ gulp.task('serve', function() {
 gulp.task('watch', ['serve', 'sass', 'less'], function() {
     gulp.watch("assets/scss/*.scss", ['sass']);
     gulp.watch("assets/less/*.less", ['less']);
+    gulp.watch("assets/js/**/*.js").on('change', browserSync.reload);
     gulp.watch("*.html").on('change', browserSync.reload);
 });
 
