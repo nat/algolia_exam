@@ -12,9 +12,6 @@ $(function () {
 	const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
 
 	// DOM BINDING
-	var $searchInput = $('#search-input');
-
-	var $main = $('#main');
 	// $sortBySelect = $('#sort-by-select');
 	var $hits = $('#hits');
 	var $stats = $('#stats');
@@ -27,14 +24,6 @@ $(function () {
 	var facetTemplate = Hogan.compile($('#facet-template').text());
 	var paginationTemplate = Hogan.compile($('#pagination-template').text());
 	var noResultsTemplate = Hogan.compile($('#no-results-template').text());
-
-	// Input binding
-	// $searchInput
-	// .on('keyup', function() {
-	// 	var query = $(this).val();
-	// 	algoliaHelper.setQuery(query).search();
-	// })
-	// .focus();
 
 	// Search results
 	algoliaHelper.on('result', function(content, state) {
@@ -116,6 +105,7 @@ $(function () {
 	});
 	$(document).on('click', '.toggle-refine', function(e) {
 		e.preventDefault();
+		console.log('got here');
 		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
 	});
 
