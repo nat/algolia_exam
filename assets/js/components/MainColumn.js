@@ -13,7 +13,8 @@ class MainColumn extends React.Component {
 				<Stats stats={this.props.stats}/>
 				<div id="hits">
 					{
-						this.props.hits.map(hit => <Hit key={hit.objectID} />)
+						this.props.hits.map(hit => 
+							<Hit key={hit.objectID} hit={hit} />)
 					}
 				</div>
 				<div id="pagination"></div>

@@ -85,7 +85,6 @@ $(function () {
 	});
 	$(document).on('click', '.toggle-refine', function(e) {
 		e.preventDefault();
-		console.log('got here');
 		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
 	});
 
