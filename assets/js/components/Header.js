@@ -16,7 +16,7 @@ class Header extends React.Component {
 					spellCheck="false" 
 					autoCorrect="off" 
 					placeholder="Search for Restaurants by Name, Cuisine, Location"
-					onChange={(e) => 
+					onKeyUp={(e) => 
 						this.props.setQuery(this.searchinput.value)}
 				/>
 			</div>

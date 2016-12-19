@@ -2,6 +2,7 @@ import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import MainColumn from './MainColumn';
+import {algoliaHelper} from '../AlgoliaClient';
 
 class App extends React.Component {
 	constructor(){
@@ -10,17 +11,19 @@ class App extends React.Component {
 			searchQuery: '',
 			facetFoodType: ''
 		};
-		this.setQuery = this.setQuery.bind(this);
 		this.sendQuery = this.sendQuery.bind(this);
+		this.setQuery = this.setQuery.bind(this);
 	}
 
 	sendQuery(){
+		algoliaHelper.setQuery(this.state.searchQuery).search();
 	}
 
-	setQuery(searchQuery){
-		// set state to include the searchQuery
-		this.setState({searchQuery: searchQuery});
-		this.sendQuery();
+	setQuery(newSearchQuery){
+		// set the search
+		this.setState({ searchQuery: newSearchQuery },
+			// send query after state is saved:
+			this.sendQuery);
 	}
 
 	render() {

@@ -56,46 +56,23 @@
 
 	var _jquery2 = _interopRequireDefault(_jquery);
 
-	var _algoliasearch = __webpack_require__(179);
-
-	var _algoliasearch2 = _interopRequireDefault(_algoliasearch);
-
-	var _algoliasearchHelper = __webpack_require__(213);
-
-	var _algoliasearchHelper2 = _interopRequireDefault(_algoliasearchHelper);
-
-	var _hogan = __webpack_require__(509);
+	var _hogan = __webpack_require__(476);
 
 	var _hogan2 = _interopRequireDefault(_hogan);
 
-	var _App = __webpack_require__(512);
+	var _App = __webpack_require__(479);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _AlgoliaClient = __webpack_require__(516);
-
-	var AlgoliaClient = _interopRequireWildcard(_AlgoliaClient);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	var _AlgoliaClient = __webpack_require__(483);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	(0, _reactDom.render)(_react2.default.createElement(_App2.default, null), document.getElementById('app'));
 
 	(0, _jquery2.default)(function () {
-		var INDEX_NAME = 'poc_restaurants';
-		var PARAMS = {
-			hitsPerPage: 3,
-			maxValuesPerFacet: 7,
-			index: INDEX_NAME,
-			facets: ['food_type']
-		};
 		var FACETS_ORDER_OF_DISPLAY = ['food_type'];
 		var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
-
-		// Client + Helper initialization
-		var algolia = (0, _algoliasearch2.default)(AlgoliaClient.APPLICATION_ID, AlgoliaClient.SEARCH_ONLY_API_KEY);
-		var algoliaHelper = (0, _algoliasearchHelper2.default)(algolia, INDEX_NAME, PARAMS);
 
 		// DOM BINDING
 		var $searchInput = (0, _jquery2.default)('#search-input');
@@ -115,13 +92,15 @@
 		var noResultsTemplate = _hogan2.default.compile((0, _jquery2.default)('#no-results-template').text());
 
 		// Input binding
-		$searchInput.on('keyup', function () {
-			var query = (0, _jquery2.default)(this).val();
-			algoliaHelper.setQuery(query).search();
-		}).focus();
+		// $searchInput
+		// .on('keyup', function() {
+		// 	var query = $(this).val();
+		// 	algoliaHelper.setQuery(query).search();
+		// })
+		// .focus();
 
 		// Search results
-		algoliaHelper.on('result', function (content, state) {
+		_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
 			renderHits(content);
 			renderStats(content);
 			renderFacets(content, state);
@@ -161,7 +140,7 @@
 					facet: facetName,
 					title: FACETS_LABELS[facetName],
 					values: content.getFacetValues(facetName, { sortBy: ['isRefined:desc', 'count:desc'] }),
-					disjunctive: _jquery2.default.inArray(facetName, PARAMS.disjunctiveFacets) !== -1
+					disjunctive: _jquery2.default.inArray(facetName, _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets) !== -1
 				};
 				facetsHtml += facetTemplate.render(facetContent);
 			}
@@ -196,11 +175,11 @@
 		(0, _jquery2.default)(document).on('click', '.go-to-page', function (e) {
 			e.preventDefault();
 			(0, _jquery2.default)('html, body').animate({ scrollTop: 0 }, '500', 'swing');
-			algoliaHelper.setCurrentPage(+(0, _jquery2.default)(this).data('page') - 1).search();
+			_AlgoliaClient.algoliaHelper.setCurrentPage(+(0, _jquery2.default)(this).data('page') - 1).search();
 		});
 		(0, _jquery2.default)(document).on('click', '.toggle-refine', function (e) {
 			e.preventDefault();
-			algoliaHelper.toggleRefine((0, _jquery2.default)(this).data('facet'), (0, _jquery2.default)(this).data('value')).search();
+			_AlgoliaClient.algoliaHelper.toggleRefine((0, _jquery2.default)(this).data('facet'), (0, _jquery2.default)(this).data('value')).search();
 		});
 	});
 
@@ -31843,5627 +31822,10 @@
 
 	'use strict';
 
-	var AlgoliaSearch = __webpack_require__(180);
-	var createAlgoliasearch = __webpack_require__(203);
+	var AlgoliaSearchHelper = __webpack_require__(180);
 
-	module.exports = createAlgoliasearch(AlgoliaSearch);
-
-
-/***/ },
-/* 180 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = AlgoliaSearch;
-
-	var Index = __webpack_require__(181);
-	var deprecate = __webpack_require__(187);
-	var deprecatedMessage = __webpack_require__(188);
-	var AlgoliaSearchCore = __webpack_require__(199);
-	var inherits = __webpack_require__(182);
-	var errors = __webpack_require__(185);
-
-	function AlgoliaSearch() {
-	  AlgoliaSearchCore.apply(this, arguments);
-	}
-
-	inherits(AlgoliaSearch, AlgoliaSearchCore);
-
-	/*
-	 * Delete an index
-	 *
-	 * @param indexName the name of index to delete
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer that contains the task ID
-	 */
-	AlgoliaSearch.prototype.deleteIndex = function(indexName, callback) {
-	  return this._jsonRequest({
-	    method: 'DELETE',
-	    url: '/1/indexes/' + encodeURIComponent(indexName),
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/**
-	 * Move an existing index.
-	 * @param srcIndexName the name of index to copy.
-	 * @param dstIndexName the new index name that will contains a copy of
-	 * srcIndexName (destination will be overriten if it already exist).
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer that contains the task ID
-	 */
-	AlgoliaSearch.prototype.moveIndex = function(srcIndexName, dstIndexName, callback) {
-	  var postObj = {
-	    operation: 'move', destination: dstIndexName
-	  };
-	  return this._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/**
-	 * Copy an existing index.
-	 * @param srcIndexName the name of index to copy.
-	 * @param dstIndexName the new index name that will contains a copy
-	 * of srcIndexName (destination will be overriten if it already exist).
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer that contains the task ID
-	 */
-	AlgoliaSearch.prototype.copyIndex = function(srcIndexName, dstIndexName, callback) {
-	  var postObj = {
-	    operation: 'copy', destination: dstIndexName
-	  };
-	  return this._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/**
-	 * Return last log entries.
-	 * @param offset Specify the first entry to retrieve (0-based, 0 is the most recent log entry).
-	 * @param length Specify the maximum number of entries to retrieve starting
-	 * at offset. Maximum allowed value: 1000.
-	 * @param type Specify the maximum number of entries to retrieve starting
-	 * at offset. Maximum allowed value: 1000.
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer that contains the task ID
-	 */
-	AlgoliaSearch.prototype.getLogs = function(offset, length, callback) {
-	  var clone = __webpack_require__(190);
-	  var params = {};
-	  if (typeof offset === 'object') {
-	    // getLogs(params)
-	    params = clone(offset);
-	    callback = length;
-	  } else if (arguments.length === 0 || typeof offset === 'function') {
-	    // getLogs([cb])
-	    callback = offset;
-	  } else if (arguments.length === 1 || typeof length === 'function') {
-	    // getLogs(1, [cb)]
-	    callback = length;
-	    params.offset = offset;
-	  } else {
-	    // getLogs(1, 2, [cb])
-	    params.offset = offset;
-	    params.length = length;
-	  }
-
-	  if (params.offset === undefined) params.offset = 0;
-	  if (params.length === undefined) params.length = 10;
-
-	  return this._jsonRequest({
-	    method: 'GET',
-	    url: '/1/logs?' + this._getSearchParams(params, ''),
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	 * List all existing indexes (paginated)
-	 *
-	 * @param page The page to retrieve, starting at 0.
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer with index list
-	 */
-	AlgoliaSearch.prototype.listIndexes = function(page, callback) {
-	  var params = '';
-
-	  if (page === undefined || typeof page === 'function') {
-	    callback = page;
-	  } else {
-	    params = '?page=' + page;
-	  }
-
-	  return this._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes' + params,
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	 * Get the index object initialized
-	 *
-	 * @param indexName the name of index
-	 * @param callback the result callback with one argument (the Index instance)
-	 */
-	AlgoliaSearch.prototype.initIndex = function(indexName) {
-	  return new Index(this, indexName);
-	};
-
-	/*
-	 * List all existing user keys with their associated ACLs
-	 *
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer with user keys list
-	 */
-	AlgoliaSearch.prototype.listUserKeys = function(callback) {
-	  return this._jsonRequest({
-	    method: 'GET',
-	    url: '/1/keys',
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	 * Get ACL of a user key
-	 *
-	 * @param key
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer with user keys list
-	 */
-	AlgoliaSearch.prototype.getUserKeyACL = function(key, callback) {
-	  return this._jsonRequest({
-	    method: 'GET',
-	    url: '/1/keys/' + key,
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	 * Delete an existing user key
-	 * @param key
-	 * @param callback the result callback called with two arguments
-	 *  error: null or Error('message')
-	 *  content: the server answer with user keys list
-	 */
-	AlgoliaSearch.prototype.deleteUserKey = function(key, callback) {
-	  return this._jsonRequest({
-	    method: 'DELETE',
-	    url: '/1/keys/' + key,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	 * Add a new global API key
-	 *
-	 * @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
-	 *   can contains the following values:
-	 *     - search: allow to search (https and http)
-	 *     - addObject: allows to add/update an object in the index (https only)
-	 *     - deleteObject : allows to delete an existing object (https only)
-	 *     - deleteIndex : allows to delete index content (https only)
-	 *     - settings : allows to get index settings (https only)
-	 *     - editSettings : allows to change index settings (https only)
-	 * @param {Object} [params] - Optionnal parameters to set for the key
-	 * @param {number} params.validity - Number of seconds after which the key will be automatically removed (0 means no time limit for this key)
-	 * @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
-	 * @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
-	 * @param {string[]} params.indexes - Allowed targeted indexes for this key
-	 * @param {string} params.description - A description for your key
-	 * @param {string[]} params.referers - A list of authorized referers
-	 * @param {Object} params.queryParameters - Force the key to use specific query parameters
-	 * @param {Function} callback - The result callback called with two arguments
-	 *   error: null or Error('message')
-	 *   content: the server answer with user keys list
-	 * @return {Promise|undefined} Returns a promise if no callback given
-	 * @example
-	 * client.addUserKey(['search'], {
-	 *   validity: 300,
-	 *   maxQueriesPerIPPerHour: 2000,
-	 *   maxHitsPerQuery: 3,
-	 *   indexes: ['fruits'],
-	 *   description: 'Eat three fruits',
-	 *   referers: ['*.algolia.com'],
-	 *   queryParameters: {
-	 *     tagFilters: ['public'],
-	 *   }
-	 * })
-	 * @see {@link https://www.algolia.com/doc/rest_api#AddKey|Algolia REST API Documentation}
-	 */
-	AlgoliaSearch.prototype.addUserKey = function(acls, params, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: client.addUserKey(arrayOfAcls[, params, callback])';
-
-	  if (!isArray(acls)) {
-	    throw new Error(usage);
-	  }
-
-	  if (arguments.length === 1 || typeof params === 'function') {
-	    callback = params;
-	    params = null;
-	  }
-
-	  var postObj = {
-	    acl: acls
-	  };
-
-	  if (params) {
-	    postObj.validity = params.validity;
-	    postObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
-	    postObj.maxHitsPerQuery = params.maxHitsPerQuery;
-	    postObj.indexes = params.indexes;
-	    postObj.description = params.description;
-
-	    if (params.queryParameters) {
-	      postObj.queryParameters = this._getSearchParams(params.queryParameters, '');
-	    }
-
-	    postObj.referers = params.referers;
-	  }
-
-	  return this._jsonRequest({
-	    method: 'POST',
-	    url: '/1/keys',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/**
-	 * Add a new global API key
-	 * @deprecated Please use client.addUserKey()
-	 */
-	AlgoliaSearch.prototype.addUserKeyWithValidity = deprecate(function(acls, params, callback) {
-	  return this.addUserKey(acls, params, callback);
-	}, deprecatedMessage('client.addUserKeyWithValidity()', 'client.addUserKey()'));
-
-	/**
-	 * Update an existing API key
-	 * @param {string} key - The key to update
-	 * @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
-	 *   can contains the following values:
-	 *     - search: allow to search (https and http)
-	 *     - addObject: allows to add/update an object in the index (https only)
-	 *     - deleteObject : allows to delete an existing object (https only)
-	 *     - deleteIndex : allows to delete index content (https only)
-	 *     - settings : allows to get index settings (https only)
-	 *     - editSettings : allows to change index settings (https only)
-	 * @param {Object} [params] - Optionnal parameters to set for the key
-	 * @param {number} params.validity - Number of seconds after which the key will be automatically removed (0 means no time limit for this key)
-	 * @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
-	 * @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
-	 * @param {string[]} params.indexes - Allowed targeted indexes for this key
-	 * @param {string} params.description - A description for your key
-	 * @param {string[]} params.referers - A list of authorized referers
-	 * @param {Object} params.queryParameters - Force the key to use specific query parameters
-	 * @param {Function} callback - The result callback called with two arguments
-	 *   error: null or Error('message')
-	 *   content: the server answer with user keys list
-	 * @return {Promise|undefined} Returns a promise if no callback given
-	 * @example
-	 * client.updateUserKey('APIKEY', ['search'], {
-	 *   validity: 300,
-	 *   maxQueriesPerIPPerHour: 2000,
-	 *   maxHitsPerQuery: 3,
-	 *   indexes: ['fruits'],
-	 *   description: 'Eat three fruits',
-	 *   referers: ['*.algolia.com'],
-	 *   queryParameters: {
-	 *     tagFilters: ['public'],
-	 *   }
-	 * })
-	 * @see {@link https://www.algolia.com/doc/rest_api#UpdateIndexKey|Algolia REST API Documentation}
-	 */
-	AlgoliaSearch.prototype.updateUserKey = function(key, acls, params, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: client.updateUserKey(key, arrayOfAcls[, params, callback])';
-
-	  if (!isArray(acls)) {
-	    throw new Error(usage);
-	  }
-
-	  if (arguments.length === 2 || typeof params === 'function') {
-	    callback = params;
-	    params = null;
-	  }
-
-	  var putObj = {
-	    acl: acls
-	  };
-
-	  if (params) {
-	    putObj.validity = params.validity;
-	    putObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
-	    putObj.maxHitsPerQuery = params.maxHitsPerQuery;
-	    putObj.indexes = params.indexes;
-	    putObj.description = params.description;
-
-	    if (params.queryParameters) {
-	      putObj.queryParameters = this._getSearchParams(params.queryParameters, '');
-	    }
-
-	    putObj.referers = params.referers;
-	  }
-
-	  return this._jsonRequest({
-	    method: 'PUT',
-	    url: '/1/keys/' + key,
-	    body: putObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/**
-	 * Initialize a new batch of search queries
-	 * @deprecated use client.search()
-	 */
-	AlgoliaSearch.prototype.startQueriesBatch = deprecate(function startQueriesBatchDeprecated() {
-	  this._batch = [];
-	}, deprecatedMessage('client.startQueriesBatch()', 'client.search()'));
-
-	/**
-	 * Add a search query in the batch
-	 * @deprecated use client.search()
-	 */
-	AlgoliaSearch.prototype.addQueryInBatch = deprecate(function addQueryInBatchDeprecated(indexName, query, args) {
-	  this._batch.push({
-	    indexName: indexName,
-	    query: query,
-	    params: args
-	  });
-	}, deprecatedMessage('client.addQueryInBatch()', 'client.search()'));
-
-	/**
-	 * Launch the batch of queries using XMLHttpRequest.
-	 * @deprecated use client.search()
-	 */
-	AlgoliaSearch.prototype.sendQueriesBatch = deprecate(function sendQueriesBatchDeprecated(callback) {
-	  return this.search(this._batch, callback);
-	}, deprecatedMessage('client.sendQueriesBatch()', 'client.search()'));
-
-	/**
-	 * Perform write operations accross multiple indexes.
-	 *
-	 * To reduce the amount of time spent on network round trips,
-	 * you can create, update, or delete several objects in one call,
-	 * using the batch endpoint (all operations are done in the given order).
-	 *
-	 * Available actions:
-	 *   - addObject
-	 *   - updateObject
-	 *   - partialUpdateObject
-	 *   - partialUpdateObjectNoCreate
-	 *   - deleteObject
-	 *
-	 * https://www.algolia.com/doc/rest_api#Indexes
-	 * @param  {Object[]} operations An array of operations to perform
-	 * @return {Promise|undefined} Returns a promise if no callback given
-	 * @example
-	 * client.batch([{
-	 *   action: 'addObject',
-	 *   indexName: 'clients',
-	 *   body: {
-	 *     name: 'Bill'
-	 *   }
-	 * }, {
-	 *   action: 'udpateObject',
-	 *   indexName: 'fruits',
-	 *   body: {
-	 *     objectID: '29138',
-	 *     name: 'banana'
-	 *   }
-	 * }], cb)
-	 */
-	AlgoliaSearch.prototype.batch = function(operations, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: client.batch(operations[, callback])';
-
-	  if (!isArray(operations)) {
-	    throw new Error(usage);
-	  }
-
-	  return this._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/*/batch',
-	    body: {
-	      requests: operations
-	    },
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	// environment specific methods
-	AlgoliaSearch.prototype.destroy = notImplemented;
-	AlgoliaSearch.prototype.enableRateLimitForward = notImplemented;
-	AlgoliaSearch.prototype.disableRateLimitForward = notImplemented;
-	AlgoliaSearch.prototype.useSecuredAPIKey = notImplemented;
-	AlgoliaSearch.prototype.disableSecuredAPIKey = notImplemented;
-	AlgoliaSearch.prototype.generateSecuredApiKey = notImplemented;
-
-	function notImplemented() {
-	  var message = 'Not implemented in this environment.\n' +
-	    'If you feel this is a mistake, write to support@algolia.com';
-
-	  throw new errors.AlgoliaSearchError(message);
-	}
-
-
-/***/ },
-/* 181 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var inherits = __webpack_require__(182);
-	var IndexCore = __webpack_require__(183);
-	var deprecate = __webpack_require__(187);
-	var deprecatedMessage = __webpack_require__(188);
-	var exitPromise = __webpack_require__(196);
-	var errors = __webpack_require__(185);
-
-	module.exports = Index;
-
-	function Index() {
-	  IndexCore.apply(this, arguments);
-	}
-
-	inherits(Index, IndexCore);
-
-	/*
-	* Add an object in this index
-	*
-	* @param content contains the javascript object to add inside the index
-	* @param objectID (optional) an objectID you want to attribute to this object
-	* (if the attribute already exist the old object will be overwrite)
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
-	*/
-	Index.prototype.addObject = function(content, objectID, callback) {
-	  var indexObj = this;
-
-	  if (arguments.length === 1 || typeof objectID === 'function') {
-	    callback = objectID;
-	    objectID = undefined;
-	  }
-
-	  return this.as._jsonRequest({
-	    method: objectID !== undefined ?
-	    'PUT' : // update or create
-	    'POST', // create (API generates an objectID)
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + // create
-	    (objectID !== undefined ? '/' + encodeURIComponent(objectID) : ''), // update or create
-	    body: content,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Add several objects
-	*
-	* @param objects contains an array of objects to add
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that updateAt and taskID
-	*/
-	Index.prototype.addObjects = function(objects, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: index.addObjects(arrayOfObjects[, callback])';
-
-	  if (!isArray(objects)) {
-	    throw new Error(usage);
-	  }
-
-	  var indexObj = this;
-	  var postObj = {
-	    requests: []
-	  };
-	  for (var i = 0; i < objects.length; ++i) {
-	    var request = {
-	      action: 'addObject',
-	      body: objects[i]
-	    };
-	    postObj.requests.push(request);
-	  }
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Update partially an object (only update attributes passed in argument)
-	*
-	* @param partialObject contains the javascript attributes to override, the
-	*  object must contains an objectID attribute
-	* @param createIfNotExists (optional) if false, avoid an automatic creation of the object
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
-	*/
-	Index.prototype.partialUpdateObject = function(partialObject, createIfNotExists, callback) {
-	  if (arguments.length === 1 || typeof createIfNotExists === 'function') {
-	    callback = createIfNotExists;
-	    createIfNotExists = undefined;
-	  }
-
-	  var indexObj = this;
-	  var url = '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(partialObject.objectID) + '/partial';
-	  if (createIfNotExists === false) {
-	    url += '?createIfNotExists=false';
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: url,
-	    body: partialObject,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Partially Override the content of several objects
-	*
-	* @param objects contains an array of objects to update (each object must contains a objectID attribute)
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that updateAt and taskID
-	*/
-	Index.prototype.partialUpdateObjects = function(objects, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: index.partialUpdateObjects(arrayOfObjects[, callback])';
-
-	  if (!isArray(objects)) {
-	    throw new Error(usage);
-	  }
-
-	  var indexObj = this;
-	  var postObj = {
-	    requests: []
-	  };
-	  for (var i = 0; i < objects.length; ++i) {
-	    var request = {
-	      action: 'partialUpdateObject',
-	      objectID: objects[i].objectID,
-	      body: objects[i]
-	    };
-	    postObj.requests.push(request);
-	  }
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Override the content of object
-	*
-	* @param object contains the javascript object to save, the object must contains an objectID attribute
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that updateAt and taskID
-	*/
-	Index.prototype.saveObject = function(object, callback) {
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'PUT',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(object.objectID),
-	    body: object,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Override the content of several objects
-	*
-	* @param objects contains an array of objects to update (each object must contains a objectID attribute)
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that updateAt and taskID
-	*/
-	Index.prototype.saveObjects = function(objects, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: index.saveObjects(arrayOfObjects[, callback])';
-
-	  if (!isArray(objects)) {
-	    throw new Error(usage);
-	  }
-
-	  var indexObj = this;
-	  var postObj = {
-	    requests: []
-	  };
-	  for (var i = 0; i < objects.length; ++i) {
-	    var request = {
-	      action: 'updateObject',
-	      objectID: objects[i].objectID,
-	      body: objects[i]
-	    };
-	    postObj.requests.push(request);
-	  }
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Delete an object from the index
-	*
-	* @param objectID the unique identifier of object to delete
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
-	*/
-	Index.prototype.deleteObject = function(objectID, callback) {
-	  if (typeof objectID === 'function' || typeof objectID !== 'string' && typeof objectID !== 'number') {
-	    var err = new errors.AlgoliaSearchError('Cannot delete an object without an objectID');
-	    callback = objectID;
-	    if (typeof callback === 'function') {
-	      return callback(err);
-	    }
-
-	    return this.as._promise.reject(err);
-	  }
-
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'DELETE',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(objectID),
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Delete several objects from an index
-	*
-	* @param objectIDs contains an array of objectID to delete
-	* @param callback (optional) the result callback called with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
-	*/
-	Index.prototype.deleteObjects = function(objectIDs, callback) {
-	  var isArray = __webpack_require__(194);
-	  var map = __webpack_require__(195);
-
-	  var usage = 'Usage: index.deleteObjects(arrayOfObjectIDs[, callback])';
-
-	  if (!isArray(objectIDs)) {
-	    throw new Error(usage);
-	  }
-
-	  var indexObj = this;
-	  var postObj = {
-	    requests: map(objectIDs, function prepareRequest(objectID) {
-	      return {
-	        action: 'deleteObject',
-	        objectID: objectID,
-	        body: {
-	          objectID: objectID
-	        }
-	      };
-	    })
-	  };
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Delete all objects matching a query
-	*
-	* @param query the query string
-	* @param params the optional query parameters
-	* @param callback (optional) the result callback called with one argument
-	*  error: null or Error('message')
-	*/
-	Index.prototype.deleteByQuery = function(query, params, callback) {
-	  var clone = __webpack_require__(190);
-	  var map = __webpack_require__(195);
-
-	  var indexObj = this;
-	  var client = indexObj.as;
-
-	  if (arguments.length === 1 || typeof params === 'function') {
-	    callback = params;
-	    params = {};
-	  } else {
-	    params = clone(params);
-	  }
-
-	  params.attributesToRetrieve = 'objectID';
-	  params.hitsPerPage = 1000;
-	  params.distinct = false;
-
-	  // when deleting, we should never use cache to get the
-	  // search results
-	  this.clearCache();
-
-	  // there's a problem in how we use the promise chain,
-	  // see how waitTask is done
-	  var promise = this
-	  .search(query, params)
-	  .then(stopOrDelete);
-
-	  function stopOrDelete(searchContent) {
-	    // stop here
-	    if (searchContent.nbHits === 0) {
-	      // return indexObj.as._request.resolve();
-	      return searchContent;
-	    }
-
-	    // continue and do a recursive call
-	    var objectIDs = map(searchContent.hits, function getObjectID(object) {
-	      return object.objectID;
-	    });
-
-	    return indexObj
-	    .deleteObjects(objectIDs)
-	    .then(waitTask)
-	    .then(doDeleteByQuery);
-	  }
-
-	  function waitTask(deleteObjectsContent) {
-	    return indexObj.waitTask(deleteObjectsContent.taskID);
-	  }
-
-	  function doDeleteByQuery() {
-	    return indexObj.deleteByQuery(query, params);
-	  }
-
-	  if (!callback) {
-	    return promise;
-	  }
-
-	  promise.then(success, failure);
-
-	  function success() {
-	    exitPromise(function exit() {
-	      callback(null);
-	    }, client._setTimeout || setTimeout);
-	  }
-
-	  function failure(err) {
-	    exitPromise(function exit() {
-	      callback(err);
-	    }, client._setTimeout || setTimeout);
-	  }
-	};
-
-	/*
-	* Browse all content from an index using events. Basically this will do
-	* .browse() -> .browseFrom -> .browseFrom -> .. until all the results are returned
-	*
-	* @param {string} query - The full text query
-	* @param {Object} [queryParameters] - Any search query parameter
-	* @return {EventEmitter}
-	* @example
-	* var browser = index.browseAll('cool songs', {
-	*   tagFilters: 'public,comments',
-	*   hitsPerPage: 500
-	* });
-	*
-	* browser.on('result', function resultCallback(content) {
-	*   console.log(content.hits);
-	* });
-	*
-	* // if any error occurs, you get it
-	* browser.on('error', function(err) {
-	*   throw err;
-	* });
-	*
-	* // when you have browsed the whole index, you get this event
-	* browser.on('end', function() {
-	*   console.log('finished');
-	* });
-	*
-	* // at any point if you want to stop the browsing process, you can stop it manually
-	* // otherwise it will go on and on
-	* browser.stop();
-	*
-	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
-	*/
-	Index.prototype.browseAll = function(query, queryParameters) {
-	  if (typeof query === 'object') {
-	    queryParameters = query;
-	    query = undefined;
-	  }
-
-	  var merge = __webpack_require__(189);
-
-	  var IndexBrowser = __webpack_require__(197);
-
-	  var browser = new IndexBrowser();
-	  var client = this.as;
-	  var index = this;
-	  var params = client._getSearchParams(
-	    merge({}, queryParameters || {}, {
-	      query: query
-	    }), ''
-	  );
-
-	  // start browsing
-	  browseLoop();
-
-	  function browseLoop(cursor) {
-	    if (browser._stopped) {
-	      return;
-	    }
-
-	    var queryString;
-
-	    if (cursor !== undefined) {
-	      queryString = 'cursor=' + encodeURIComponent(cursor);
-	    } else {
-	      queryString = params;
-	    }
-
-	    client._jsonRequest({
-	      method: 'GET',
-	      url: '/1/indexes/' + encodeURIComponent(index.indexName) + '/browse?' + queryString,
-	      hostType: 'read',
-	      callback: browseCallback
-	    });
-	  }
-
-	  function browseCallback(err, content) {
-	    if (browser._stopped) {
-	      return;
-	    }
-
-	    if (err) {
-	      browser._error(err);
-	      return;
-	    }
-
-	    browser._result(content);
-
-	    // no cursor means we are finished browsing
-	    if (content.cursor === undefined) {
-	      browser._end();
-	      return;
-	    }
-
-	    browseLoop(content.cursor);
-	  }
-
-	  return browser;
-	};
-
-	/*
-	* Get a Typeahead.js adapter
-	* @param searchParams contains an object with query parameters (see search for details)
-	*/
-	Index.prototype.ttAdapter = function(params) {
-	  var self = this;
-	  return function ttAdapter(query, syncCb, asyncCb) {
-	    var cb;
-
-	    if (typeof asyncCb === 'function') {
-	      // typeahead 0.11
-	      cb = asyncCb;
-	    } else {
-	      // pre typeahead 0.11
-	      cb = syncCb;
-	    }
-
-	    self.search(query, params, function searchDone(err, content) {
-	      if (err) {
-	        cb(err);
-	        return;
-	      }
-
-	      cb(content.hits);
-	    });
-	  };
-	};
-
-	/*
-	* Wait the publication of a task on the server.
-	* All server task are asynchronous and you can check with this method that the task is published.
-	*
-	* @param taskID the id of the task returned by server
-	* @param callback the result callback with with two arguments:
-	*  error: null or Error('message')
-	*  content: the server answer that contains the list of results
-	*/
-	Index.prototype.waitTask = function(taskID, callback) {
-	  // wait minimum 100ms before retrying
-	  var baseDelay = 100;
-	  // wait maximum 5s before retrying
-	  var maxDelay = 5000;
-	  var loop = 0;
-
-	  // waitTask() must be handled differently from other methods,
-	  // it's a recursive method using a timeout
-	  var indexObj = this;
-	  var client = indexObj.as;
-
-	  var promise = retryLoop();
-
-	  function retryLoop() {
-	    return client._jsonRequest({
-	      method: 'GET',
-	      hostType: 'read',
-	      url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/task/' + taskID
-	    }).then(function success(content) {
-	      loop++;
-	      var delay = baseDelay * loop * loop;
-	      if (delay > maxDelay) {
-	        delay = maxDelay;
-	      }
-
-	      if (content.status !== 'published') {
-	        return client._promise.delay(delay).then(retryLoop);
-	      }
-
-	      return content;
-	    });
-	  }
-
-	  if (!callback) {
-	    return promise;
-	  }
-
-	  promise.then(successCb, failureCb);
-
-	  function successCb(content) {
-	    exitPromise(function exit() {
-	      callback(null, content);
-	    }, client._setTimeout || setTimeout);
-	  }
-
-	  function failureCb(err) {
-	    exitPromise(function exit() {
-	      callback(err);
-	    }, client._setTimeout || setTimeout);
-	  }
-	};
-
-	/*
-	* This function deletes the index content. Settings and index specific API keys are kept untouched.
-	*
-	* @param callback (optional) the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the settings object or the error message if a failure occured
-	*/
-	Index.prototype.clearIndex = function(callback) {
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/clear',
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Get settings of this index
-	*
-	* @param callback (optional) the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the settings object or the error message if a failure occured
-	*/
-	Index.prototype.getSettings = function(callback) {
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/settings?getVersion=2',
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	Index.prototype.searchSynonyms = function(params, callback) {
-	  if (typeof params === 'function') {
-	    callback = params;
-	    params = {};
-	  } else if (params === undefined) {
-	    params = {};
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/search',
-	    body: params,
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	Index.prototype.saveSynonym = function(synonym, opts, callback) {
-	  if (typeof opts === 'function') {
-	    callback = opts;
-	    opts = {};
-	  } else if (opts === undefined) {
-	    opts = {};
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'PUT',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/' + encodeURIComponent(synonym.objectID) +
-	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false'),
-	    body: synonym,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	Index.prototype.getSynonym = function(objectID, callback) {
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/' + encodeURIComponent(objectID),
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	Index.prototype.deleteSynonym = function(objectID, opts, callback) {
-	  if (typeof opts === 'function') {
-	    callback = opts;
-	    opts = {};
-	  } else if (opts === undefined) {
-	    opts = {};
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'DELETE',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/' + encodeURIComponent(objectID) +
-	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false'),
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	Index.prototype.clearSynonyms = function(opts, callback) {
-	  if (typeof opts === 'function') {
-	    callback = opts;
-	    opts = {};
-	  } else if (opts === undefined) {
-	    opts = {};
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/clear' +
-	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false'),
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	Index.prototype.batchSynonyms = function(synonyms, opts, callback) {
-	  if (typeof opts === 'function') {
-	    callback = opts;
-	    opts = {};
-	  } else if (opts === undefined) {
-	    opts = {};
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/batch' +
-	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false') +
-	      '&replaceExistingSynonyms=' + (opts.replaceExistingSynonyms ? 'true' : 'false'),
-	    hostType: 'write',
-	    body: synonyms,
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Set settings for this index
-	*
-	* @param settigns the settings object that can contains :
-	* - minWordSizefor1Typo: (integer) the minimum number of characters to accept one typo (default = 3).
-	* - minWordSizefor2Typos: (integer) the minimum number of characters to accept two typos (default = 7).
-	* - hitsPerPage: (integer) the number of hits per page (default = 10).
-	* - attributesToRetrieve: (array of strings) default list of attributes to retrieve in objects.
-	*   If set to null, all attributes are retrieved.
-	* - attributesToHighlight: (array of strings) default list of attributes to highlight.
-	*   If set to null, all indexed attributes are highlighted.
-	* - attributesToSnippet**: (array of strings) default list of attributes to snippet alongside the number
-	* of words to return (syntax is attributeName:nbWords).
-	*   By default no snippet is computed. If set to null, no snippet is computed.
-	* - attributesToIndex: (array of strings) the list of fields you want to index.
-	*   If set to null, all textual and numerical attributes of your objects are indexed,
-	*   but you should update it to get optimal results.
-	*   This parameter has two important uses:
-	*     - Limit the attributes to index: For example if you store a binary image in base64,
-	*     you want to store it and be able to
-	*       retrieve it but you don't want to search in the base64 string.
-	*     - Control part of the ranking*: (see the ranking parameter for full explanation)
-	*     Matches in attributes at the beginning of
-	*       the list will be considered more important than matches in attributes further down the list.
-	*       In one attribute, matching text at the beginning of the attribute will be
-	*       considered more important than text after, you can disable
-	*       this behavior if you add your attribute inside `unordered(AttributeName)`,
-	*       for example attributesToIndex: ["title", "unordered(text)"].
-	* - attributesForFaceting: (array of strings) The list of fields you want to use for faceting.
-	*   All strings in the attribute selected for faceting are extracted and added as a facet.
-	*   If set to null, no attribute is used for faceting.
-	* - attributeForDistinct: (string) The attribute name used for the Distinct feature.
-	* This feature is similar to the SQL "distinct" keyword: when enabled
-	*   in query with the distinct=1 parameter, all hits containing a duplicate
-	*   value for this attribute are removed from results.
-	*   For example, if the chosen attribute is show_name and several hits have
-	*   the same value for show_name, then only the best one is kept and others are removed.
-	* - ranking: (array of strings) controls the way results are sorted.
-	*   We have six available criteria:
-	*    - typo: sort according to number of typos,
-	*    - geo: sort according to decreassing distance when performing a geo-location based search,
-	*    - proximity: sort according to the proximity of query words in hits,
-	*    - attribute: sort according to the order of attributes defined by attributesToIndex,
-	*    - exact:
-	*        - if the user query contains one word: sort objects having an attribute
-	*        that is exactly the query word before others.
-	*          For example if you search for the "V" TV show, you want to find it
-	*          with the "V" query and avoid to have all popular TV
-	*          show starting by the v letter before it.
-	*        - if the user query contains multiple words: sort according to the
-	*        number of words that matched exactly (and not as a prefix).
-	*    - custom: sort according to a user defined formula set in **customRanking** attribute.
-	*   The standard order is ["typo", "geo", "proximity", "attribute", "exact", "custom"]
-	* - customRanking: (array of strings) lets you specify part of the ranking.
-	*   The syntax of this condition is an array of strings containing attributes
-	*   prefixed by asc (ascending order) or desc (descending order) operator.
-	*   For example `"customRanking" => ["desc(population)", "asc(name)"]`
-	* - queryType: Select how the query words are interpreted, it can be one of the following value:
-	*   - prefixAll: all query words are interpreted as prefixes,
-	*   - prefixLast: only the last word is interpreted as a prefix (default behavior),
-	*   - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
-	* - highlightPreTag: (string) Specify the string that is inserted before
-	* the highlighted parts in the query result (default to "<em>").
-	* - highlightPostTag: (string) Specify the string that is inserted after
-	* the highlighted parts in the query result (default to "</em>").
-	* - optionalWords: (array of strings) Specify a list of words that should
-	* be considered as optional when found in the query.
-	* @param callback (optional) the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the server answer or the error message if a failure occured
-	*/
-	Index.prototype.setSettings = function(settings, opts, callback) {
-	  if (arguments.length === 1 || typeof opts === 'function') {
-	    callback = opts;
-	    opts = {};
-	  }
-
-	  var forwardToSlaves = opts.forwardToSlaves || false;
-
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'PUT',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/settings?forwardToSlaves='
-	      + (forwardToSlaves ? 'true' : 'false'),
-	    hostType: 'write',
-	    body: settings,
-	    callback: callback
-	  });
-	};
-
-	/*
-	* List all existing user keys associated to this index
-	*
-	* @param callback the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the server answer with user keys list
-	*/
-	Index.prototype.listUserKeys = function(callback) {
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Get ACL of a user key associated to this index
-	*
-	* @param key
-	* @param callback the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the server answer with user keys list
-	*/
-	Index.prototype.getUserKeyACL = function(key, callback) {
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Delete an existing user key associated to this index
-	*
-	* @param key
-	* @param callback the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the server answer with user keys list
-	*/
-	Index.prototype.deleteUserKey = function(key, callback) {
-	  var indexObj = this;
-	  return this.as._jsonRequest({
-	    method: 'DELETE',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Add a new API key to this index
-	*
-	* @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
-	*   can contains the following values:
-	*     - search: allow to search (https and http)
-	*     - addObject: allows to add/update an object in the index (https only)
-	*     - deleteObject : allows to delete an existing object (https only)
-	*     - deleteIndex : allows to delete index content (https only)
-	*     - settings : allows to get index settings (https only)
-	*     - editSettings : allows to change index settings (https only)
-	* @param {Object} [params] - Optionnal parameters to set for the key
-	* @param {number} params.validity - Number of seconds after which the key will
-	* be automatically removed (0 means no time limit for this key)
-	* @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
-	* @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
-	* @param {string} params.description - A description for your key
-	* @param {string[]} params.referers - A list of authorized referers
-	* @param {Object} params.queryParameters - Force the key to use specific query parameters
-	* @param {Function} callback - The result callback called with two arguments
-	*   error: null or Error('message')
-	*   content: the server answer with user keys list
-	* @return {Promise|undefined} Returns a promise if no callback given
-	* @example
-	* index.addUserKey(['search'], {
-	*   validity: 300,
-	*   maxQueriesPerIPPerHour: 2000,
-	*   maxHitsPerQuery: 3,
-	*   description: 'Eat three fruits',
-	*   referers: ['*.algolia.com'],
-	*   queryParameters: {
-	*     tagFilters: ['public'],
-	*   }
-	* })
-	* @see {@link https://www.algolia.com/doc/rest_api#AddIndexKey|Algolia REST API Documentation}
-	*/
-	Index.prototype.addUserKey = function(acls, params, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: index.addUserKey(arrayOfAcls[, params, callback])';
-
-	  if (!isArray(acls)) {
-	    throw new Error(usage);
-	  }
-
-	  if (arguments.length === 1 || typeof params === 'function') {
-	    callback = params;
-	    params = null;
-	  }
-
-	  var postObj = {
-	    acl: acls
-	  };
-
-	  if (params) {
-	    postObj.validity = params.validity;
-	    postObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
-	    postObj.maxHitsPerQuery = params.maxHitsPerQuery;
-	    postObj.description = params.description;
-
-	    if (params.queryParameters) {
-	      postObj.queryParameters = this.as._getSearchParams(params.queryParameters, '');
-	    }
-
-	    postObj.referers = params.referers;
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys',
-	    body: postObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-	/**
-	* Add an existing user key associated to this index
-	* @deprecated use index.addUserKey()
-	*/
-	Index.prototype.addUserKeyWithValidity = deprecate(function deprecatedAddUserKeyWithValidity(acls, params, callback) {
-	  return this.addUserKey(acls, params, callback);
-	}, deprecatedMessage('index.addUserKeyWithValidity()', 'index.addUserKey()'));
-
-	/**
-	* Update an existing API key of this index
-	* @param {string} key - The key to update
-	* @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
-	*   can contains the following values:
-	*     - search: allow to search (https and http)
-	*     - addObject: allows to add/update an object in the index (https only)
-	*     - deleteObject : allows to delete an existing object (https only)
-	*     - deleteIndex : allows to delete index content (https only)
-	*     - settings : allows to get index settings (https only)
-	*     - editSettings : allows to change index settings (https only)
-	* @param {Object} [params] - Optionnal parameters to set for the key
-	* @param {number} params.validity - Number of seconds after which the key will
-	* be automatically removed (0 means no time limit for this key)
-	* @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
-	* @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
-	* @param {string} params.description - A description for your key
-	* @param {string[]} params.referers - A list of authorized referers
-	* @param {Object} params.queryParameters - Force the key to use specific query parameters
-	* @param {Function} callback - The result callback called with two arguments
-	*   error: null or Error('message')
-	*   content: the server answer with user keys list
-	* @return {Promise|undefined} Returns a promise if no callback given
-	* @example
-	* index.updateUserKey('APIKEY', ['search'], {
-	*   validity: 300,
-	*   maxQueriesPerIPPerHour: 2000,
-	*   maxHitsPerQuery: 3,
-	*   description: 'Eat three fruits',
-	*   referers: ['*.algolia.com'],
-	*   queryParameters: {
-	*     tagFilters: ['public'],
-	*   }
-	* })
-	* @see {@link https://www.algolia.com/doc/rest_api#UpdateIndexKey|Algolia REST API Documentation}
-	*/
-	Index.prototype.updateUserKey = function(key, acls, params, callback) {
-	  var isArray = __webpack_require__(194);
-	  var usage = 'Usage: index.updateUserKey(key, arrayOfAcls[, params, callback])';
-
-	  if (!isArray(acls)) {
-	    throw new Error(usage);
-	  }
-
-	  if (arguments.length === 2 || typeof params === 'function') {
-	    callback = params;
-	    params = null;
-	  }
-
-	  var putObj = {
-	    acl: acls
-	  };
-
-	  if (params) {
-	    putObj.validity = params.validity;
-	    putObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
-	    putObj.maxHitsPerQuery = params.maxHitsPerQuery;
-	    putObj.description = params.description;
-
-	    if (params.queryParameters) {
-	      putObj.queryParameters = this.as._getSearchParams(params.queryParameters, '');
-	    }
-
-	    putObj.referers = params.referers;
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'PUT',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key,
-	    body: putObj,
-	    hostType: 'write',
-	    callback: callback
-	  });
-	};
-
-
-/***/ },
-/* 182 */
-/***/ function(module, exports) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 183 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var buildSearchMethod = __webpack_require__(184);
-	var deprecate = __webpack_require__(187);
-	var deprecatedMessage = __webpack_require__(188);
-
-	module.exports = IndexCore;
-
-	/*
-	* Index class constructor.
-	* You should not use this method directly but use initIndex() function
-	*/
-	function IndexCore(algoliasearch, indexName) {
-	  this.indexName = indexName;
-	  this.as = algoliasearch;
-	  this.typeAheadArgs = null;
-	  this.typeAheadValueOption = null;
-
-	  // make sure every index instance has it's own cache
-	  this.cache = {};
-	}
-
-	/*
-	* Clear all queries in cache
-	*/
-	IndexCore.prototype.clearCache = function() {
-	  this.cache = {};
-	};
-
-	/*
-	* Search inside the index using XMLHttpRequest request (Using a POST query to
-	* minimize number of OPTIONS queries: Cross-Origin Resource Sharing).
-	*
-	* @param query the full text query
-	* @param args (optional) if set, contains an object with query parameters:
-	* - page: (integer) Pagination parameter used to select the page to retrieve.
-	*                   Page is zero-based and defaults to 0. Thus,
-	*                   to retrieve the 10th page you need to set page=9
-	* - hitsPerPage: (integer) Pagination parameter used to select the number of hits per page. Defaults to 20.
-	* - attributesToRetrieve: a string that contains the list of object attributes
-	* you want to retrieve (let you minimize the answer size).
-	*   Attributes are separated with a comma (for example "name,address").
-	*   You can also use an array (for example ["name","address"]).
-	*   By default, all attributes are retrieved. You can also use '*' to retrieve all
-	*   values when an attributesToRetrieve setting is specified for your index.
-	* - attributesToHighlight: a string that contains the list of attributes you
-	*   want to highlight according to the query.
-	*   Attributes are separated by a comma. You can also use an array (for example ["name","address"]).
-	*   If an attribute has no match for the query, the raw value is returned.
-	*   By default all indexed text attributes are highlighted.
-	*   You can use `*` if you want to highlight all textual attributes.
-	*   Numerical attributes are not highlighted.
-	*   A matchLevel is returned for each highlighted attribute and can contain:
-	*      - full: if all the query terms were found in the attribute,
-	*      - partial: if only some of the query terms were found,
-	*      - none: if none of the query terms were found.
-	* - attributesToSnippet: a string that contains the list of attributes to snippet alongside
-	* the number of words to return (syntax is `attributeName:nbWords`).
-	*    Attributes are separated by a comma (Example: attributesToSnippet=name:10,content:10).
-	*    You can also use an array (Example: attributesToSnippet: ['name:10','content:10']).
-	*    By default no snippet is computed.
-	* - minWordSizefor1Typo: the minimum number of characters in a query word to accept one typo in this word.
-	* Defaults to 3.
-	* - minWordSizefor2Typos: the minimum number of characters in a query word
-	* to accept two typos in this word. Defaults to 7.
-	* - getRankingInfo: if set to 1, the result hits will contain ranking
-	* information in _rankingInfo attribute.
-	* - aroundLatLng: search for entries around a given
-	* latitude/longitude (specified as two floats separated by a comma).
-	*   For example aroundLatLng=47.316669,5.016670).
-	*   You can specify the maximum distance in meters with the aroundRadius parameter (in meters)
-	*   and the precision for ranking with aroundPrecision
-	*   (for example if you set aroundPrecision=100, two objects that are distant of
-	*   less than 100m will be considered as identical for "geo" ranking parameter).
-	*   At indexing, you should specify geoloc of an object with the _geoloc attribute
-	*   (in the form {"_geoloc":{"lat":48.853409, "lng":2.348800}})
-	* - insideBoundingBox: search entries inside a given area defined by the two extreme points
-	* of a rectangle (defined by 4 floats: p1Lat,p1Lng,p2Lat,p2Lng).
-	*   For example insideBoundingBox=47.3165,4.9665,47.3424,5.0201).
-	*   At indexing, you should specify geoloc of an object with the _geoloc attribute
-	*   (in the form {"_geoloc":{"lat":48.853409, "lng":2.348800}})
-	* - numericFilters: a string that contains the list of numeric filters you want to
-	* apply separated by a comma.
-	*   The syntax of one filter is `attributeName` followed by `operand` followed by `value`.
-	*   Supported operands are `<`, `<=`, `=`, `>` and `>=`.
-	*   You can have multiple conditions on one attribute like for example numericFilters=price>100,price<1000.
-	*   You can also use an array (for example numericFilters: ["price>100","price<1000"]).
-	* - tagFilters: filter the query by a set of tags. You can AND tags by separating them by commas.
-	*   To OR tags, you must add parentheses. For example, tags=tag1,(tag2,tag3) means tag1 AND (tag2 OR tag3).
-	*   You can also use an array, for example tagFilters: ["tag1",["tag2","tag3"]]
-	*   means tag1 AND (tag2 OR tag3).
-	*   At indexing, tags should be added in the _tags** attribute
-	*   of objects (for example {"_tags":["tag1","tag2"]}).
-	* - facetFilters: filter the query by a list of facets.
-	*   Facets are separated by commas and each facet is encoded as `attributeName:value`.
-	*   For example: `facetFilters=category:Book,author:John%20Doe`.
-	*   You can also use an array (for example `["category:Book","author:John%20Doe"]`).
-	* - facets: List of object attributes that you want to use for faceting.
-	*   Comma separated list: `"category,author"` or array `['category','author']`
-	*   Only attributes that have been added in **attributesForFaceting** index setting
-	*   can be used in this parameter.
-	*   You can also use `*` to perform faceting on all attributes specified in **attributesForFaceting**.
-	* - queryType: select how the query words are interpreted, it can be one of the following value:
-	*    - prefixAll: all query words are interpreted as prefixes,
-	*    - prefixLast: only the last word is interpreted as a prefix (default behavior),
-	*    - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
-	* - optionalWords: a string that contains the list of words that should
-	* be considered as optional when found in the query.
-	*   Comma separated and array are accepted.
-	* - distinct: If set to 1, enable the distinct feature (disabled by default)
-	* if the attributeForDistinct index setting is set.
-	*   This feature is similar to the SQL "distinct" keyword: when enabled
-	*   in a query with the distinct=1 parameter,
-	*   all hits containing a duplicate value for the attributeForDistinct attribute are removed from results.
-	*   For example, if the chosen attribute is show_name and several hits have
-	*   the same value for show_name, then only the best
-	*   one is kept and others are removed.
-	* - restrictSearchableAttributes: List of attributes you want to use for
-	* textual search (must be a subset of the attributesToIndex index setting)
-	* either comma separated or as an array
-	* @param callback the result callback called with two arguments:
-	*  error: null or Error('message'). If false, the content contains the error.
-	*  content: the server answer that contains the list of results.
-	*/
-	IndexCore.prototype.search = buildSearchMethod('query');
-
-	/*
-	* -- BETA --
-	* Search a record similar to the query inside the index using XMLHttpRequest request (Using a POST query to
-	* minimize number of OPTIONS queries: Cross-Origin Resource Sharing).
-	*
-	* @param query the similar query
-	* @param args (optional) if set, contains an object with query parameters.
-	*   All search parameters are supported (see search function), restrictSearchableAttributes and facetFilters
-	*   are the two most useful to restrict the similar results and get more relevant content
-	*/
-	IndexCore.prototype.similarSearch = buildSearchMethod('similarQuery');
-
-	/*
-	* Browse index content. The response content will have a `cursor` property that you can use
-	* to browse subsequent pages for this query. Use `index.browseFrom(cursor)` when you want.
-	*
-	* @param {string} query - The full text query
-	* @param {Object} [queryParameters] - Any search query parameter
-	* @param {Function} [callback] - The result callback called with two arguments
-	*   error: null or Error('message')
-	*   content: the server answer with the browse result
-	* @return {Promise|undefined} Returns a promise if no callback given
-	* @example
-	* index.browse('cool songs', {
-	*   tagFilters: 'public,comments',
-	*   hitsPerPage: 500
-	* }, callback);
-	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
-	*/
-	IndexCore.prototype.browse = function(query, queryParameters, callback) {
-	  var merge = __webpack_require__(189);
-
-	  var indexObj = this;
-
-	  var page;
-	  var hitsPerPage;
-
-	  // we check variadic calls that are not the one defined
-	  // .browse()/.browse(fn)
-	  // => page = 0
-	  if (arguments.length === 0 || arguments.length === 1 && typeof arguments[0] === 'function') {
-	    page = 0;
-	    callback = arguments[0];
-	    query = undefined;
-	  } else if (typeof arguments[0] === 'number') {
-	    // .browse(2)/.browse(2, 10)/.browse(2, fn)/.browse(2, 10, fn)
-	    page = arguments[0];
-	    if (typeof arguments[1] === 'number') {
-	      hitsPerPage = arguments[1];
-	    } else if (typeof arguments[1] === 'function') {
-	      callback = arguments[1];
-	      hitsPerPage = undefined;
-	    }
-	    query = undefined;
-	    queryParameters = undefined;
-	  } else if (typeof arguments[0] === 'object') {
-	    // .browse(queryParameters)/.browse(queryParameters, cb)
-	    if (typeof arguments[1] === 'function') {
-	      callback = arguments[1];
-	    }
-	    queryParameters = arguments[0];
-	    query = undefined;
-	  } else if (typeof arguments[0] === 'string' && typeof arguments[1] === 'function') {
-	    // .browse(query, cb)
-	    callback = arguments[1];
-	    queryParameters = undefined;
-	  }
-
-	  // otherwise it's a .browse(query)/.browse(query, queryParameters)/.browse(query, queryParameters, cb)
-
-	  // get search query parameters combining various possible calls
-	  // to .browse();
-	  queryParameters = merge({}, queryParameters || {}, {
-	    page: page,
-	    hitsPerPage: hitsPerPage,
-	    query: query
-	  });
-
-	  var params = this.as._getSearchParams(queryParameters, '');
-
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/browse?' + params,
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Continue browsing from a previous position (cursor), obtained via a call to `.browse()`.
-	*
-	* @param {string} query - The full text query
-	* @param {Object} [queryParameters] - Any search query parameter
-	* @param {Function} [callback] - The result callback called with two arguments
-	*   error: null or Error('message')
-	*   content: the server answer with the browse result
-	* @return {Promise|undefined} Returns a promise if no callback given
-	* @example
-	* index.browseFrom('14lkfsakl32', callback);
-	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
-	*/
-	IndexCore.prototype.browseFrom = function(cursor, callback) {
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/browse?cursor=' + encodeURIComponent(cursor),
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Search for facet values
-	* https://www.algolia.com/doc/rest-api/search#search-for-facet-values
-	*
-	* @param {string} params.facetName Facet name, name of the attribute to search for values in.
-	* Must be declared as a facet
-	* @param {string} params.facetQuery Query for the facet search
-	* @param {string} [params.*] Any search parameter of Algolia,
-	* see https://www.algolia.com/doc/api-client/javascript/search#search-parameters
-	* Pagination is not supported. The page and hitsPerPage parameters will be ignored.
-	* @param callback (optional)
-	*/
-	IndexCore.prototype.searchForFacetValues = function(params, callback) {
-	  var clone = __webpack_require__(190);
-	  var omit = __webpack_require__(191);
-	  var usage = 'Usage: index.searchForFacetValues({facetName, facetQuery, ...params}[, callback])';
-
-	  if (params.facetName === undefined || params.facetQuery === undefined) {
-	    throw new Error(usage);
-	  }
-
-	  var facetName = params.facetName;
-	  var filteredParams = omit(clone(params), function(keyName) {
-	    return keyName === 'facetName';
-	  });
-	  var searchParameters = this.as._getSearchParams(filteredParams, '');
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/' +
-	      encodeURIComponent(this.indexName) + '/facets/' + encodeURIComponent(facetName) + '/query',
-	    hostType: 'read',
-	    body: {params: searchParameters},
-	    callback: callback
-	  });
-	};
-
-	IndexCore.prototype.searchFacet = deprecate(function(params, callback) {
-	  return this.searchForFacetValues(params, callback);
-	}, deprecatedMessage(
-	  'index.searchFacet(params[, callback])',
-	  'index.searchForFacetValues(params[, callback])'
-	));
-
-	IndexCore.prototype._search = function(params, url, callback) {
-	  return this.as._jsonRequest({
-	    cache: this.cache,
-	    method: 'POST',
-	    url: url || '/1/indexes/' + encodeURIComponent(this.indexName) + '/query',
-	    body: {params: params},
-	    hostType: 'read',
-	    fallback: {
-	      method: 'GET',
-	      url: '/1/indexes/' + encodeURIComponent(this.indexName),
-	      body: {params: params}
-	    },
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Get an object from this index
-	*
-	* @param objectID the unique identifier of the object to retrieve
-	* @param attrs (optional) if set, contains the array of attribute names to retrieve
-	* @param callback (optional) the result callback called with two arguments
-	*  error: null or Error('message')
-	*  content: the object to retrieve or the error message if a failure occured
-	*/
-	IndexCore.prototype.getObject = function(objectID, attrs, callback) {
-	  var indexObj = this;
-
-	  if (arguments.length === 1 || typeof attrs === 'function') {
-	    callback = attrs;
-	    attrs = undefined;
-	  }
-
-	  var params = '';
-	  if (attrs !== undefined) {
-	    params = '?attributes=';
-	    for (var i = 0; i < attrs.length; ++i) {
-	      if (i !== 0) {
-	        params += ',';
-	      }
-	      params += attrs[i];
-	    }
-	  }
-
-	  return this.as._jsonRequest({
-	    method: 'GET',
-	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(objectID) + params,
-	    hostType: 'read',
-	    callback: callback
-	  });
-	};
-
-	/*
-	* Get several objects from this index
-	*
-	* @param objectIDs the array of unique identifier of objects to retrieve
-	*/
-	IndexCore.prototype.getObjects = function(objectIDs, attributesToRetrieve, callback) {
-	  var isArray = __webpack_require__(194);
-	  var map = __webpack_require__(195);
-
-	  var usage = 'Usage: index.getObjects(arrayOfObjectIDs[, callback])';
-
-	  if (!isArray(objectIDs)) {
-	    throw new Error(usage);
-	  }
-
-	  var indexObj = this;
-
-	  if (arguments.length === 1 || typeof attributesToRetrieve === 'function') {
-	    callback = attributesToRetrieve;
-	    attributesToRetrieve = undefined;
-	  }
-
-	  var body = {
-	    requests: map(objectIDs, function prepareRequest(objectID) {
-	      var request = {
-	        indexName: indexObj.indexName,
-	        objectID: objectID
-	      };
-
-	      if (attributesToRetrieve) {
-	        request.attributesToRetrieve = attributesToRetrieve.join(',');
-	      }
-
-	      return request;
-	    })
-	  };
-
-	  return this.as._jsonRequest({
-	    method: 'POST',
-	    url: '/1/indexes/*/objects',
-	    hostType: 'read',
-	    body: body,
-	    callback: callback
-	  });
-	};
-
-	IndexCore.prototype.as = null;
-	IndexCore.prototype.indexName = null;
-	IndexCore.prototype.typeAheadArgs = null;
-	IndexCore.prototype.typeAheadValueOption = null;
-
-
-/***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = buildSearchMethod;
-
-	var errors = __webpack_require__(185);
-
-	function buildSearchMethod(queryParam, url) {
-	  return function search(query, args, callback) {
-	    // warn V2 users on how to search
-	    if (typeof query === 'function' && typeof args === 'object' ||
-	      typeof callback === 'object') {
-	      // .search(query, params, cb)
-	      // .search(cb, params)
-	      throw new errors.AlgoliaSearchError('index.search usage is index.search(query, params, cb)');
-	    }
-
-	    if (arguments.length === 0 || typeof query === 'function') {
-	      // .search(), .search(cb)
-	      callback = query;
-	      query = '';
-	    } else if (arguments.length === 1 || typeof args === 'function') {
-	      // .search(query/args), .search(query, cb)
-	      callback = args;
-	      args = undefined;
-	    }
-
-	    // .search(args), careful: typeof null === 'object'
-	    if (typeof query === 'object' && query !== null) {
-	      args = query;
-	      query = undefined;
-	    } else if (query === undefined || query === null) { // .search(undefined/null)
-	      query = '';
-	    }
-
-	    var params = '';
-
-	    if (query !== undefined) {
-	      params += queryParam + '=' + encodeURIComponent(query);
-	    }
-
-	    if (args !== undefined) {
-	      // `_getSearchParams` will augment params, do not be fooled by the = versus += from previous if
-	      params = this.as._getSearchParams(args, params);
-	    }
-
-	    return this._search(params, url, callback);
-	  };
-	}
-
-
-/***/ },
-/* 185 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	// This file hosts our error definitions
-	// We use custom error "types" so that we can act on them when we need it
-	// e.g.: if error instanceof errors.UnparsableJSON then..
-
-	var inherits = __webpack_require__(182);
-
-	function AlgoliaSearchError(message, extraProperties) {
-	  var forEach = __webpack_require__(186);
-
-	  var error = this;
-
-	  // try to get a stacktrace
-	  if (typeof Error.captureStackTrace === 'function') {
-	    Error.captureStackTrace(this, this.constructor);
-	  } else {
-	    error.stack = (new Error()).stack || 'Cannot get a stacktrace, browser is too old';
-	  }
-
-	  this.name = 'AlgoliaSearchError';
-	  this.message = message || 'Unknown error';
-
-	  if (extraProperties) {
-	    forEach(extraProperties, function addToErrorObject(value, key) {
-	      error[key] = value;
-	    });
-	  }
-	}
-
-	inherits(AlgoliaSearchError, Error);
-
-	function createCustomError(name, message) {
-	  function AlgoliaSearchCustomError() {
-	    var args = Array.prototype.slice.call(arguments, 0);
-
-	    // custom message not set, use default
-	    if (typeof args[0] !== 'string') {
-	      args.unshift(message);
-	    }
-
-	    AlgoliaSearchError.apply(this, args);
-	    this.name = 'AlgoliaSearch' + name + 'Error';
-	  }
-
-	  inherits(AlgoliaSearchCustomError, AlgoliaSearchError);
-
-	  return AlgoliaSearchCustomError;
-	}
-
-	// late exports to let various fn defs and inherits take place
-	module.exports = {
-	  AlgoliaSearchError: AlgoliaSearchError,
-	  UnparsableJSON: createCustomError(
-	    'UnparsableJSON',
-	    'Could not parse the incoming response as JSON, see err.more for details'
-	  ),
-	  RequestTimeout: createCustomError(
-	    'RequestTimeout',
-	    'Request timedout before getting a response'
-	  ),
-	  Network: createCustomError(
-	    'Network',
-	    'Network issue, see err.more for details'
-	  ),
-	  JSONPScriptFail: createCustomError(
-	    'JSONPScriptFail',
-	    '<script> was loaded but did not call our provided callback'
-	  ),
-	  JSONPScriptError: createCustomError(
-	    'JSONPScriptError',
-	    '<script> unable to load due to an `error` event on it'
-	  ),
-	  Unknown: createCustomError(
-	    'Unknown',
-	    'Unknown error occured'
-	  )
-	};
-
-
-/***/ },
-/* 186 */
-/***/ function(module, exports) {
-
-	
-	var hasOwn = Object.prototype.hasOwnProperty;
-	var toString = Object.prototype.toString;
-
-	module.exports = function forEach (obj, fn, ctx) {
-	    if (toString.call(fn) !== '[object Function]') {
-	        throw new TypeError('iterator must be a function');
-	    }
-	    var l = obj.length;
-	    if (l === +l) {
-	        for (var i = 0; i < l; i++) {
-	            fn.call(ctx, obj[i], i, obj);
-	        }
-	    } else {
-	        for (var k in obj) {
-	            if (hasOwn.call(obj, k)) {
-	                fn.call(ctx, obj[k], k, obj);
-	            }
-	        }
-	    }
-	};
-
-
-
-/***/ },
-/* 187 */
-/***/ function(module, exports) {
-
-	module.exports = function deprecate(fn, message) {
-	  var warned = false;
-
-	  function deprecated() {
-	    if (!warned) {
-	      /* eslint no-console:0 */
-	      console.log(message);
-	      warned = true;
-	    }
-
-	    return fn.apply(this, arguments);
-	  }
-
-	  return deprecated;
-	};
-
-
-/***/ },
-/* 188 */
-/***/ function(module, exports) {
-
-	module.exports = function deprecatedMessage(previousUsage, newUsage) {
-	  var githubAnchorLink = previousUsage.toLowerCase()
-	    .replace('.', '')
-	    .replace('()', '');
-
-	  return 'algoliasearch: `' + previousUsage + '` was replaced by `' + newUsage +
-	    '`. Please see https://github.com/algolia/algoliasearch-client-js/wiki/Deprecated#' + githubAnchorLink;
-	};
-
-
-/***/ },
-/* 189 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var foreach = __webpack_require__(186);
-
-	module.exports = function merge(destination/* , sources */) {
-	  var sources = Array.prototype.slice.call(arguments);
-
-	  foreach(sources, function(source) {
-	    for (var keyName in source) {
-	      if (source.hasOwnProperty(keyName)) {
-	        if (typeof destination[keyName] === 'object' && typeof source[keyName] === 'object') {
-	          destination[keyName] = merge({}, destination[keyName], source[keyName]);
-	        } else if (source[keyName] !== undefined) {
-	          destination[keyName] = source[keyName];
-	        }
-	      }
-	    }
-	  });
-
-	  return destination;
-	};
-
-
-/***/ },
-/* 190 */
-/***/ function(module, exports) {
-
-	module.exports = function clone(obj) {
-	  return JSON.parse(JSON.stringify(obj));
-	};
-
-
-/***/ },
-/* 191 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function omit(obj, test) {
-	  var keys = __webpack_require__(192);
-	  var foreach = __webpack_require__(186);
-
-	  var filtered = {};
-
-	  foreach(keys(obj), function doFilter(keyName) {
-	    if (test(keyName) !== true) {
-	      filtered[keyName] = obj[keyName];
-	    }
-	  });
-
-	  return filtered;
-	};
-
-
-/***/ },
-/* 192 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	// modified from https://github.com/es-shims/es5-shim
-	var has = Object.prototype.hasOwnProperty;
-	var toStr = Object.prototype.toString;
-	var slice = Array.prototype.slice;
-	var isArgs = __webpack_require__(193);
-	var isEnumerable = Object.prototype.propertyIsEnumerable;
-	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
-	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
-	var dontEnums = [
-		'toString',
-		'toLocaleString',
-		'valueOf',
-		'hasOwnProperty',
-		'isPrototypeOf',
-		'propertyIsEnumerable',
-		'constructor'
-	];
-	var equalsConstructorPrototype = function (o) {
-		var ctor = o.constructor;
-		return ctor && ctor.prototype === o;
-	};
-	var excludedKeys = {
-		$console: true,
-		$external: true,
-		$frame: true,
-		$frameElement: true,
-		$frames: true,
-		$innerHeight: true,
-		$innerWidth: true,
-		$outerHeight: true,
-		$outerWidth: true,
-		$pageXOffset: true,
-		$pageYOffset: true,
-		$parent: true,
-		$scrollLeft: true,
-		$scrollTop: true,
-		$scrollX: true,
-		$scrollY: true,
-		$self: true,
-		$webkitIndexedDB: true,
-		$webkitStorageInfo: true,
-		$window: true
-	};
-	var hasAutomationEqualityBug = (function () {
-		/* global window */
-		if (typeof window === 'undefined') { return false; }
-		for (var k in window) {
-			try {
-				if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
-					try {
-						equalsConstructorPrototype(window[k]);
-					} catch (e) {
-						return true;
-					}
-				}
-			} catch (e) {
-				return true;
-			}
-		}
-		return false;
-	}());
-	var equalsConstructorPrototypeIfNotBuggy = function (o) {
-		/* global window */
-		if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
-			return equalsConstructorPrototype(o);
-		}
-		try {
-			return equalsConstructorPrototype(o);
-		} catch (e) {
-			return false;
-		}
-	};
-
-	var keysShim = function keys(object) {
-		var isObject = object !== null && typeof object === 'object';
-		var isFunction = toStr.call(object) === '[object Function]';
-		var isArguments = isArgs(object);
-		var isString = isObject && toStr.call(object) === '[object String]';
-		var theKeys = [];
-
-		if (!isObject && !isFunction && !isArguments) {
-			throw new TypeError('Object.keys called on a non-object');
-		}
-
-		var skipProto = hasProtoEnumBug && isFunction;
-		if (isString && object.length > 0 && !has.call(object, 0)) {
-			for (var i = 0; i < object.length; ++i) {
-				theKeys.push(String(i));
-			}
-		}
-
-		if (isArguments && object.length > 0) {
-			for (var j = 0; j < object.length; ++j) {
-				theKeys.push(String(j));
-			}
-		} else {
-			for (var name in object) {
-				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
-					theKeys.push(String(name));
-				}
-			}
-		}
-
-		if (hasDontEnumBug) {
-			var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
-
-			for (var k = 0; k < dontEnums.length; ++k) {
-				if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
-					theKeys.push(dontEnums[k]);
-				}
-			}
-		}
-		return theKeys;
-	};
-
-	keysShim.shim = function shimObjectKeys() {
-		if (Object.keys) {
-			var keysWorksWithArguments = (function () {
-				// Safari 5.0 bug
-				return (Object.keys(arguments) || '').length === 2;
-			}(1, 2));
-			if (!keysWorksWithArguments) {
-				var originalKeys = Object.keys;
-				Object.keys = function keys(object) {
-					if (isArgs(object)) {
-						return originalKeys(slice.call(object));
-					} else {
-						return originalKeys(object);
-					}
-				};
-			}
-		} else {
-			Object.keys = keysShim;
-		}
-		return Object.keys || keysShim;
-	};
-
-	module.exports = keysShim;
-
-
-/***/ },
-/* 193 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var toStr = Object.prototype.toString;
-
-	module.exports = function isArguments(value) {
-		var str = toStr.call(value);
-		var isArgs = str === '[object Arguments]';
-		if (!isArgs) {
-			isArgs = str !== '[object Array]' &&
-				value !== null &&
-				typeof value === 'object' &&
-				typeof value.length === 'number' &&
-				value.length >= 0 &&
-				toStr.call(value.callee) === '[object Function]';
-		}
-		return isArgs;
-	};
-
-
-/***/ },
-/* 194 */
-/***/ function(module, exports) {
-
-	var toString = {}.toString;
-
-	module.exports = Array.isArray || function (arr) {
-	  return toString.call(arr) == '[object Array]';
-	};
-
-
-/***/ },
-/* 195 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var foreach = __webpack_require__(186);
-
-	module.exports = function map(arr, fn) {
-	  var newArr = [];
-	  foreach(arr, function(item, itemIndex) {
-	    newArr.push(fn(item, itemIndex, arr));
-	  });
-	  return newArr;
-	};
-
-
-/***/ },
-/* 196 */
-/***/ function(module, exports) {
-
-	// Parse cloud does not supports setTimeout
-	// We do not store a setTimeout reference in the client everytime
-	// We only fallback to a fake setTimeout when not available
-	// setTimeout cannot be override globally sadly
-	module.exports = function exitPromise(fn, _setTimeout) {
-	  _setTimeout(fn, 0);
-	};
-
-
-/***/ },
-/* 197 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	// This is the object returned by the `index.browseAll()` method
-
-	module.exports = IndexBrowser;
-
-	var inherits = __webpack_require__(182);
-	var EventEmitter = __webpack_require__(198).EventEmitter;
-
-	function IndexBrowser() {
-	}
-
-	inherits(IndexBrowser, EventEmitter);
-
-	IndexBrowser.prototype.stop = function() {
-	  this._stopped = true;
-	  this._clean();
-	};
-
-	IndexBrowser.prototype._end = function() {
-	  this.emit('end');
-	  this._clean();
-	};
-
-	IndexBrowser.prototype._error = function(err) {
-	  this.emit('error', err);
-	  this._clean();
-	};
-
-	IndexBrowser.prototype._result = function(content) {
-	  this.emit('result', content);
-	};
-
-	IndexBrowser.prototype._clean = function() {
-	  this.removeAllListeners('stop');
-	  this.removeAllListeners('end');
-	  this.removeAllListeners('error');
-	  this.removeAllListeners('result');
-	};
-
-
-/***/ },
-/* 198 */
-/***/ function(module, exports) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	function EventEmitter() {
-	  this._events = this._events || {};
-	  this._maxListeners = this._maxListeners || undefined;
-	}
-	module.exports = EventEmitter;
-
-	// Backwards-compat with node 0.10.x
-	EventEmitter.EventEmitter = EventEmitter;
-
-	EventEmitter.prototype._events = undefined;
-	EventEmitter.prototype._maxListeners = undefined;
-
-	// By default EventEmitters will print a warning if more than 10 listeners are
-	// added to it. This is a useful default which helps finding memory leaks.
-	EventEmitter.defaultMaxListeners = 10;
-
-	// Obviously not all Emitters should be limited to 10. This function allows
-	// that to be increased. Set to zero for unlimited.
-	EventEmitter.prototype.setMaxListeners = function(n) {
-	  if (!isNumber(n) || n < 0 || isNaN(n))
-	    throw TypeError('n must be a positive number');
-	  this._maxListeners = n;
-	  return this;
-	};
-
-	EventEmitter.prototype.emit = function(type) {
-	  var er, handler, len, args, i, listeners;
-
-	  if (!this._events)
-	    this._events = {};
-
-	  // If there is no 'error' event listener then throw.
-	  if (type === 'error') {
-	    if (!this._events.error ||
-	        (isObject(this._events.error) && !this._events.error.length)) {
-	      er = arguments[1];
-	      if (er instanceof Error) {
-	        throw er; // Unhandled 'error' event
-	      } else {
-	        // At least give some kind of context to the user
-	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-	        err.context = er;
-	        throw err;
-	      }
-	    }
-	  }
-
-	  handler = this._events[type];
-
-	  if (isUndefined(handler))
-	    return false;
-
-	  if (isFunction(handler)) {
-	    switch (arguments.length) {
-	      // fast cases
-	      case 1:
-	        handler.call(this);
-	        break;
-	      case 2:
-	        handler.call(this, arguments[1]);
-	        break;
-	      case 3:
-	        handler.call(this, arguments[1], arguments[2]);
-	        break;
-	      // slower
-	      default:
-	        args = Array.prototype.slice.call(arguments, 1);
-	        handler.apply(this, args);
-	    }
-	  } else if (isObject(handler)) {
-	    args = Array.prototype.slice.call(arguments, 1);
-	    listeners = handler.slice();
-	    len = listeners.length;
-	    for (i = 0; i < len; i++)
-	      listeners[i].apply(this, args);
-	  }
-
-	  return true;
-	};
-
-	EventEmitter.prototype.addListener = function(type, listener) {
-	  var m;
-
-	  if (!isFunction(listener))
-	    throw TypeError('listener must be a function');
-
-	  if (!this._events)
-	    this._events = {};
-
-	  // To avoid recursion in the case that type === "newListener"! Before
-	  // adding it to the listeners, first emit "newListener".
-	  if (this._events.newListener)
-	    this.emit('newListener', type,
-	              isFunction(listener.listener) ?
-	              listener.listener : listener);
-
-	  if (!this._events[type])
-	    // Optimize the case of one listener. Don't need the extra array object.
-	    this._events[type] = listener;
-	  else if (isObject(this._events[type]))
-	    // If we've already got an array, just append.
-	    this._events[type].push(listener);
-	  else
-	    // Adding the second element, need to change to array.
-	    this._events[type] = [this._events[type], listener];
-
-	  // Check for listener leak
-	  if (isObject(this._events[type]) && !this._events[type].warned) {
-	    if (!isUndefined(this._maxListeners)) {
-	      m = this._maxListeners;
-	    } else {
-	      m = EventEmitter.defaultMaxListeners;
-	    }
-
-	    if (m && m > 0 && this._events[type].length > m) {
-	      this._events[type].warned = true;
-	      console.error('(node) warning: possible EventEmitter memory ' +
-	                    'leak detected. %d listeners added. ' +
-	                    'Use emitter.setMaxListeners() to increase limit.',
-	                    this._events[type].length);
-	      if (typeof console.trace === 'function') {
-	        // not supported in IE 10
-	        console.trace();
-	      }
-	    }
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-	EventEmitter.prototype.once = function(type, listener) {
-	  if (!isFunction(listener))
-	    throw TypeError('listener must be a function');
-
-	  var fired = false;
-
-	  function g() {
-	    this.removeListener(type, g);
-
-	    if (!fired) {
-	      fired = true;
-	      listener.apply(this, arguments);
-	    }
-	  }
-
-	  g.listener = listener;
-	  this.on(type, g);
-
-	  return this;
-	};
-
-	// emits a 'removeListener' event iff the listener was removed
-	EventEmitter.prototype.removeListener = function(type, listener) {
-	  var list, position, length, i;
-
-	  if (!isFunction(listener))
-	    throw TypeError('listener must be a function');
-
-	  if (!this._events || !this._events[type])
-	    return this;
-
-	  list = this._events[type];
-	  length = list.length;
-	  position = -1;
-
-	  if (list === listener ||
-	      (isFunction(list.listener) && list.listener === listener)) {
-	    delete this._events[type];
-	    if (this._events.removeListener)
-	      this.emit('removeListener', type, listener);
-
-	  } else if (isObject(list)) {
-	    for (i = length; i-- > 0;) {
-	      if (list[i] === listener ||
-	          (list[i].listener && list[i].listener === listener)) {
-	        position = i;
-	        break;
-	      }
-	    }
-
-	    if (position < 0)
-	      return this;
-
-	    if (list.length === 1) {
-	      list.length = 0;
-	      delete this._events[type];
-	    } else {
-	      list.splice(position, 1);
-	    }
-
-	    if (this._events.removeListener)
-	      this.emit('removeListener', type, listener);
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.removeAllListeners = function(type) {
-	  var key, listeners;
-
-	  if (!this._events)
-	    return this;
-
-	  // not listening for removeListener, no need to emit
-	  if (!this._events.removeListener) {
-	    if (arguments.length === 0)
-	      this._events = {};
-	    else if (this._events[type])
-	      delete this._events[type];
-	    return this;
-	  }
-
-	  // emit removeListener for all listeners on all events
-	  if (arguments.length === 0) {
-	    for (key in this._events) {
-	      if (key === 'removeListener') continue;
-	      this.removeAllListeners(key);
-	    }
-	    this.removeAllListeners('removeListener');
-	    this._events = {};
-	    return this;
-	  }
-
-	  listeners = this._events[type];
-
-	  if (isFunction(listeners)) {
-	    this.removeListener(type, listeners);
-	  } else if (listeners) {
-	    // LIFO order
-	    while (listeners.length)
-	      this.removeListener(type, listeners[listeners.length - 1]);
-	  }
-	  delete this._events[type];
-
-	  return this;
-	};
-
-	EventEmitter.prototype.listeners = function(type) {
-	  var ret;
-	  if (!this._events || !this._events[type])
-	    ret = [];
-	  else if (isFunction(this._events[type]))
-	    ret = [this._events[type]];
-	  else
-	    ret = this._events[type].slice();
-	  return ret;
-	};
-
-	EventEmitter.prototype.listenerCount = function(type) {
-	  if (this._events) {
-	    var evlistener = this._events[type];
-
-	    if (isFunction(evlistener))
-	      return 1;
-	    else if (evlistener)
-	      return evlistener.length;
-	  }
-	  return 0;
-	};
-
-	EventEmitter.listenerCount = function(emitter, type) {
-	  return emitter.listenerCount(type);
-	};
-
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
-
-
-/***/ },
-/* 199 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = AlgoliaSearchCore;
-
-	var errors = __webpack_require__(185);
-	var exitPromise = __webpack_require__(196);
-	var IndexCore = __webpack_require__(183);
-
-	// We will always put the API KEY in the JSON body in case of too long API KEY
-	var MAX_API_KEY_LENGTH = 500;
-
-	/*
-	 * Algolia Search library initialization
-	 * https://www.algolia.com/
-	 *
-	 * @param {string} applicationID - Your applicationID, found in your dashboard
-	 * @param {string} apiKey - Your API key, found in your dashboard
-	 * @param {Object} [opts]
-	 * @param {number} [opts.timeout=2000] - The request timeout set in milliseconds,
-	 * another request will be issued after this timeout
-	 * @param {string} [opts.protocol='http:'] - The protocol used to query Algolia Search API.
-	 *                                        Set to 'https:' to force using https.
-	 *                                        Default to document.location.protocol in browsers
-	 * @param {Object|Array} [opts.hosts={
-	 *           read: [this.applicationID + '-dsn.algolia.net'].concat([
-	 *             this.applicationID + '-1.algolianet.com',
-	 *             this.applicationID + '-2.algolianet.com',
-	 *             this.applicationID + '-3.algolianet.com']
-	 *           ]),
-	 *           write: [this.applicationID + '.algolia.net'].concat([
-	 *             this.applicationID + '-1.algolianet.com',
-	 *             this.applicationID + '-2.algolianet.com',
-	 *             this.applicationID + '-3.algolianet.com']
-	 *           ]) - The hosts to use for Algolia Search API.
-	 *           If you provide them, you will less benefit from our HA implementation
-	 */
-	function AlgoliaSearchCore(applicationID, apiKey, opts) {
-	  var debug = __webpack_require__(200)('algoliasearch');
-
-	  var clone = __webpack_require__(190);
-	  var isArray = __webpack_require__(194);
-	  var map = __webpack_require__(195);
-
-	  var usage = 'Usage: algoliasearch(applicationID, apiKey, opts)';
-
-	  if (opts._allowEmptyCredentials !== true && !applicationID) {
-	    throw new errors.AlgoliaSearchError('Please provide an application ID. ' + usage);
-	  }
-
-	  if (opts._allowEmptyCredentials !== true && !apiKey) {
-	    throw new errors.AlgoliaSearchError('Please provide an API key. ' + usage);
-	  }
-
-	  this.applicationID = applicationID;
-	  this.apiKey = apiKey;
-
-	  var defaultHosts = shuffle([
-	    this.applicationID + '-1.algolianet.com',
-	    this.applicationID + '-2.algolianet.com',
-	    this.applicationID + '-3.algolianet.com'
-	  ]);
-	  this.hosts = {
-	    read: [],
-	    write: []
-	  };
-
-	  this.hostIndex = {
-	    read: 0,
-	    write: 0
-	  };
-
-	  opts = opts || {};
-
-	  var protocol = opts.protocol || 'https:';
-	  var timeout = opts.timeout === undefined ? 2000 : opts.timeout;
-
-	  // while we advocate for colon-at-the-end values: 'http:' for `opts.protocol`
-	  // we also accept `http` and `https`. It's a common error.
-	  if (!/:$/.test(protocol)) {
-	    protocol = protocol + ':';
-	  }
-
-	  if (opts.protocol !== 'http:' && opts.protocol !== 'https:') {
-	    throw new errors.AlgoliaSearchError('protocol must be `http:` or `https:` (was `' + opts.protocol + '`)');
-	  }
-
-	  // no hosts given, add defaults
-	  if (!opts.hosts) {
-	    this.hosts.read = [this.applicationID + '-dsn.algolia.net'].concat(defaultHosts);
-	    this.hosts.write = [this.applicationID + '.algolia.net'].concat(defaultHosts);
-	  } else if (isArray(opts.hosts)) {
-	    this.hosts.read = clone(opts.hosts);
-	    this.hosts.write = clone(opts.hosts);
-	  } else {
-	    this.hosts.read = clone(opts.hosts.read);
-	    this.hosts.write = clone(opts.hosts.write);
-	  }
-
-	  // add protocol and lowercase hosts
-	  this.hosts.read = map(this.hosts.read, prepareHost(protocol));
-	  this.hosts.write = map(this.hosts.write, prepareHost(protocol));
-	  this.requestTimeout = timeout;
-
-	  this.extraHeaders = [];
-
-	  // In some situations you might want to warm the cache
-	  this.cache = opts._cache || {};
-
-	  this._ua = opts._ua;
-	  this._useCache = opts._useCache === undefined || opts._cache ? true : opts._useCache;
-	  this._useFallback = opts.useFallback === undefined ? true : opts.useFallback;
-
-	  this._setTimeout = opts._setTimeout;
-
-	  debug('init done, %j', this);
-	}
-
-	/*
-	 * Get the index object initialized
-	 *
-	 * @param indexName the name of index
-	 * @param callback the result callback with one argument (the Index instance)
-	 */
-	AlgoliaSearchCore.prototype.initIndex = function(indexName) {
-	  return new IndexCore(this, indexName);
-	};
-
-	/**
-	* Add an extra field to the HTTP request
-	*
-	* @param name the header field name
-	* @param value the header field value
-	*/
-	AlgoliaSearchCore.prototype.setExtraHeader = function(name, value) {
-	  this.extraHeaders.push({
-	    name: name.toLowerCase(), value: value
-	  });
-	};
-
-	/**
-	* Augment sent x-algolia-agent with more data, each agent part
-	* is automatically separated from the others by a semicolon;
-	*
-	* @param algoliaAgent the agent to add
-	*/
-	AlgoliaSearchCore.prototype.addAlgoliaAgent = function(algoliaAgent) {
-	  this._ua += ';' + algoliaAgent;
-	};
-
-	/*
-	 * Wrapper that try all hosts to maximize the quality of service
-	 */
-	AlgoliaSearchCore.prototype._jsonRequest = function(initialOpts) {
-	  var requestDebug = __webpack_require__(200)('algoliasearch:' + initialOpts.url);
-
-	  var body;
-	  var cache = initialOpts.cache;
-	  var client = this;
-	  var tries = 0;
-	  var usingFallback = false;
-	  var hasFallback = client._useFallback && client._request.fallback && initialOpts.fallback;
-	  var headers;
-
-	  if (
-	    this.apiKey.length > MAX_API_KEY_LENGTH &&
-	    initialOpts.body !== undefined &&
-	    (initialOpts.body.params !== undefined || // index.search()
-	    initialOpts.body.requests !== undefined) // client.search()
-	  ) {
-	    initialOpts.body.apiKey = this.apiKey;
-	    headers = this._computeRequestHeaders(false);
-	  } else {
-	    headers = this._computeRequestHeaders();
-	  }
-
-	  if (initialOpts.body !== undefined) {
-	    body = safeJSONStringify(initialOpts.body);
-	  }
-
-	  requestDebug('request start');
-	  var debugData = [];
-
-	  function doRequest(requester, reqOpts) {
-	    var startTime = new Date();
-	    var cacheID;
-
-	    if (client._useCache) {
-	      cacheID = initialOpts.url;
-	    }
-
-	    // as we sometime use POST requests to pass parameters (like query='aa'),
-	    // the cacheID must also include the body to be different between calls
-	    if (client._useCache && body) {
-	      cacheID += '_body_' + reqOpts.body;
-	    }
-
-	    // handle cache existence
-	    if (client._useCache && cache && cache[cacheID] !== undefined) {
-	      requestDebug('serving response from cache');
-	      return client._promise.resolve(JSON.parse(cache[cacheID]));
-	    }
-
-	    // if we reached max tries
-	    if (tries >= client.hosts[initialOpts.hostType].length) {
-	      if (!hasFallback || usingFallback) {
-	        requestDebug('could not get any response');
-	        // then stop
-	        return client._promise.reject(new errors.AlgoliaSearchError(
-	          'Cannot connect to the AlgoliaSearch API.' +
-	          ' Send an email to support@algolia.com to report and resolve the issue.' +
-	          ' Application id was: ' + client.applicationID, {debugData: debugData}
-	        ));
-	      }
-
-	      requestDebug('switching to fallback');
-
-	      // let's try the fallback starting from here
-	      tries = 0;
-
-	      // method, url and body are fallback dependent
-	      reqOpts.method = initialOpts.fallback.method;
-	      reqOpts.url = initialOpts.fallback.url;
-	      reqOpts.jsonBody = initialOpts.fallback.body;
-	      if (reqOpts.jsonBody) {
-	        reqOpts.body = safeJSONStringify(reqOpts.jsonBody);
-	      }
-	      // re-compute headers, they could be omitting the API KEY
-	      headers = client._computeRequestHeaders();
-
-	      reqOpts.timeout = client.requestTimeout * (tries + 1);
-	      client.hostIndex[initialOpts.hostType] = 0;
-	      usingFallback = true; // the current request is now using fallback
-	      return doRequest(client._request.fallback, reqOpts);
-	    }
-
-	    var currentHost = client.hosts[initialOpts.hostType][client.hostIndex[initialOpts.hostType]];
-
-	    var url = currentHost + reqOpts.url;
-	    var options = {
-	      body: reqOpts.body,
-	      jsonBody: reqOpts.jsonBody,
-	      method: reqOpts.method,
-	      headers: headers,
-	      timeout: reqOpts.timeout,
-	      debug: requestDebug
-	    };
-
-	    requestDebug('method: %s, url: %s, headers: %j, timeout: %d',
-	      options.method, url, options.headers, options.timeout);
-
-	    if (requester === client._request.fallback) {
-	      requestDebug('using fallback');
-	    }
-
-	    // `requester` is any of this._request or this._request.fallback
-	    // thus it needs to be called using the client as context
-	    return requester.call(client, url, options).then(success, tryFallback);
-
-	    function success(httpResponse) {
-	      // compute the status of the response,
-	      //
-	      // When in browser mode, using XDR or JSONP, we have no statusCode available
-	      // So we rely on our API response `status` property.
-	      // But `waitTask` can set a `status` property which is not the statusCode (it's the task status)
-	      // So we check if there's a `message` along `status` and it means it's an error
-	      //
-	      // That's the only case where we have a response.status that's not the http statusCode
-	      var status = httpResponse && httpResponse.body && httpResponse.body.message && httpResponse.body.status ||
-
-	        // this is important to check the request statusCode AFTER the body eventual
-	        // statusCode because some implementations (jQuery XDomainRequest transport) may
-	        // send statusCode 200 while we had an error
-	        httpResponse.statusCode ||
-
-	        // When in browser mode, using XDR or JSONP
-	        // we default to success when no error (no response.status && response.message)
-	        // If there was a JSON.parse() error then body is null and it fails
-	        httpResponse && httpResponse.body && 200;
-
-	      requestDebug('received response: statusCode: %s, computed statusCode: %d, headers: %j',
-	        httpResponse.statusCode, status, httpResponse.headers);
-
-	      var httpResponseOk = Math.floor(status / 100) === 2;
-
-	      var endTime = new Date();
-	      debugData.push({
-	        currentHost: currentHost,
-	        headers: removeCredentials(headers),
-	        content: body || null,
-	        contentLength: body !== undefined ? body.length : null,
-	        method: reqOpts.method,
-	        timeout: reqOpts.timeout,
-	        url: reqOpts.url,
-	        startTime: startTime,
-	        endTime: endTime,
-	        duration: endTime - startTime,
-	        statusCode: status
-	      });
-
-	      if (httpResponseOk) {
-	        if (client._useCache && cache) {
-	          cache[cacheID] = httpResponse.responseText;
-	        }
-
-	        return httpResponse.body;
-	      }
-
-	      var shouldRetry = Math.floor(status / 100) !== 4;
-
-	      if (shouldRetry) {
-	        tries += 1;
-	        return retryRequest();
-	      }
-
-	      requestDebug('unrecoverable error');
-
-	      // no success and no retry => fail
-	      var unrecoverableError = new errors.AlgoliaSearchError(
-	        httpResponse.body && httpResponse.body.message, {debugData: debugData, statusCode: status}
-	      );
-
-	      return client._promise.reject(unrecoverableError);
-	    }
-
-	    function tryFallback(err) {
-	      // error cases:
-	      //  While not in fallback mode:
-	      //    - CORS not supported
-	      //    - network error
-	      //  While in fallback mode:
-	      //    - timeout
-	      //    - network error
-	      //    - badly formatted JSONP (script loaded, did not call our callback)
-	      //  In both cases:
-	      //    - uncaught exception occurs (TypeError)
-	      requestDebug('error: %s, stack: %s', err.message, err.stack);
-
-	      var endTime = new Date();
-	      debugData.push({
-	        currentHost: currentHost,
-	        headers: removeCredentials(headers),
-	        content: body || null,
-	        contentLength: body !== undefined ? body.length : null,
-	        method: reqOpts.method,
-	        timeout: reqOpts.timeout,
-	        url: reqOpts.url,
-	        startTime: startTime,
-	        endTime: endTime,
-	        duration: endTime - startTime
-	      });
-
-	      if (!(err instanceof errors.AlgoliaSearchError)) {
-	        err = new errors.Unknown(err && err.message, err);
-	      }
-
-	      tries += 1;
-
-	      // stop the request implementation when:
-	      if (
-	        // we did not generate this error,
-	        // it comes from a throw in some other piece of code
-	        err instanceof errors.Unknown ||
-
-	        // server sent unparsable JSON
-	        err instanceof errors.UnparsableJSON ||
-
-	        // max tries and already using fallback or no fallback
-	        tries >= client.hosts[initialOpts.hostType].length &&
-	        (usingFallback || !hasFallback)) {
-	        // stop request implementation for this command
-	        err.debugData = debugData;
-	        return client._promise.reject(err);
-	      }
-
-	      // When a timeout occured, retry by raising timeout
-	      if (err instanceof errors.RequestTimeout) {
-	        return retryRequestWithHigherTimeout();
-	      }
-
-	      return retryRequest();
-	    }
-
-	    function retryRequest() {
-	      requestDebug('retrying request');
-	      client.hostIndex[initialOpts.hostType] = (client.hostIndex[initialOpts.hostType] + 1) % client.hosts[initialOpts.hostType].length;
-	      return doRequest(requester, reqOpts);
-	    }
-
-	    function retryRequestWithHigherTimeout() {
-	      requestDebug('retrying request with higher timeout');
-	      client.hostIndex[initialOpts.hostType] = (client.hostIndex[initialOpts.hostType] + 1) % client.hosts[initialOpts.hostType].length;
-	      reqOpts.timeout = client.requestTimeout * (tries + 1);
-	      return doRequest(requester, reqOpts);
-	    }
-	  }
-
-	  var promise = doRequest(
-	    client._request, {
-	      url: initialOpts.url,
-	      method: initialOpts.method,
-	      body: body,
-	      jsonBody: initialOpts.body,
-	      timeout: client.requestTimeout * (tries + 1)
-	    }
-	  );
-
-	  // either we have a callback
-	  // either we are using promises
-	  if (initialOpts.callback) {
-	    promise.then(function okCb(content) {
-	      exitPromise(function() {
-	        initialOpts.callback(null, content);
-	      }, client._setTimeout || setTimeout);
-	    }, function nookCb(err) {
-	      exitPromise(function() {
-	        initialOpts.callback(err);
-	      }, client._setTimeout || setTimeout);
-	    });
-	  } else {
-	    return promise;
-	  }
-	};
-
-	/*
-	* Transform search param object in query string
-	*/
-	AlgoliaSearchCore.prototype._getSearchParams = function(args, params) {
-	  if (args === undefined || args === null) {
-	    return params;
-	  }
-	  for (var key in args) {
-	    if (key !== null && args[key] !== undefined && args.hasOwnProperty(key)) {
-	      params += params === '' ? '' : '&';
-	      params += key + '=' + encodeURIComponent(Object.prototype.toString.call(args[key]) === '[object Array]' ? safeJSONStringify(args[key]) : args[key]);
-	    }
-	  }
-	  return params;
-	};
-
-	AlgoliaSearchCore.prototype._computeRequestHeaders = function(withAPIKey) {
-	  var forEach = __webpack_require__(186);
-
-	  var requestHeaders = {
-	    'x-algolia-agent': this._ua,
-	    'x-algolia-application-id': this.applicationID
-	  };
-
-	  // browser will inline headers in the url, node.js will use http headers
-	  // but in some situations, the API KEY will be too long (big secured API keys)
-	  // so if the request is a POST and the KEY is very long, we will be asked to not put
-	  // it into headers but in the JSON body
-	  if (withAPIKey !== false) {
-	    requestHeaders['x-algolia-api-key'] = this.apiKey;
-	  }
-
-	  if (this.userToken) {
-	    requestHeaders['x-algolia-usertoken'] = this.userToken;
-	  }
-
-	  if (this.securityTags) {
-	    requestHeaders['x-algolia-tagfilters'] = this.securityTags;
-	  }
-
-	  if (this.extraHeaders) {
-	    forEach(this.extraHeaders, function addToRequestHeaders(header) {
-	      requestHeaders[header.name] = header.value;
-	    });
-	  }
-
-	  return requestHeaders;
-	};
-
-	/**
-	 * Search through multiple indices at the same time
-	 * @param  {Object[]}   queries  An array of queries you want to run.
-	 * @param {string} queries[].indexName The index name you want to target
-	 * @param {string} [queries[].query] The query to issue on this index. Can also be passed into `params`
-	 * @param {Object} queries[].params Any search param like hitsPerPage, ..
-	 * @param  {Function} callback Callback to be called
-	 * @return {Promise|undefined} Returns a promise if no callback given
-	 */
-	AlgoliaSearchCore.prototype.search = function(queries, opts, callback) {
-	  var isArray = __webpack_require__(194);
-	  var map = __webpack_require__(195);
-
-	  var usage = 'Usage: client.search(arrayOfQueries[, callback])';
-
-	  if (!isArray(queries)) {
-	    throw new Error(usage);
-	  }
-
-	  if (typeof opts === 'function') {
-	    callback = opts;
-	    opts = {};
-	  } else if (opts === undefined) {
-	    opts = {};
-	  }
-
-	  var client = this;
-
-	  var postObj = {
-	    requests: map(queries, function prepareRequest(query) {
-	      var params = '';
-
-	      // allow query.query
-	      // so we are mimicing the index.search(query, params) method
-	      // {indexName:, query:, params:}
-	      if (query.query !== undefined) {
-	        params += 'query=' + encodeURIComponent(query.query);
-	      }
-
-	      return {
-	        indexName: query.indexName,
-	        params: client._getSearchParams(query.params, params)
-	      };
-	    })
-	  };
-
-	  var JSONPParams = map(postObj.requests, function prepareJSONPParams(request, requestId) {
-	    return requestId + '=' +
-	      encodeURIComponent(
-	        '/1/indexes/' + encodeURIComponent(request.indexName) + '?' +
-	        request.params
-	      );
-	  }).join('&');
-
-	  var url = '/1/indexes/*/queries';
-
-	  if (opts.strategy !== undefined) {
-	    url += '?strategy=' + opts.strategy;
-	  }
-
-	  return this._jsonRequest({
-	    cache: this.cache,
-	    method: 'POST',
-	    url: url,
-	    body: postObj,
-	    hostType: 'read',
-	    fallback: {
-	      method: 'GET',
-	      url: '/1/indexes/*',
-	      body: {
-	        params: JSONPParams
-	      }
-	    },
-	    callback: callback
-	  });
-	};
-
-	/**
-	 * Set the extra security tagFilters header
-	 * @param {string|array} tags The list of tags defining the current security filters
-	 */
-	AlgoliaSearchCore.prototype.setSecurityTags = function(tags) {
-	  if (Object.prototype.toString.call(tags) === '[object Array]') {
-	    var strTags = [];
-	    for (var i = 0; i < tags.length; ++i) {
-	      if (Object.prototype.toString.call(tags[i]) === '[object Array]') {
-	        var oredTags = [];
-	        for (var j = 0; j < tags[i].length; ++j) {
-	          oredTags.push(tags[i][j]);
-	        }
-	        strTags.push('(' + oredTags.join(',') + ')');
-	      } else {
-	        strTags.push(tags[i]);
-	      }
-	    }
-	    tags = strTags.join(',');
-	  }
-
-	  this.securityTags = tags;
-	};
-
-	/**
-	 * Set the extra user token header
-	 * @param {string} userToken The token identifying a uniq user (used to apply rate limits)
-	 */
-	AlgoliaSearchCore.prototype.setUserToken = function(userToken) {
-	  this.userToken = userToken;
-	};
-
-	/**
-	 * Clear all queries in client's cache
-	 * @return undefined
-	 */
-	AlgoliaSearchCore.prototype.clearCache = function() {
-	  this.cache = {};
-	};
-
-	/**
-	* Set the number of milliseconds a request can take before automatically being terminated.
-	*
-	* @param {Number} milliseconds
-	*/
-	AlgoliaSearchCore.prototype.setRequestTimeout = function(milliseconds) {
-	  if (milliseconds) {
-	    this.requestTimeout = parseInt(milliseconds, 10);
-	  }
-	};
-
-	function prepareHost(protocol) {
-	  return function prepare(host) {
-	    return protocol + '//' + host.toLowerCase();
-	  };
-	}
-
-	// Prototype.js < 1.7, a widely used library, defines a weird
-	// Array.prototype.toJSON function that will fail to stringify our content
-	// appropriately
-	// refs:
-	//   - https://groups.google.com/forum/#!topic/prototype-core/E-SAVvV_V9Q
-	//   - https://github.com/sstephenson/prototype/commit/038a2985a70593c1a86c230fadbdfe2e4898a48c
-	//   - http://stackoverflow.com/a/3148441/147079
-	function safeJSONStringify(obj) {
-	  /* eslint no-extend-native:0 */
-
-	  if (Array.prototype.toJSON === undefined) {
-	    return JSON.stringify(obj);
-	  }
-
-	  var toJSON = Array.prototype.toJSON;
-	  delete Array.prototype.toJSON;
-	  var out = JSON.stringify(obj);
-	  Array.prototype.toJSON = toJSON;
-
-	  return out;
-	}
-
-	function shuffle(array) {
-	  var currentIndex = array.length;
-	  var temporaryValue;
-	  var randomIndex;
-
-	  // While there remain elements to shuffle...
-	  while (currentIndex !== 0) {
-	    // Pick a remaining element...
-	    randomIndex = Math.floor(Math.random() * currentIndex);
-	    currentIndex -= 1;
-
-	    // And swap it with the current element.
-	    temporaryValue = array[currentIndex];
-	    array[currentIndex] = array[randomIndex];
-	    array[randomIndex] = temporaryValue;
-	  }
-
-	  return array;
-	}
-
-	function removeCredentials(headers) {
-	  var newHeaders = {};
-
-	  for (var headerName in headers) {
-	    if (Object.prototype.hasOwnProperty.call(headers, headerName)) {
-	      var value;
-
-	      if (headerName === 'x-algolia-api-key' || headerName === 'x-algolia-application-id') {
-	        value = '**hidden for security purposes**';
-	      } else {
-	        value = headers[headerName];
-	      }
-
-	      newHeaders[headerName] = value;
-	    }
-	  }
-
-	  return newHeaders;
-	}
-
-
-/***/ },
-/* 200 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {
-	/**
-	 * This is the web browser implementation of `debug()`.
-	 *
-	 * Expose `debug()` as the module.
-	 */
-
-	exports = module.exports = __webpack_require__(201);
-	exports.log = log;
-	exports.formatArgs = formatArgs;
-	exports.save = save;
-	exports.load = load;
-	exports.useColors = useColors;
-	exports.storage = 'undefined' != typeof chrome
-	               && 'undefined' != typeof chrome.storage
-	                  ? chrome.storage.local
-	                  : localstorage();
-
-	/**
-	 * Colors.
-	 */
-
-	exports.colors = [
-	  'lightseagreen',
-	  'forestgreen',
-	  'goldenrod',
-	  'dodgerblue',
-	  'darkorchid',
-	  'crimson'
-	];
-
-	/**
-	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
-	 * and the Firebug extension (any Firefox version) are known
-	 * to support "%c" CSS customizations.
-	 *
-	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
-	 */
-
-	function useColors() {
-	  // is webkit? http://stackoverflow.com/a/16459606/376773
-	  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
-	  return (typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style) ||
-	    // is firebug? http://stackoverflow.com/a/398120/376773
-	    (window.console && (console.firebug || (console.exception && console.table))) ||
-	    // is firefox >= v31?
-	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
-	}
-
-	/**
-	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
-	 */
-
-	exports.formatters.j = function(v) {
-	  try {
-	    return JSON.stringify(v);
-	  } catch (err) {
-	    return '[UnexpectedJSONParseError]: ' + err.message;
-	  }
-	};
-
-
-	/**
-	 * Colorize log arguments if enabled.
-	 *
-	 * @api public
-	 */
-
-	function formatArgs() {
-	  var args = arguments;
-	  var useColors = this.useColors;
-
-	  args[0] = (useColors ? '%c' : '')
-	    + this.namespace
-	    + (useColors ? ' %c' : ' ')
-	    + args[0]
-	    + (useColors ? '%c ' : ' ')
-	    + '+' + exports.humanize(this.diff);
-
-	  if (!useColors) return args;
-
-	  var c = 'color: ' + this.color;
-	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
-
-	  // the final "%c" is somewhat tricky, because there could be other
-	  // arguments passed either before or after the %c, so we need to
-	  // figure out the correct index to insert the CSS into
-	  var index = 0;
-	  var lastC = 0;
-	  args[0].replace(/%[a-z%]/g, function(match) {
-	    if ('%%' === match) return;
-	    index++;
-	    if ('%c' === match) {
-	      // we only are interested in the *last* %c
-	      // (the user may have provided their own)
-	      lastC = index;
-	    }
-	  });
-
-	  args.splice(lastC, 0, c);
-	  return args;
-	}
-
-	/**
-	 * Invokes `console.log()` when available.
-	 * No-op when `console.log` is not a "function".
-	 *
-	 * @api public
-	 */
-
-	function log() {
-	  // this hackery is required for IE8/9, where
-	  // the `console.log` function doesn't have 'apply'
-	  return 'object' === typeof console
-	    && console.log
-	    && Function.prototype.apply.call(console.log, console, arguments);
-	}
-
-	/**
-	 * Save `namespaces`.
-	 *
-	 * @param {String} namespaces
-	 * @api private
-	 */
-
-	function save(namespaces) {
-	  try {
-	    if (null == namespaces) {
-	      exports.storage.removeItem('debug');
-	    } else {
-	      exports.storage.debug = namespaces;
-	    }
-	  } catch(e) {}
-	}
-
-	/**
-	 * Load `namespaces`.
-	 *
-	 * @return {String} returns the previously persisted debug modes
-	 * @api private
-	 */
-
-	function load() {
-	  var r;
-	  try {
-	    return exports.storage.debug;
-	  } catch(e) {}
-
-	  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-	  if (typeof process !== 'undefined' && 'env' in process) {
-	    return process.env.DEBUG;
-	  }
-	}
-
-	/**
-	 * Enable namespaces listed in `localStorage.debug` initially.
-	 */
-
-	exports.enable(load());
-
-	/**
-	 * Localstorage attempts to return the localstorage.
-	 *
-	 * This is necessary because safari throws
-	 * when a user disables cookies/localstorage
-	 * and you attempt to access it.
-	 *
-	 * @return {LocalStorage}
-	 * @api private
-	 */
-
-	function localstorage(){
-	  try {
-	    return window.localStorage;
-	  } catch (e) {}
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ },
-/* 201 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
-	 * This is the common logic for both the Node.js and web browser
-	 * implementations of `debug()`.
-	 *
-	 * Expose `debug()` as the module.
-	 */
-
-	exports = module.exports = debug.debug = debug;
-	exports.coerce = coerce;
-	exports.disable = disable;
-	exports.enable = enable;
-	exports.enabled = enabled;
-	exports.humanize = __webpack_require__(202);
-
-	/**
-	 * The currently active debug mode names, and names to skip.
-	 */
-
-	exports.names = [];
-	exports.skips = [];
-
-	/**
-	 * Map of special "%n" handling functions, for the debug "format" argument.
-	 *
-	 * Valid key names are a single, lowercased letter, i.e. "n".
-	 */
-
-	exports.formatters = {};
-
-	/**
-	 * Previously assigned color.
-	 */
-
-	var prevColor = 0;
-
-	/**
-	 * Previous log timestamp.
-	 */
-
-	var prevTime;
-
-	/**
-	 * Select a color.
-	 *
-	 * @return {Number}
-	 * @api private
-	 */
-
-	function selectColor() {
-	  return exports.colors[prevColor++ % exports.colors.length];
-	}
-
-	/**
-	 * Create a debugger with the given `namespace`.
-	 *
-	 * @param {String} namespace
-	 * @return {Function}
-	 * @api public
-	 */
-
-	function debug(namespace) {
-
-	  // define the `disabled` version
-	  function disabled() {
-	  }
-	  disabled.enabled = false;
-
-	  // define the `enabled` version
-	  function enabled() {
-
-	    var self = enabled;
-
-	    // set `diff` timestamp
-	    var curr = +new Date();
-	    var ms = curr - (prevTime || curr);
-	    self.diff = ms;
-	    self.prev = prevTime;
-	    self.curr = curr;
-	    prevTime = curr;
-
-	    // add the `color` if not set
-	    if (null == self.useColors) self.useColors = exports.useColors();
-	    if (null == self.color && self.useColors) self.color = selectColor();
-
-	    var args = new Array(arguments.length);
-	    for (var i = 0; i < args.length; i++) {
-	      args[i] = arguments[i];
-	    }
-
-	    args[0] = exports.coerce(args[0]);
-
-	    if ('string' !== typeof args[0]) {
-	      // anything else let's inspect with %o
-	      args = ['%o'].concat(args);
-	    }
-
-	    // apply any `formatters` transformations
-	    var index = 0;
-	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-	      // if we encounter an escaped % then don't increase the array index
-	      if (match === '%%') return match;
-	      index++;
-	      var formatter = exports.formatters[format];
-	      if ('function' === typeof formatter) {
-	        var val = args[index];
-	        match = formatter.call(self, val);
-
-	        // now we need to remove `args[index]` since it's inlined in the `format`
-	        args.splice(index, 1);
-	        index--;
-	      }
-	      return match;
-	    });
-
-	    // apply env-specific formatting
-	    args = exports.formatArgs.apply(self, args);
-
-	    var logFn = enabled.log || exports.log || console.log.bind(console);
-	    logFn.apply(self, args);
-	  }
-	  enabled.enabled = true;
-
-	  var fn = exports.enabled(namespace) ? enabled : disabled;
-
-	  fn.namespace = namespace;
-
-	  return fn;
-	}
-
-	/**
-	 * Enables a debug mode by namespaces. This can include modes
-	 * separated by a colon and wildcards.
-	 *
-	 * @param {String} namespaces
-	 * @api public
-	 */
-
-	function enable(namespaces) {
-	  exports.save(namespaces);
-
-	  var split = (namespaces || '').split(/[\s,]+/);
-	  var len = split.length;
-
-	  for (var i = 0; i < len; i++) {
-	    if (!split[i]) continue; // ignore empty strings
-	    namespaces = split[i].replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.*?');
-	    if (namespaces[0] === '-') {
-	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-	    } else {
-	      exports.names.push(new RegExp('^' + namespaces + '$'));
-	    }
-	  }
-	}
-
-	/**
-	 * Disable debug output.
-	 *
-	 * @api public
-	 */
-
-	function disable() {
-	  exports.enable('');
-	}
-
-	/**
-	 * Returns true if the given mode name is enabled, false otherwise.
-	 *
-	 * @param {String} name
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	function enabled(name) {
-	  var i, len;
-	  for (i = 0, len = exports.skips.length; i < len; i++) {
-	    if (exports.skips[i].test(name)) {
-	      return false;
-	    }
-	  }
-	  for (i = 0, len = exports.names.length; i < len; i++) {
-	    if (exports.names[i].test(name)) {
-	      return true;
-	    }
-	  }
-	  return false;
-	}
-
-	/**
-	 * Coerce `val`.
-	 *
-	 * @param {Mixed} val
-	 * @return {Mixed}
-	 * @api private
-	 */
-
-	function coerce(val) {
-	  if (val instanceof Error) return val.stack || val.message;
-	  return val;
-	}
-
-
-/***/ },
-/* 202 */
-/***/ function(module, exports) {
-
-	/**
-	 * Helpers.
-	 */
-
-	var s = 1000
-	var m = s * 60
-	var h = m * 60
-	var d = h * 24
-	var y = d * 365.25
-
-	/**
-	 * Parse or format the given `val`.
-	 *
-	 * Options:
-	 *
-	 *  - `long` verbose formatting [false]
-	 *
-	 * @param {String|Number} val
-	 * @param {Object} options
-	 * @throws {Error} throw an error if val is not a non-empty string or a number
-	 * @return {String|Number}
-	 * @api public
-	 */
-
-	module.exports = function (val, options) {
-	  options = options || {}
-	  var type = typeof val
-	  if (type === 'string' && val.length > 0) {
-	    return parse(val)
-	  } else if (type === 'number' && isNaN(val) === false) {
-	    return options.long ?
-				fmtLong(val) :
-				fmtShort(val)
-	  }
-	  throw new Error('val is not a non-empty string or a valid number. val=' + JSON.stringify(val))
-	}
-
-	/**
-	 * Parse the given `str` and return milliseconds.
-	 *
-	 * @param {String} str
-	 * @return {Number}
-	 * @api private
-	 */
-
-	function parse(str) {
-	  str = String(str)
-	  if (str.length > 10000) {
-	    return
-	  }
-	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str)
-	  if (!match) {
-	    return
-	  }
-	  var n = parseFloat(match[1])
-	  var type = (match[2] || 'ms').toLowerCase()
-	  switch (type) {
-	    case 'years':
-	    case 'year':
-	    case 'yrs':
-	    case 'yr':
-	    case 'y':
-	      return n * y
-	    case 'days':
-	    case 'day':
-	    case 'd':
-	      return n * d
-	    case 'hours':
-	    case 'hour':
-	    case 'hrs':
-	    case 'hr':
-	    case 'h':
-	      return n * h
-	    case 'minutes':
-	    case 'minute':
-	    case 'mins':
-	    case 'min':
-	    case 'm':
-	      return n * m
-	    case 'seconds':
-	    case 'second':
-	    case 'secs':
-	    case 'sec':
-	    case 's':
-	      return n * s
-	    case 'milliseconds':
-	    case 'millisecond':
-	    case 'msecs':
-	    case 'msec':
-	    case 'ms':
-	      return n
-	    default:
-	      return undefined
-	  }
-	}
-
-	/**
-	 * Short format for `ms`.
-	 *
-	 * @param {Number} ms
-	 * @return {String}
-	 * @api private
-	 */
-
-	function fmtShort(ms) {
-	  if (ms >= d) {
-	    return Math.round(ms / d) + 'd'
-	  }
-	  if (ms >= h) {
-	    return Math.round(ms / h) + 'h'
-	  }
-	  if (ms >= m) {
-	    return Math.round(ms / m) + 'm'
-	  }
-	  if (ms >= s) {
-	    return Math.round(ms / s) + 's'
-	  }
-	  return ms + 'ms'
-	}
-
-	/**
-	 * Long format for `ms`.
-	 *
-	 * @param {Number} ms
-	 * @return {String}
-	 * @api private
-	 */
-
-	function fmtLong(ms) {
-	  return plural(ms, d, 'day') ||
-	    plural(ms, h, 'hour') ||
-	    plural(ms, m, 'minute') ||
-	    plural(ms, s, 'second') ||
-	    ms + ' ms'
-	}
-
-	/**
-	 * Pluralization helper.
-	 */
-
-	function plural(ms, n, name) {
-	  if (ms < n) {
-	    return
-	  }
-	  if (ms < n * 1.5) {
-	    return Math.floor(ms / n) + ' ' + name
-	  }
-	  return Math.ceil(ms / n) + ' ' + name + 's'
-	}
-
-
-/***/ },
-/* 203 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
-
-	var global = __webpack_require__(204);
-	var Promise = global.Promise || __webpack_require__(205).Promise;
-
-	// This is the standalone browser build entry point
-	// Browser implementation of the Algolia Search JavaScript client,
-	// using XMLHttpRequest, XDomainRequest and JSONP as fallback
-	module.exports = function createAlgoliasearch(AlgoliaSearch, uaSuffix) {
-	  var inherits = __webpack_require__(182);
-	  var errors = __webpack_require__(185);
-	  var inlineHeaders = __webpack_require__(207);
-	  var jsonpRequest = __webpack_require__(209);
-	  var places = __webpack_require__(210);
-	  uaSuffix = uaSuffix || '';
-
-	  if (process.env.NODE_ENV === 'debug') {
-	    __webpack_require__(200).enable('algoliasearch*');
-	  }
-
-	  function algoliasearch(applicationID, apiKey, opts) {
-	    var cloneDeep = __webpack_require__(190);
-
-	    var getDocumentProtocol = __webpack_require__(211);
-
-	    opts = cloneDeep(opts || {});
-
-	    if (opts.protocol === undefined) {
-	      opts.protocol = getDocumentProtocol();
-	    }
-
-	    opts._ua = opts._ua || algoliasearch.ua;
-
-	    return new AlgoliaSearchBrowser(applicationID, apiKey, opts);
-	  }
-
-	  algoliasearch.version = __webpack_require__(212);
-	  algoliasearch.ua = 'Algolia for vanilla JavaScript ' + uaSuffix + algoliasearch.version;
-	  algoliasearch.initPlaces = places(algoliasearch);
-
-	  // we expose into window no matter how we are used, this will allow
-	  // us to easily debug any website running algolia
-	  global.__algolia = {
-	    debug: __webpack_require__(200),
-	    algoliasearch: algoliasearch
-	  };
-
-	  var support = {
-	    hasXMLHttpRequest: 'XMLHttpRequest' in global,
-	    hasXDomainRequest: 'XDomainRequest' in global
-	  };
-
-	  if (support.hasXMLHttpRequest) {
-	    support.cors = 'withCredentials' in new XMLHttpRequest();
-	    support.timeout = 'timeout' in new XMLHttpRequest();
-	  }
-
-	  function AlgoliaSearchBrowser() {
-	    // call AlgoliaSearch constructor
-	    AlgoliaSearch.apply(this, arguments);
-	  }
-
-	  inherits(AlgoliaSearchBrowser, AlgoliaSearch);
-
-	  AlgoliaSearchBrowser.prototype._request = function request(url, opts) {
-	    return new Promise(function wrapRequest(resolve, reject) {
-	      // no cors or XDomainRequest, no request
-	      if (!support.cors && !support.hasXDomainRequest) {
-	        // very old browser, not supported
-	        reject(new errors.Network('CORS not supported'));
-	        return;
-	      }
-
-	      url = inlineHeaders(url, opts.headers);
-
-	      var body = opts.body;
-	      var req = support.cors ? new XMLHttpRequest() : new XDomainRequest();
-	      var ontimeout;
-	      var timedOut;
-
-	      // do not rely on default XHR async flag, as some analytics code like hotjar
-	      // breaks it and set it to false by default
-	      if (req instanceof XMLHttpRequest) {
-	        req.open(opts.method, url, true);
-	      } else {
-	        req.open(opts.method, url);
-	      }
-
-	      if (support.cors) {
-	        if (body) {
-	          if (opts.method === 'POST') {
-	            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Simple_requests
-	            req.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-	          } else {
-	            req.setRequestHeader('content-type', 'application/json');
-	          }
-	        }
-	        req.setRequestHeader('accept', 'application/json');
-	      }
-
-	      // we set an empty onprogress listener
-	      // so that XDomainRequest on IE9 is not aborted
-	      // refs:
-	      //  - https://github.com/algolia/algoliasearch-client-js/issues/76
-	      //  - https://social.msdn.microsoft.com/Forums/ie/en-US/30ef3add-767c-4436-b8a9-f1ca19b4812e/ie9-rtm-xdomainrequest-issued-requests-may-abort-if-all-event-handlers-not-specified?forum=iewebdevelopment
-	      req.onprogress = function noop() {};
-
-	      req.onload = load;
-	      req.onerror = error;
-
-	      if (support.timeout) {
-	        // .timeout supported by both XHR and XDR,
-	        // we do receive timeout event, tested
-	        req.timeout = opts.timeout;
-
-	        req.ontimeout = timeout;
-	      } else {
-	        ontimeout = setTimeout(timeout, opts.timeout);
-	      }
-
-	      req.send(body);
-
-	      // event object not received in IE8, at least
-	      // but we do not use it, still important to note
-	      function load(/* event */) {
-	        // When browser does not supports req.timeout, we can
-	        // have both a load and timeout event, since handled by a dumb setTimeout
-	        if (timedOut) {
-	          return;
-	        }
-
-	        if (!support.timeout) {
-	          clearTimeout(ontimeout);
-	        }
-
-	        var out;
-
-	        try {
-	          out = {
-	            body: JSON.parse(req.responseText),
-	            responseText: req.responseText,
-	            statusCode: req.status,
-	            // XDomainRequest does not have any response headers
-	            headers: req.getAllResponseHeaders && req.getAllResponseHeaders() || {}
-	          };
-	        } catch (e) {
-	          out = new errors.UnparsableJSON({
-	            more: req.responseText
-	          });
-	        }
-
-	        if (out instanceof errors.UnparsableJSON) {
-	          reject(out);
-	        } else {
-	          resolve(out);
-	        }
-	      }
-
-	      function error(event) {
-	        if (timedOut) {
-	          return;
-	        }
-
-	        if (!support.timeout) {
-	          clearTimeout(ontimeout);
-	        }
-
-	        // error event is trigerred both with XDR/XHR on:
-	        //   - DNS error
-	        //   - unallowed cross domain request
-	        reject(
-	          new errors.Network({
-	            more: event
-	          })
-	        );
-	      }
-
-	      function timeout() {
-	        if (!support.timeout) {
-	          timedOut = true;
-	          req.abort();
-	        }
-
-	        reject(new errors.RequestTimeout());
-	      }
-	    });
-	  };
-
-	  AlgoliaSearchBrowser.prototype._request.fallback = function requestFallback(url, opts) {
-	    url = inlineHeaders(url, opts.headers);
-
-	    return new Promise(function wrapJsonpRequest(resolve, reject) {
-	      jsonpRequest(url, opts, function jsonpRequestDone(err, content) {
-	        if (err) {
-	          reject(err);
-	          return;
-	        }
-
-	        resolve(content);
-	      });
-	    });
-	  };
-
-	  AlgoliaSearchBrowser.prototype._promise = {
-	    reject: function rejectPromise(val) {
-	      return Promise.reject(val);
-	    },
-	    resolve: function resolvePromise(val) {
-	      return Promise.resolve(val);
-	    },
-	    delay: function delayPromise(ms) {
-	      return new Promise(function resolveOnTimeout(resolve/* , reject*/) {
-	        setTimeout(resolve, ms);
-	      });
-	    }
-	  };
-
-	  return algoliasearch;
-	};
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ },
-/* 204 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {if (typeof window !== "undefined") {
-	    module.exports = window;
-	} else if (typeof global !== "undefined") {
-	    module.exports = global;
-	} else if (typeof self !== "undefined"){
-	    module.exports = self;
-	} else {
-	    module.exports = {};
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 205 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var require;/* WEBPACK VAR INJECTION */(function(process, global) {/*!
-	 * @overview es6-promise - a tiny implementation of Promises/A+.
-	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
-	 * @license   Licensed under MIT license
-	 *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
-	 * @version   3.3.1
-	 */
-
-	(function (global, factory) {
-	     true ? module.exports = factory() :
-	    typeof define === 'function' && define.amd ? define(factory) :
-	    (global.ES6Promise = factory());
-	}(this, (function () { 'use strict';
-
-	function objectOrFunction(x) {
-	  return typeof x === 'function' || typeof x === 'object' && x !== null;
-	}
-
-	function isFunction(x) {
-	  return typeof x === 'function';
-	}
-
-	var _isArray = undefined;
-	if (!Array.isArray) {
-	  _isArray = function (x) {
-	    return Object.prototype.toString.call(x) === '[object Array]';
-	  };
-	} else {
-	  _isArray = Array.isArray;
-	}
-
-	var isArray = _isArray;
-
-	var len = 0;
-	var vertxNext = undefined;
-	var customSchedulerFn = undefined;
-
-	var asap = function asap(callback, arg) {
-	  queue[len] = callback;
-	  queue[len + 1] = arg;
-	  len += 2;
-	  if (len === 2) {
-	    // If len is 2, that means that we need to schedule an async flush.
-	    // If additional callbacks are queued before the queue is flushed, they
-	    // will be processed by this flush that we are scheduling.
-	    if (customSchedulerFn) {
-	      customSchedulerFn(flush);
-	    } else {
-	      scheduleFlush();
-	    }
-	  }
-	};
-
-	function setScheduler(scheduleFn) {
-	  customSchedulerFn = scheduleFn;
-	}
-
-	function setAsap(asapFn) {
-	  asap = asapFn;
-	}
-
-	var browserWindow = typeof window !== 'undefined' ? window : undefined;
-	var browserGlobal = browserWindow || {};
-	var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
-
-	// test for web worker but not in IE10
-	var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
-
-	// node
-	function useNextTick() {
-	  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-	  // see https://github.com/cujojs/when/issues/410 for details
-	  return function () {
-	    return process.nextTick(flush);
-	  };
-	}
-
-	// vertx
-	function useVertxTimer() {
-	  return function () {
-	    vertxNext(flush);
-	  };
-	}
-
-	function useMutationObserver() {
-	  var iterations = 0;
-	  var observer = new BrowserMutationObserver(flush);
-	  var node = document.createTextNode('');
-	  observer.observe(node, { characterData: true });
-
-	  return function () {
-	    node.data = iterations = ++iterations % 2;
-	  };
-	}
-
-	// web worker
-	function useMessageChannel() {
-	  var channel = new MessageChannel();
-	  channel.port1.onmessage = flush;
-	  return function () {
-	    return channel.port2.postMessage(0);
-	  };
-	}
-
-	function useSetTimeout() {
-	  // Store setTimeout reference so es6-promise will be unaffected by
-	  // other code modifying setTimeout (like sinon.useFakeTimers())
-	  var globalSetTimeout = setTimeout;
-	  return function () {
-	    return globalSetTimeout(flush, 1);
-	  };
-	}
-
-	var queue = new Array(1000);
-	function flush() {
-	  for (var i = 0; i < len; i += 2) {
-	    var callback = queue[i];
-	    var arg = queue[i + 1];
-
-	    callback(arg);
-
-	    queue[i] = undefined;
-	    queue[i + 1] = undefined;
-	  }
-
-	  len = 0;
-	}
-
-	function attemptVertx() {
-	  try {
-	    var r = require;
-	    var vertx = __webpack_require__(206);
-	    vertxNext = vertx.runOnLoop || vertx.runOnContext;
-	    return useVertxTimer();
-	  } catch (e) {
-	    return useSetTimeout();
-	  }
-	}
-
-	var scheduleFlush = undefined;
-	// Decide what async method to use to triggering processing of queued callbacks:
-	if (isNode) {
-	  scheduleFlush = useNextTick();
-	} else if (BrowserMutationObserver) {
-	  scheduleFlush = useMutationObserver();
-	} else if (isWorker) {
-	  scheduleFlush = useMessageChannel();
-	} else if (browserWindow === undefined && "function" === 'function') {
-	  scheduleFlush = attemptVertx();
-	} else {
-	  scheduleFlush = useSetTimeout();
-	}
-
-	function then(onFulfillment, onRejection) {
-	  var _arguments = arguments;
-
-	  var parent = this;
-
-	  var child = new this.constructor(noop);
-
-	  if (child[PROMISE_ID] === undefined) {
-	    makePromise(child);
-	  }
-
-	  var _state = parent._state;
-
-	  if (_state) {
-	    (function () {
-	      var callback = _arguments[_state - 1];
-	      asap(function () {
-	        return invokeCallback(_state, child, callback, parent._result);
-	      });
-	    })();
-	  } else {
-	    subscribe(parent, child, onFulfillment, onRejection);
-	  }
-
-	  return child;
-	}
-
-	/**
-	  `Promise.resolve` returns a promise that will become resolved with the
-	  passed `value`. It is shorthand for the following:
-
-	  ```javascript
-	  let promise = new Promise(function(resolve, reject){
-	    resolve(1);
-	  });
-
-	  promise.then(function(value){
-	    // value === 1
-	  });
-	  ```
-
-	  Instead of writing the above, your code now simply becomes the following:
-
-	  ```javascript
-	  let promise = Promise.resolve(1);
-
-	  promise.then(function(value){
-	    // value === 1
-	  });
-	  ```
-
-	  @method resolve
-	  @static
-	  @param {Any} value value that the returned promise will be resolved with
-	  Useful for tooling.
-	  @return {Promise} a promise that will become fulfilled with the given
-	  `value`
-	*/
-	function resolve(object) {
-	  /*jshint validthis:true */
-	  var Constructor = this;
-
-	  if (object && typeof object === 'object' && object.constructor === Constructor) {
-	    return object;
-	  }
-
-	  var promise = new Constructor(noop);
-	  _resolve(promise, object);
-	  return promise;
-	}
-
-	var PROMISE_ID = Math.random().toString(36).substring(16);
-
-	function noop() {}
-
-	var PENDING = void 0;
-	var FULFILLED = 1;
-	var REJECTED = 2;
-
-	var GET_THEN_ERROR = new ErrorObject();
-
-	function selfFulfillment() {
-	  return new TypeError("You cannot resolve a promise with itself");
-	}
-
-	function cannotReturnOwn() {
-	  return new TypeError('A promises callback cannot return that same promise.');
-	}
-
-	function getThen(promise) {
-	  try {
-	    return promise.then;
-	  } catch (error) {
-	    GET_THEN_ERROR.error = error;
-	    return GET_THEN_ERROR;
-	  }
-	}
-
-	function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
-	  try {
-	    then.call(value, fulfillmentHandler, rejectionHandler);
-	  } catch (e) {
-	    return e;
-	  }
-	}
-
-	function handleForeignThenable(promise, thenable, then) {
-	  asap(function (promise) {
-	    var sealed = false;
-	    var error = tryThen(then, thenable, function (value) {
-	      if (sealed) {
-	        return;
-	      }
-	      sealed = true;
-	      if (thenable !== value) {
-	        _resolve(promise, value);
-	      } else {
-	        fulfill(promise, value);
-	      }
-	    }, function (reason) {
-	      if (sealed) {
-	        return;
-	      }
-	      sealed = true;
-
-	      _reject(promise, reason);
-	    }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-	    if (!sealed && error) {
-	      sealed = true;
-	      _reject(promise, error);
-	    }
-	  }, promise);
-	}
-
-	function handleOwnThenable(promise, thenable) {
-	  if (thenable._state === FULFILLED) {
-	    fulfill(promise, thenable._result);
-	  } else if (thenable._state === REJECTED) {
-	    _reject(promise, thenable._result);
-	  } else {
-	    subscribe(thenable, undefined, function (value) {
-	      return _resolve(promise, value);
-	    }, function (reason) {
-	      return _reject(promise, reason);
-	    });
-	  }
-	}
-
-	function handleMaybeThenable(promise, maybeThenable, then$$) {
-	  if (maybeThenable.constructor === promise.constructor && then$$ === then && maybeThenable.constructor.resolve === resolve) {
-	    handleOwnThenable(promise, maybeThenable);
-	  } else {
-	    if (then$$ === GET_THEN_ERROR) {
-	      _reject(promise, GET_THEN_ERROR.error);
-	    } else if (then$$ === undefined) {
-	      fulfill(promise, maybeThenable);
-	    } else if (isFunction(then$$)) {
-	      handleForeignThenable(promise, maybeThenable, then$$);
-	    } else {
-	      fulfill(promise, maybeThenable);
-	    }
-	  }
-	}
-
-	function _resolve(promise, value) {
-	  if (promise === value) {
-	    _reject(promise, selfFulfillment());
-	  } else if (objectOrFunction(value)) {
-	    handleMaybeThenable(promise, value, getThen(value));
-	  } else {
-	    fulfill(promise, value);
-	  }
-	}
-
-	function publishRejection(promise) {
-	  if (promise._onerror) {
-	    promise._onerror(promise._result);
-	  }
-
-	  publish(promise);
-	}
-
-	function fulfill(promise, value) {
-	  if (promise._state !== PENDING) {
-	    return;
-	  }
-
-	  promise._result = value;
-	  promise._state = FULFILLED;
-
-	  if (promise._subscribers.length !== 0) {
-	    asap(publish, promise);
-	  }
-	}
-
-	function _reject(promise, reason) {
-	  if (promise._state !== PENDING) {
-	    return;
-	  }
-	  promise._state = REJECTED;
-	  promise._result = reason;
-
-	  asap(publishRejection, promise);
-	}
-
-	function subscribe(parent, child, onFulfillment, onRejection) {
-	  var _subscribers = parent._subscribers;
-	  var length = _subscribers.length;
-
-	  parent._onerror = null;
-
-	  _subscribers[length] = child;
-	  _subscribers[length + FULFILLED] = onFulfillment;
-	  _subscribers[length + REJECTED] = onRejection;
-
-	  if (length === 0 && parent._state) {
-	    asap(publish, parent);
-	  }
-	}
-
-	function publish(promise) {
-	  var subscribers = promise._subscribers;
-	  var settled = promise._state;
-
-	  if (subscribers.length === 0) {
-	    return;
-	  }
-
-	  var child = undefined,
-	      callback = undefined,
-	      detail = promise._result;
-
-	  for (var i = 0; i < subscribers.length; i += 3) {
-	    child = subscribers[i];
-	    callback = subscribers[i + settled];
-
-	    if (child) {
-	      invokeCallback(settled, child, callback, detail);
-	    } else {
-	      callback(detail);
-	    }
-	  }
-
-	  promise._subscribers.length = 0;
-	}
-
-	function ErrorObject() {
-	  this.error = null;
-	}
-
-	var TRY_CATCH_ERROR = new ErrorObject();
-
-	function tryCatch(callback, detail) {
-	  try {
-	    return callback(detail);
-	  } catch (e) {
-	    TRY_CATCH_ERROR.error = e;
-	    return TRY_CATCH_ERROR;
-	  }
-	}
-
-	function invokeCallback(settled, promise, callback, detail) {
-	  var hasCallback = isFunction(callback),
-	      value = undefined,
-	      error = undefined,
-	      succeeded = undefined,
-	      failed = undefined;
-
-	  if (hasCallback) {
-	    value = tryCatch(callback, detail);
-
-	    if (value === TRY_CATCH_ERROR) {
-	      failed = true;
-	      error = value.error;
-	      value = null;
-	    } else {
-	      succeeded = true;
-	    }
-
-	    if (promise === value) {
-	      _reject(promise, cannotReturnOwn());
-	      return;
-	    }
-	  } else {
-	    value = detail;
-	    succeeded = true;
-	  }
-
-	  if (promise._state !== PENDING) {
-	    // noop
-	  } else if (hasCallback && succeeded) {
-	      _resolve(promise, value);
-	    } else if (failed) {
-	      _reject(promise, error);
-	    } else if (settled === FULFILLED) {
-	      fulfill(promise, value);
-	    } else if (settled === REJECTED) {
-	      _reject(promise, value);
-	    }
-	}
-
-	function initializePromise(promise, resolver) {
-	  try {
-	    resolver(function resolvePromise(value) {
-	      _resolve(promise, value);
-	    }, function rejectPromise(reason) {
-	      _reject(promise, reason);
-	    });
-	  } catch (e) {
-	    _reject(promise, e);
-	  }
-	}
-
-	var id = 0;
-	function nextId() {
-	  return id++;
-	}
-
-	function makePromise(promise) {
-	  promise[PROMISE_ID] = id++;
-	  promise._state = undefined;
-	  promise._result = undefined;
-	  promise._subscribers = [];
-	}
-
-	function Enumerator(Constructor, input) {
-	  this._instanceConstructor = Constructor;
-	  this.promise = new Constructor(noop);
-
-	  if (!this.promise[PROMISE_ID]) {
-	    makePromise(this.promise);
-	  }
-
-	  if (isArray(input)) {
-	    this._input = input;
-	    this.length = input.length;
-	    this._remaining = input.length;
-
-	    this._result = new Array(this.length);
-
-	    if (this.length === 0) {
-	      fulfill(this.promise, this._result);
-	    } else {
-	      this.length = this.length || 0;
-	      this._enumerate();
-	      if (this._remaining === 0) {
-	        fulfill(this.promise, this._result);
-	      }
-	    }
-	  } else {
-	    _reject(this.promise, validationError());
-	  }
-	}
-
-	function validationError() {
-	  return new Error('Array Methods must be provided an Array');
-	};
-
-	Enumerator.prototype._enumerate = function () {
-	  var length = this.length;
-	  var _input = this._input;
-
-	  for (var i = 0; this._state === PENDING && i < length; i++) {
-	    this._eachEntry(_input[i], i);
-	  }
-	};
-
-	Enumerator.prototype._eachEntry = function (entry, i) {
-	  var c = this._instanceConstructor;
-	  var resolve$$ = c.resolve;
-
-	  if (resolve$$ === resolve) {
-	    var _then = getThen(entry);
-
-	    if (_then === then && entry._state !== PENDING) {
-	      this._settledAt(entry._state, i, entry._result);
-	    } else if (typeof _then !== 'function') {
-	      this._remaining--;
-	      this._result[i] = entry;
-	    } else if (c === Promise) {
-	      var promise = new c(noop);
-	      handleMaybeThenable(promise, entry, _then);
-	      this._willSettleAt(promise, i);
-	    } else {
-	      this._willSettleAt(new c(function (resolve$$) {
-	        return resolve$$(entry);
-	      }), i);
-	    }
-	  } else {
-	    this._willSettleAt(resolve$$(entry), i);
-	  }
-	};
-
-	Enumerator.prototype._settledAt = function (state, i, value) {
-	  var promise = this.promise;
-
-	  if (promise._state === PENDING) {
-	    this._remaining--;
-
-	    if (state === REJECTED) {
-	      _reject(promise, value);
-	    } else {
-	      this._result[i] = value;
-	    }
-	  }
-
-	  if (this._remaining === 0) {
-	    fulfill(promise, this._result);
-	  }
-	};
-
-	Enumerator.prototype._willSettleAt = function (promise, i) {
-	  var enumerator = this;
-
-	  subscribe(promise, undefined, function (value) {
-	    return enumerator._settledAt(FULFILLED, i, value);
-	  }, function (reason) {
-	    return enumerator._settledAt(REJECTED, i, reason);
-	  });
-	};
-
-	/**
-	  `Promise.all` accepts an array of promises, and returns a new promise which
-	  is fulfilled with an array of fulfillment values for the passed promises, or
-	  rejected with the reason of the first passed promise to be rejected. It casts all
-	  elements of the passed iterable to promises as it runs this algorithm.
-
-	  Example:
-
-	  ```javascript
-	  let promise1 = resolve(1);
-	  let promise2 = resolve(2);
-	  let promise3 = resolve(3);
-	  let promises = [ promise1, promise2, promise3 ];
-
-	  Promise.all(promises).then(function(array){
-	    // The array here would be [ 1, 2, 3 ];
-	  });
-	  ```
-
-	  If any of the `promises` given to `all` are rejected, the first promise
-	  that is rejected will be given as an argument to the returned promises's
-	  rejection handler. For example:
-
-	  Example:
-
-	  ```javascript
-	  let promise1 = resolve(1);
-	  let promise2 = reject(new Error("2"));
-	  let promise3 = reject(new Error("3"));
-	  let promises = [ promise1, promise2, promise3 ];
-
-	  Promise.all(promises).then(function(array){
-	    // Code here never runs because there are rejected promises!
-	  }, function(error) {
-	    // error.message === "2"
-	  });
-	  ```
-
-	  @method all
-	  @static
-	  @param {Array} entries array of promises
-	  @param {String} label optional string for labeling the promise.
-	  Useful for tooling.
-	  @return {Promise} promise that is fulfilled when all `promises` have been
-	  fulfilled, or rejected if any of them become rejected.
-	  @static
-	*/
-	function all(entries) {
-	  return new Enumerator(this, entries).promise;
-	}
-
-	/**
-	  `Promise.race` returns a new promise which is settled in the same way as the
-	  first passed promise to settle.
-
-	  Example:
-
-	  ```javascript
-	  let promise1 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      resolve('promise 1');
-	    }, 200);
-	  });
-
-	  let promise2 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      resolve('promise 2');
-	    }, 100);
-	  });
-
-	  Promise.race([promise1, promise2]).then(function(result){
-	    // result === 'promise 2' because it was resolved before promise1
-	    // was resolved.
-	  });
-	  ```
-
-	  `Promise.race` is deterministic in that only the state of the first
-	  settled promise matters. For example, even if other promises given to the
-	  `promises` array argument are resolved, but the first settled promise has
-	  become rejected before the other promises became fulfilled, the returned
-	  promise will become rejected:
-
-	  ```javascript
-	  let promise1 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      resolve('promise 1');
-	    }, 200);
-	  });
-
-	  let promise2 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      reject(new Error('promise 2'));
-	    }, 100);
-	  });
-
-	  Promise.race([promise1, promise2]).then(function(result){
-	    // Code here never runs
-	  }, function(reason){
-	    // reason.message === 'promise 2' because promise 2 became rejected before
-	    // promise 1 became fulfilled
-	  });
-	  ```
-
-	  An example real-world use case is implementing timeouts:
-
-	  ```javascript
-	  Promise.race([ajax('foo.json'), timeout(5000)])
-	  ```
-
-	  @method race
-	  @static
-	  @param {Array} promises array of promises to observe
-	  Useful for tooling.
-	  @return {Promise} a promise which settles in the same way as the first passed
-	  promise to settle.
-	*/
-	function race(entries) {
-	  /*jshint validthis:true */
-	  var Constructor = this;
-
-	  if (!isArray(entries)) {
-	    return new Constructor(function (_, reject) {
-	      return reject(new TypeError('You must pass an array to race.'));
-	    });
-	  } else {
-	    return new Constructor(function (resolve, reject) {
-	      var length = entries.length;
-	      for (var i = 0; i < length; i++) {
-	        Constructor.resolve(entries[i]).then(resolve, reject);
-	      }
-	    });
-	  }
-	}
-
-	/**
-	  `Promise.reject` returns a promise rejected with the passed `reason`.
-	  It is shorthand for the following:
-
-	  ```javascript
-	  let promise = new Promise(function(resolve, reject){
-	    reject(new Error('WHOOPS'));
-	  });
-
-	  promise.then(function(value){
-	    // Code here doesn't run because the promise is rejected!
-	  }, function(reason){
-	    // reason.message === 'WHOOPS'
-	  });
-	  ```
-
-	  Instead of writing the above, your code now simply becomes the following:
-
-	  ```javascript
-	  let promise = Promise.reject(new Error('WHOOPS'));
-
-	  promise.then(function(value){
-	    // Code here doesn't run because the promise is rejected!
-	  }, function(reason){
-	    // reason.message === 'WHOOPS'
-	  });
-	  ```
-
-	  @method reject
-	  @static
-	  @param {Any} reason value that the returned promise will be rejected with.
-	  Useful for tooling.
-	  @return {Promise} a promise rejected with the given `reason`.
-	*/
-	function reject(reason) {
-	  /*jshint validthis:true */
-	  var Constructor = this;
-	  var promise = new Constructor(noop);
-	  _reject(promise, reason);
-	  return promise;
-	}
-
-	function needsResolver() {
-	  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-	}
-
-	function needsNew() {
-	  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-	}
-
-	/**
-	  Promise objects represent the eventual result of an asynchronous operation. The
-	  primary way of interacting with a promise is through its `then` method, which
-	  registers callbacks to receive either a promise's eventual value or the reason
-	  why the promise cannot be fulfilled.
-
-	  Terminology
-	  -----------
-
-	  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-	  - `thenable` is an object or function that defines a `then` method.
-	  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-	  - `exception` is a value that is thrown using the throw statement.
-	  - `reason` is a value that indicates why a promise was rejected.
-	  - `settled` the final resting state of a promise, fulfilled or rejected.
-
-	  A promise can be in one of three states: pending, fulfilled, or rejected.
-
-	  Promises that are fulfilled have a fulfillment value and are in the fulfilled
-	  state.  Promises that are rejected have a rejection reason and are in the
-	  rejected state.  A fulfillment value is never a thenable.
-
-	  Promises can also be said to *resolve* a value.  If this value is also a
-	  promise, then the original promise's settled state will match the value's
-	  settled state.  So a promise that *resolves* a promise that rejects will
-	  itself reject, and a promise that *resolves* a promise that fulfills will
-	  itself fulfill.
-
-
-	  Basic Usage:
-	  ------------
-
-	  ```js
-	  let promise = new Promise(function(resolve, reject) {
-	    // on success
-	    resolve(value);
-
-	    // on failure
-	    reject(reason);
-	  });
-
-	  promise.then(function(value) {
-	    // on fulfillment
-	  }, function(reason) {
-	    // on rejection
-	  });
-	  ```
-
-	  Advanced Usage:
-	  ---------------
-
-	  Promises shine when abstracting away asynchronous interactions such as
-	  `XMLHttpRequest`s.
-
-	  ```js
-	  function getJSON(url) {
-	    return new Promise(function(resolve, reject){
-	      let xhr = new XMLHttpRequest();
-
-	      xhr.open('GET', url);
-	      xhr.onreadystatechange = handler;
-	      xhr.responseType = 'json';
-	      xhr.setRequestHeader('Accept', 'application/json');
-	      xhr.send();
-
-	      function handler() {
-	        if (this.readyState === this.DONE) {
-	          if (this.status === 200) {
-	            resolve(this.response);
-	          } else {
-	            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-	          }
-	        }
-	      };
-	    });
-	  }
-
-	  getJSON('/posts.json').then(function(json) {
-	    // on fulfillment
-	  }, function(reason) {
-	    // on rejection
-	  });
-	  ```
-
-	  Unlike callbacks, promises are great composable primitives.
-
-	  ```js
-	  Promise.all([
-	    getJSON('/posts'),
-	    getJSON('/comments')
-	  ]).then(function(values){
-	    values[0] // => postsJSON
-	    values[1] // => commentsJSON
-
-	    return values;
-	  });
-	  ```
-
-	  @class Promise
-	  @param {function} resolver
-	  Useful for tooling.
-	  @constructor
-	*/
-	function Promise(resolver) {
-	  this[PROMISE_ID] = nextId();
-	  this._result = this._state = undefined;
-	  this._subscribers = [];
-
-	  if (noop !== resolver) {
-	    typeof resolver !== 'function' && needsResolver();
-	    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-	  }
-	}
-
-	Promise.all = all;
-	Promise.race = race;
-	Promise.resolve = resolve;
-	Promise.reject = reject;
-	Promise._setScheduler = setScheduler;
-	Promise._setAsap = setAsap;
-	Promise._asap = asap;
-
-	Promise.prototype = {
-	  constructor: Promise,
-
-	  /**
-	    The primary way of interacting with a promise is through its `then` method,
-	    which registers callbacks to receive either a promise's eventual value or the
-	    reason why the promise cannot be fulfilled.
-	  
-	    ```js
-	    findUser().then(function(user){
-	      // user is available
-	    }, function(reason){
-	      // user is unavailable, and you are given the reason why
-	    });
-	    ```
-	  
-	    Chaining
-	    --------
-	  
-	    The return value of `then` is itself a promise.  This second, 'downstream'
-	    promise is resolved with the return value of the first promise's fulfillment
-	    or rejection handler, or rejected if the handler throws an exception.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return user.name;
-	    }, function (reason) {
-	      return 'default name';
-	    }).then(function (userName) {
-	      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-	      // will be `'default name'`
-	    });
-	  
-	    findUser().then(function (user) {
-	      throw new Error('Found user, but still unhappy');
-	    }, function (reason) {
-	      throw new Error('`findUser` rejected and we're unhappy');
-	    }).then(function (value) {
-	      // never reached
-	    }, function (reason) {
-	      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-	      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-	    });
-	    ```
-	    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      throw new PedagogicalException('Upstream error');
-	    }).then(function (value) {
-	      // never reached
-	    }).then(function (value) {
-	      // never reached
-	    }, function (reason) {
-	      // The `PedgagocialException` is propagated all the way down to here
-	    });
-	    ```
-	  
-	    Assimilation
-	    ------------
-	  
-	    Sometimes the value you want to propagate to a downstream promise can only be
-	    retrieved asynchronously. This can be achieved by returning a promise in the
-	    fulfillment or rejection handler. The downstream promise will then be pending
-	    until the returned promise is settled. This is called *assimilation*.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return findCommentsByAuthor(user);
-	    }).then(function (comments) {
-	      // The user's comments are now available
-	    });
-	    ```
-	  
-	    If the assimliated promise rejects, then the downstream promise will also reject.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return findCommentsByAuthor(user);
-	    }).then(function (comments) {
-	      // If `findCommentsByAuthor` fulfills, we'll have the value here
-	    }, function (reason) {
-	      // If `findCommentsByAuthor` rejects, we'll have the reason here
-	    });
-	    ```
-	  
-	    Simple Example
-	    --------------
-	  
-	    Synchronous Example
-	  
-	    ```javascript
-	    let result;
-	  
-	    try {
-	      result = findResult();
-	      // success
-	    } catch(reason) {
-	      // failure
-	    }
-	    ```
-	  
-	    Errback Example
-	  
-	    ```js
-	    findResult(function(result, err){
-	      if (err) {
-	        // failure
-	      } else {
-	        // success
-	      }
-	    });
-	    ```
-	  
-	    Promise Example;
-	  
-	    ```javascript
-	    findResult().then(function(result){
-	      // success
-	    }, function(reason){
-	      // failure
-	    });
-	    ```
-	  
-	    Advanced Example
-	    --------------
-	  
-	    Synchronous Example
-	  
-	    ```javascript
-	    let author, books;
-	  
-	    try {
-	      author = findAuthor();
-	      books  = findBooksByAuthor(author);
-	      // success
-	    } catch(reason) {
-	      // failure
-	    }
-	    ```
-	  
-	    Errback Example
-	  
-	    ```js
-	  
-	    function foundBooks(books) {
-	  
-	    }
-	  
-	    function failure(reason) {
-	  
-	    }
-	  
-	    findAuthor(function(author, err){
-	      if (err) {
-	        failure(err);
-	        // failure
-	      } else {
-	        try {
-	          findBoooksByAuthor(author, function(books, err) {
-	            if (err) {
-	              failure(err);
-	            } else {
-	              try {
-	                foundBooks(books);
-	              } catch(reason) {
-	                failure(reason);
-	              }
-	            }
-	          });
-	        } catch(error) {
-	          failure(err);
-	        }
-	        // success
-	      }
-	    });
-	    ```
-	  
-	    Promise Example;
-	  
-	    ```javascript
-	    findAuthor().
-	      then(findBooksByAuthor).
-	      then(function(books){
-	        // found books
-	    }).catch(function(reason){
-	      // something went wrong
-	    });
-	    ```
-	  
-	    @method then
-	    @param {Function} onFulfilled
-	    @param {Function} onRejected
-	    Useful for tooling.
-	    @return {Promise}
-	  */
-	  then: then,
-
-	  /**
-	    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-	    as the catch block of a try/catch statement.
-	  
-	    ```js
-	    function findAuthor(){
-	      throw new Error('couldn't find that author');
-	    }
-	  
-	    // synchronous
-	    try {
-	      findAuthor();
-	    } catch(reason) {
-	      // something went wrong
-	    }
-	  
-	    // async with promises
-	    findAuthor().catch(function(reason){
-	      // something went wrong
-	    });
-	    ```
-	  
-	    @method catch
-	    @param {Function} onRejection
-	    Useful for tooling.
-	    @return {Promise}
-	  */
-	  'catch': function _catch(onRejection) {
-	    return this.then(null, onRejection);
-	  }
-	};
-
-	function polyfill() {
-	    var local = undefined;
-
-	    if (typeof global !== 'undefined') {
-	        local = global;
-	    } else if (typeof self !== 'undefined') {
-	        local = self;
-	    } else {
-	        try {
-	            local = Function('return this')();
-	        } catch (e) {
-	            throw new Error('polyfill failed because global object is unavailable in this environment');
-	        }
-	    }
-
-	    var P = local.Promise;
-
-	    if (P) {
-	        var promiseToString = null;
-	        try {
-	            promiseToString = Object.prototype.toString.call(P.resolve());
-	        } catch (e) {
-	            // silently ignored
-	        }
-
-	        if (promiseToString === '[object Promise]' && !P.cast) {
-	            return;
-	        }
-	    }
-
-	    local.Promise = Promise;
-	}
-
-	polyfill();
-	// Strange compat..
-	Promise.polyfill = polyfill;
-	Promise.Promise = Promise;
-
-	return Promise;
-
-	})));
-	//# sourceMappingURL=es6-promise.map
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), (function() { return this; }())))
-
-/***/ },
-/* 206 */
-/***/ function(module, exports) {
-
-	/* (ignored) */
-
-/***/ },
-/* 207 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = inlineHeaders;
-
-	var encode = __webpack_require__(208);
-
-	function inlineHeaders(url, headers) {
-	  if (/\?/.test(url)) {
-	    url += '&';
-	  } else {
-	    url += '?';
-	  }
-
-	  return url + encode(headers);
-	}
-
-
-/***/ },
-/* 208 */
-/***/ function(module, exports) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	'use strict';
-
-	var stringifyPrimitive = function(v) {
-	  switch (typeof v) {
-	    case 'string':
-	      return v;
-
-	    case 'boolean':
-	      return v ? 'true' : 'false';
-
-	    case 'number':
-	      return isFinite(v) ? v : '';
-
-	    default:
-	      return '';
-	  }
-	};
-
-	module.exports = function(obj, sep, eq, name) {
-	  sep = sep || '&';
-	  eq = eq || '=';
-	  if (obj === null) {
-	    obj = undefined;
-	  }
-
-	  if (typeof obj === 'object') {
-	    return map(objectKeys(obj), function(k) {
-	      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
-	      if (isArray(obj[k])) {
-	        return map(obj[k], function(v) {
-	          return ks + encodeURIComponent(stringifyPrimitive(v));
-	        }).join(sep);
-	      } else {
-	        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
-	      }
-	    }).join(sep);
-
-	  }
-
-	  if (!name) return '';
-	  return encodeURIComponent(stringifyPrimitive(name)) + eq +
-	         encodeURIComponent(stringifyPrimitive(obj));
-	};
-
-	var isArray = Array.isArray || function (xs) {
-	  return Object.prototype.toString.call(xs) === '[object Array]';
-	};
-
-	function map (xs, f) {
-	  if (xs.map) return xs.map(f);
-	  var res = [];
-	  for (var i = 0; i < xs.length; i++) {
-	    res.push(f(xs[i], i));
-	  }
-	  return res;
-	}
-
-	var objectKeys = Object.keys || function (obj) {
-	  var res = [];
-	  for (var key in obj) {
-	    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
-	  }
-	  return res;
-	};
-
-
-/***/ },
-/* 209 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = jsonpRequest;
-
-	var errors = __webpack_require__(185);
-
-	var JSONPCounter = 0;
-
-	function jsonpRequest(url, opts, cb) {
-	  if (opts.method !== 'GET') {
-	    cb(new Error('Method ' + opts.method + ' ' + url + ' is not supported by JSONP.'));
-	    return;
-	  }
-
-	  opts.debug('JSONP: start');
-
-	  var cbCalled = false;
-	  var timedOut = false;
-
-	  JSONPCounter += 1;
-	  var head = document.getElementsByTagName('head')[0];
-	  var script = document.createElement('script');
-	  var cbName = 'algoliaJSONP_' + JSONPCounter;
-	  var done = false;
-
-	  window[cbName] = function(data) {
-	    removeGlobals();
-
-	    if (timedOut) {
-	      opts.debug('JSONP: Late answer, ignoring');
-	      return;
-	    }
-
-	    cbCalled = true;
-
-	    clean();
-
-	    cb(null, {
-	      body: data/* ,
-	      // We do not send the statusCode, there's no statusCode in JSONP, it will be
-	      // computed using data.status && data.message like with XDR
-	      statusCode*/
-	    });
-	  };
-
-	  // add callback by hand
-	  url += '&callback=' + cbName;
-
-	  // add body params manually
-	  if (opts.jsonBody && opts.jsonBody.params) {
-	    url += '&' + opts.jsonBody.params;
-	  }
-
-	  var ontimeout = setTimeout(timeout, opts.timeout);
-
-	  // script onreadystatechange needed only for
-	  // <= IE8
-	  // https://github.com/angular/angular.js/issues/4523
-	  script.onreadystatechange = readystatechange;
-	  script.onload = success;
-	  script.onerror = error;
-
-	  script.async = true;
-	  script.defer = true;
-	  script.src = url;
-	  head.appendChild(script);
-
-	  function success() {
-	    opts.debug('JSONP: success');
-
-	    if (done || timedOut) {
-	      return;
-	    }
-
-	    done = true;
-
-	    // script loaded but did not call the fn => script loading error
-	    if (!cbCalled) {
-	      opts.debug('JSONP: Fail. Script loaded but did not call the callback');
-	      clean();
-	      cb(new errors.JSONPScriptFail());
-	    }
-	  }
-
-	  function readystatechange() {
-	    if (this.readyState === 'loaded' || this.readyState === 'complete') {
-	      success();
-	    }
-	  }
-
-	  function clean() {
-	    clearTimeout(ontimeout);
-	    script.onload = null;
-	    script.onreadystatechange = null;
-	    script.onerror = null;
-	    head.removeChild(script);
-	  }
-
-	  function removeGlobals() {
-	    try {
-	      delete window[cbName];
-	      delete window[cbName + '_loaded'];
-	    } catch (e) {
-	      window[cbName] = window[cbName + '_loaded'] = undefined;
-	    }
-	  }
-
-	  function timeout() {
-	    opts.debug('JSONP: Script timeout');
-	    timedOut = true;
-	    clean();
-	    cb(new errors.RequestTimeout());
-	  }
-
-	  function error() {
-	    opts.debug('JSONP: Script error');
-
-	    if (done || timedOut) {
-	      return;
-	    }
-
-	    clean();
-	    cb(new errors.JSONPScriptError());
-	  }
-	}
-
-
-/***/ },
-/* 210 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = createPlacesClient;
-
-	var buildSearchMethod = __webpack_require__(184);
-
-	function createPlacesClient(algoliasearch) {
-	  return function places(appID, apiKey, opts) {
-	    var cloneDeep = __webpack_require__(190);
-
-	    opts = opts && cloneDeep(opts) || {};
-	    opts.hosts = opts.hosts || [
-	      'places-dsn.algolia.net',
-	      'places-1.algolianet.com',
-	      'places-2.algolianet.com',
-	      'places-3.algolianet.com'
-	    ];
-
-	    // allow initPlaces() no arguments => community rate limited
-	    if (arguments.length === 0 || typeof appID === 'object' || appID === undefined) {
-	      appID = '';
-	      apiKey = '';
-	      opts._allowEmptyCredentials = true;
-	    }
-
-	    var client = algoliasearch(appID, apiKey, opts);
-	    var index = client.initIndex('places');
-	    index.search = buildSearchMethod('query', '/1/places/query');
-	    return index;
-	  };
-	}
-
-
-/***/ },
-/* 211 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = getDocumentProtocol;
-
-	function getDocumentProtocol() {
-	  var protocol = window.document.location.protocol;
-
-	  // when in `file:` mode (local html file), default to `http:`
-	  if (protocol !== 'http:' && protocol !== 'https:') {
-	    protocol = 'http:';
-	  }
-
-	  return protocol;
-	}
-
-
-/***/ },
-/* 212 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = '3.19.2';
-
-
-/***/ },
-/* 213 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var AlgoliaSearchHelper = __webpack_require__(214);
-
-	var SearchParameters = __webpack_require__(215);
-	var SearchResults = __webpack_require__(438);
+	var SearchParameters = __webpack_require__(181);
+	var SearchResults = __webpack_require__(404);
 
 	/**
 	 * The algoliasearchHelper module is the function that will let its
@@ -37504,7 +31866,7 @@
 	 * @member module:algoliasearchHelper.version
 	 * @type {number}
 	 */
-	algoliasearchHelper.version = __webpack_require__(508);
+	algoliasearchHelper.version = __webpack_require__(475);
 
 	/**
 	 * Constructor for the Helper.
@@ -37534,29 +31896,29 @@
 	 * @type {object} {@link url}
 	 *
 	 */
-	algoliasearchHelper.url = __webpack_require__(495);
+	algoliasearchHelper.url = __webpack_require__(462);
 
 	module.exports = algoliasearchHelper;
 
 
 /***/ },
-/* 214 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var SearchParameters = __webpack_require__(215);
-	var SearchResults = __webpack_require__(438);
-	var requestBuilder = __webpack_require__(490);
+	var SearchParameters = __webpack_require__(181);
+	var SearchResults = __webpack_require__(404);
+	var requestBuilder = __webpack_require__(456);
 
-	var util = __webpack_require__(491);
-	var events = __webpack_require__(198);
+	var util = __webpack_require__(457);
+	var events = __webpack_require__(460);
 
-	var forEach = __webpack_require__(304);
-	var bind = __webpack_require__(494);
-	var isEmpty = __webpack_require__(409);
+	var forEach = __webpack_require__(270);
+	var bind = __webpack_require__(461);
+	var isEmpty = __webpack_require__(375);
 
-	var url = __webpack_require__(495);
+	var url = __webpack_require__(462);
 
 	/**
 	 * Event triggered when a parameter is set or updated
@@ -38719,38 +33081,38 @@
 
 
 /***/ },
-/* 215 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var keys = __webpack_require__(216);
-	var intersection = __webpack_require__(245);
-	var forOwn = __webpack_require__(299);
-	var forEach = __webpack_require__(304);
-	var filter = __webpack_require__(308);
-	var map = __webpack_require__(355);
-	var reduce = __webpack_require__(357);
-	var omit = __webpack_require__(360);
-	var indexOf = __webpack_require__(403);
-	var isNaN = __webpack_require__(407);
-	var isArray = __webpack_require__(228);
-	var isEmpty = __webpack_require__(409);
-	var isEqual = __webpack_require__(410);
-	var isUndefined = __webpack_require__(411);
-	var isString = __webpack_require__(412);
-	var isFunction = __webpack_require__(243);
-	var find = __webpack_require__(413);
-	var trim = __webpack_require__(416);
+	var keys = __webpack_require__(182);
+	var intersection = __webpack_require__(211);
+	var forOwn = __webpack_require__(265);
+	var forEach = __webpack_require__(270);
+	var filter = __webpack_require__(274);
+	var map = __webpack_require__(321);
+	var reduce = __webpack_require__(323);
+	var omit = __webpack_require__(326);
+	var indexOf = __webpack_require__(369);
+	var isNaN = __webpack_require__(373);
+	var isArray = __webpack_require__(194);
+	var isEmpty = __webpack_require__(375);
+	var isEqual = __webpack_require__(376);
+	var isUndefined = __webpack_require__(377);
+	var isString = __webpack_require__(378);
+	var isFunction = __webpack_require__(209);
+	var find = __webpack_require__(379);
+	var trim = __webpack_require__(382);
 
-	var defaults = __webpack_require__(424);
-	var merge = __webpack_require__(429);
+	var defaults = __webpack_require__(390);
+	var merge = __webpack_require__(395);
 
-	var valToNumber = __webpack_require__(435);
+	var valToNumber = __webpack_require__(401);
 
-	var filterState = __webpack_require__(436);
+	var filterState = __webpack_require__(402);
 
-	var RefinementList = __webpack_require__(437);
+	var RefinementList = __webpack_require__(403);
 
 	/**
 	 * like _.find but using _.isEqual to be able to use it
@@ -40404,12 +34766,12 @@
 
 
 /***/ },
-/* 216 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayLikeKeys = __webpack_require__(217),
-	    baseKeys = __webpack_require__(238),
-	    isArrayLike = __webpack_require__(242);
+	var arrayLikeKeys = __webpack_require__(183),
+	    baseKeys = __webpack_require__(204),
+	    isArrayLike = __webpack_require__(208);
 
 	/**
 	 * Creates an array of the own enumerable property names of `object`.
@@ -40447,15 +34809,15 @@
 
 
 /***/ },
-/* 217 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseTimes = __webpack_require__(218),
-	    isArguments = __webpack_require__(219),
-	    isArray = __webpack_require__(228),
-	    isBuffer = __webpack_require__(229),
-	    isIndex = __webpack_require__(232),
-	    isTypedArray = __webpack_require__(233);
+	var baseTimes = __webpack_require__(184),
+	    isArguments = __webpack_require__(185),
+	    isArray = __webpack_require__(194),
+	    isBuffer = __webpack_require__(195),
+	    isIndex = __webpack_require__(198),
+	    isTypedArray = __webpack_require__(199);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -40502,7 +34864,7 @@
 
 
 /***/ },
-/* 218 */
+/* 184 */
 /***/ function(module, exports) {
 
 	/**
@@ -40528,11 +34890,11 @@
 
 
 /***/ },
-/* 219 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsArguments = __webpack_require__(220),
-	    isObjectLike = __webpack_require__(227);
+	var baseIsArguments = __webpack_require__(186),
+	    isObjectLike = __webpack_require__(193);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -40570,11 +34932,11 @@
 
 
 /***/ },
-/* 220 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    isObjectLike = __webpack_require__(227);
+	var baseGetTag = __webpack_require__(187),
+	    isObjectLike = __webpack_require__(193);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]';
@@ -40594,12 +34956,12 @@
 
 
 /***/ },
-/* 221 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(222),
-	    getRawTag = __webpack_require__(225),
-	    objectToString = __webpack_require__(226);
+	var Symbol = __webpack_require__(188),
+	    getRawTag = __webpack_require__(191),
+	    objectToString = __webpack_require__(192);
 
 	/** `Object#toString` result references. */
 	var nullTag = '[object Null]',
@@ -40629,10 +34991,10 @@
 
 
 /***/ },
-/* 222 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(223);
+	var root = __webpack_require__(189);
 
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -40641,10 +35003,10 @@
 
 
 /***/ },
-/* 223 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(224);
+	var freeGlobal = __webpack_require__(190);
 
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -40656,7 +35018,7 @@
 
 
 /***/ },
-/* 224 */
+/* 190 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -40667,10 +35029,10 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 225 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(222);
+	var Symbol = __webpack_require__(188);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -40719,7 +35081,7 @@
 
 
 /***/ },
-/* 226 */
+/* 192 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -40747,7 +35109,7 @@
 
 
 /***/ },
-/* 227 */
+/* 193 */
 /***/ function(module, exports) {
 
 	/**
@@ -40782,7 +35144,7 @@
 
 
 /***/ },
-/* 228 */
+/* 194 */
 /***/ function(module, exports) {
 
 	/**
@@ -40814,11 +35176,11 @@
 
 
 /***/ },
-/* 229 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(223),
-	    stubFalse = __webpack_require__(231);
+	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(189),
+	    stubFalse = __webpack_require__(197);
 
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -40856,10 +35218,10 @@
 
 	module.exports = isBuffer;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(230)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(196)(module)))
 
 /***/ },
-/* 230 */
+/* 196 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -40875,7 +35237,7 @@
 
 
 /***/ },
-/* 231 */
+/* 197 */
 /***/ function(module, exports) {
 
 	/**
@@ -40899,7 +35261,7 @@
 
 
 /***/ },
-/* 232 */
+/* 198 */
 /***/ function(module, exports) {
 
 	/** Used as references for various `Number` constants. */
@@ -40927,12 +35289,12 @@
 
 
 /***/ },
-/* 233 */
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsTypedArray = __webpack_require__(234),
-	    baseUnary = __webpack_require__(236),
-	    nodeUtil = __webpack_require__(237);
+	var baseIsTypedArray = __webpack_require__(200),
+	    baseUnary = __webpack_require__(202),
+	    nodeUtil = __webpack_require__(203);
 
 	/* Node.js helper references. */
 	var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -40960,12 +35322,12 @@
 
 
 /***/ },
-/* 234 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    isLength = __webpack_require__(235),
-	    isObjectLike = __webpack_require__(227);
+	var baseGetTag = __webpack_require__(187),
+	    isLength = __webpack_require__(201),
+	    isObjectLike = __webpack_require__(193);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -41026,7 +35388,7 @@
 
 
 /***/ },
-/* 235 */
+/* 201 */
 /***/ function(module, exports) {
 
 	/** Used as references for various `Number` constants. */
@@ -41067,7 +35429,7 @@
 
 
 /***/ },
-/* 236 */
+/* 202 */
 /***/ function(module, exports) {
 
 	/**
@@ -41087,10 +35449,10 @@
 
 
 /***/ },
-/* 237 */
+/* 203 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(224);
+	/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(190);
 
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -41113,14 +35475,14 @@
 
 	module.exports = nodeUtil;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(230)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(196)(module)))
 
 /***/ },
-/* 238 */
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isPrototype = __webpack_require__(239),
-	    nativeKeys = __webpack_require__(240);
+	var isPrototype = __webpack_require__(205),
+	    nativeKeys = __webpack_require__(206);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -41152,7 +35514,7 @@
 
 
 /***/ },
-/* 239 */
+/* 205 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -41176,10 +35538,10 @@
 
 
 /***/ },
-/* 240 */
+/* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(241);
+	var overArg = __webpack_require__(207);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeKeys = overArg(Object.keys, Object);
@@ -41188,7 +35550,7 @@
 
 
 /***/ },
-/* 241 */
+/* 207 */
 /***/ function(module, exports) {
 
 	/**
@@ -41209,11 +35571,11 @@
 
 
 /***/ },
-/* 242 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isFunction = __webpack_require__(243),
-	    isLength = __webpack_require__(235);
+	var isFunction = __webpack_require__(209),
+	    isLength = __webpack_require__(201);
 
 	/**
 	 * Checks if `value` is array-like. A value is considered array-like if it's
@@ -41248,11 +35610,11 @@
 
 
 /***/ },
-/* 243 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    isObject = __webpack_require__(244);
+	var baseGetTag = __webpack_require__(187),
+	    isObject = __webpack_require__(210);
 
 	/** `Object#toString` result references. */
 	var asyncTag = '[object AsyncFunction]',
@@ -41291,7 +35653,7 @@
 
 
 /***/ },
-/* 244 */
+/* 210 */
 /***/ function(module, exports) {
 
 	/**
@@ -41328,13 +35690,13 @@
 
 
 /***/ },
-/* 245 */
+/* 211 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(246),
-	    baseIntersection = __webpack_require__(247),
-	    baseRest = __webpack_require__(288),
-	    castArrayLikeObject = __webpack_require__(297);
+	var arrayMap = __webpack_require__(212),
+	    baseIntersection = __webpack_require__(213),
+	    baseRest = __webpack_require__(254),
+	    castArrayLikeObject = __webpack_require__(263);
 
 	/**
 	 * Creates an array of unique values that are included in all given arrays
@@ -41364,7 +35726,7 @@
 
 
 /***/ },
-/* 246 */
+/* 212 */
 /***/ function(module, exports) {
 
 	/**
@@ -41391,15 +35753,15 @@
 
 
 /***/ },
-/* 247 */
+/* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var SetCache = __webpack_require__(248),
-	    arrayIncludes = __webpack_require__(281),
-	    arrayIncludesWith = __webpack_require__(286),
-	    arrayMap = __webpack_require__(246),
-	    baseUnary = __webpack_require__(236),
-	    cacheHas = __webpack_require__(287);
+	var SetCache = __webpack_require__(214),
+	    arrayIncludes = __webpack_require__(247),
+	    arrayIncludesWith = __webpack_require__(252),
+	    arrayMap = __webpack_require__(212),
+	    baseUnary = __webpack_require__(202),
+	    cacheHas = __webpack_require__(253);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMin = Math.min;
@@ -41471,12 +35833,12 @@
 
 
 /***/ },
-/* 248 */
+/* 214 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var MapCache = __webpack_require__(249),
-	    setCacheAdd = __webpack_require__(279),
-	    setCacheHas = __webpack_require__(280);
+	var MapCache = __webpack_require__(215),
+	    setCacheAdd = __webpack_require__(245),
+	    setCacheHas = __webpack_require__(246);
 
 	/**
 	 *
@@ -41504,14 +35866,14 @@
 
 
 /***/ },
-/* 249 */
+/* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var mapCacheClear = __webpack_require__(250),
-	    mapCacheDelete = __webpack_require__(273),
-	    mapCacheGet = __webpack_require__(276),
-	    mapCacheHas = __webpack_require__(277),
-	    mapCacheSet = __webpack_require__(278);
+	var mapCacheClear = __webpack_require__(216),
+	    mapCacheDelete = __webpack_require__(239),
+	    mapCacheGet = __webpack_require__(242),
+	    mapCacheHas = __webpack_require__(243),
+	    mapCacheSet = __webpack_require__(244);
 
 	/**
 	 * Creates a map cache object to store key-value pairs.
@@ -41542,12 +35904,12 @@
 
 
 /***/ },
-/* 250 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Hash = __webpack_require__(251),
-	    ListCache = __webpack_require__(264),
-	    Map = __webpack_require__(272);
+	var Hash = __webpack_require__(217),
+	    ListCache = __webpack_require__(230),
+	    Map = __webpack_require__(238);
 
 	/**
 	 * Removes all key-value entries from the map.
@@ -41569,14 +35931,14 @@
 
 
 /***/ },
-/* 251 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var hashClear = __webpack_require__(252),
-	    hashDelete = __webpack_require__(260),
-	    hashGet = __webpack_require__(261),
-	    hashHas = __webpack_require__(262),
-	    hashSet = __webpack_require__(263);
+	var hashClear = __webpack_require__(218),
+	    hashDelete = __webpack_require__(226),
+	    hashGet = __webpack_require__(227),
+	    hashHas = __webpack_require__(228),
+	    hashSet = __webpack_require__(229);
 
 	/**
 	 * Creates a hash object.
@@ -41607,10 +35969,10 @@
 
 
 /***/ },
-/* 252 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(253);
+	var nativeCreate = __webpack_require__(219);
 
 	/**
 	 * Removes all key-value entries from the hash.
@@ -41628,10 +35990,10 @@
 
 
 /***/ },
-/* 253 */
+/* 219 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254);
+	var getNative = __webpack_require__(220);
 
 	/* Built-in method references that are verified to be native. */
 	var nativeCreate = getNative(Object, 'create');
@@ -41640,11 +36002,11 @@
 
 
 /***/ },
-/* 254 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsNative = __webpack_require__(255),
-	    getValue = __webpack_require__(259);
+	var baseIsNative = __webpack_require__(221),
+	    getValue = __webpack_require__(225);
 
 	/**
 	 * Gets the native function at `key` of `object`.
@@ -41663,13 +36025,13 @@
 
 
 /***/ },
-/* 255 */
+/* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isFunction = __webpack_require__(243),
-	    isMasked = __webpack_require__(256),
-	    isObject = __webpack_require__(244),
-	    toSource = __webpack_require__(258);
+	var isFunction = __webpack_require__(209),
+	    isMasked = __webpack_require__(222),
+	    isObject = __webpack_require__(210),
+	    toSource = __webpack_require__(224);
 
 	/**
 	 * Used to match `RegExp`
@@ -41716,10 +36078,10 @@
 
 
 /***/ },
-/* 256 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var coreJsData = __webpack_require__(257);
+	var coreJsData = __webpack_require__(223);
 
 	/** Used to detect methods masquerading as native. */
 	var maskSrcKey = (function() {
@@ -41742,10 +36104,10 @@
 
 
 /***/ },
-/* 257 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(223);
+	var root = __webpack_require__(189);
 
 	/** Used to detect overreaching core-js shims. */
 	var coreJsData = root['__core-js_shared__'];
@@ -41754,7 +36116,7 @@
 
 
 /***/ },
-/* 258 */
+/* 224 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -41786,7 +36148,7 @@
 
 
 /***/ },
-/* 259 */
+/* 225 */
 /***/ function(module, exports) {
 
 	/**
@@ -41805,7 +36167,7 @@
 
 
 /***/ },
-/* 260 */
+/* 226 */
 /***/ function(module, exports) {
 
 	/**
@@ -41828,10 +36190,10 @@
 
 
 /***/ },
-/* 261 */
+/* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(253);
+	var nativeCreate = __webpack_require__(219);
 
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -41864,10 +36226,10 @@
 
 
 /***/ },
-/* 262 */
+/* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(253);
+	var nativeCreate = __webpack_require__(219);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -41893,10 +36255,10 @@
 
 
 /***/ },
-/* 263 */
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(253);
+	var nativeCreate = __webpack_require__(219);
 
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -41922,14 +36284,14 @@
 
 
 /***/ },
-/* 264 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var listCacheClear = __webpack_require__(265),
-	    listCacheDelete = __webpack_require__(266),
-	    listCacheGet = __webpack_require__(269),
-	    listCacheHas = __webpack_require__(270),
-	    listCacheSet = __webpack_require__(271);
+	var listCacheClear = __webpack_require__(231),
+	    listCacheDelete = __webpack_require__(232),
+	    listCacheGet = __webpack_require__(235),
+	    listCacheHas = __webpack_require__(236),
+	    listCacheSet = __webpack_require__(237);
 
 	/**
 	 * Creates an list cache object.
@@ -41960,7 +36322,7 @@
 
 
 /***/ },
-/* 265 */
+/* 231 */
 /***/ function(module, exports) {
 
 	/**
@@ -41979,10 +36341,10 @@
 
 
 /***/ },
-/* 266 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(267);
+	var assocIndexOf = __webpack_require__(233);
 
 	/** Used for built-in method references. */
 	var arrayProto = Array.prototype;
@@ -42020,10 +36382,10 @@
 
 
 /***/ },
-/* 267 */
+/* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var eq = __webpack_require__(268);
+	var eq = __webpack_require__(234);
 
 	/**
 	 * Gets the index at which the `key` is found in `array` of key-value pairs.
@@ -42047,7 +36409,7 @@
 
 
 /***/ },
-/* 268 */
+/* 234 */
 /***/ function(module, exports) {
 
 	/**
@@ -42090,10 +36452,10 @@
 
 
 /***/ },
-/* 269 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(267);
+	var assocIndexOf = __webpack_require__(233);
 
 	/**
 	 * Gets the list cache value for `key`.
@@ -42115,10 +36477,10 @@
 
 
 /***/ },
-/* 270 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(267);
+	var assocIndexOf = __webpack_require__(233);
 
 	/**
 	 * Checks if a list cache value for `key` exists.
@@ -42137,10 +36499,10 @@
 
 
 /***/ },
-/* 271 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(267);
+	var assocIndexOf = __webpack_require__(233);
 
 	/**
 	 * Sets the list cache `key` to `value`.
@@ -42169,11 +36531,11 @@
 
 
 /***/ },
-/* 272 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254),
-	    root = __webpack_require__(223);
+	var getNative = __webpack_require__(220),
+	    root = __webpack_require__(189);
 
 	/* Built-in method references that are verified to be native. */
 	var Map = getNative(root, 'Map');
@@ -42182,10 +36544,10 @@
 
 
 /***/ },
-/* 273 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(274);
+	var getMapData = __webpack_require__(240);
 
 	/**
 	 * Removes `key` and its value from the map.
@@ -42206,10 +36568,10 @@
 
 
 /***/ },
-/* 274 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isKeyable = __webpack_require__(275);
+	var isKeyable = __webpack_require__(241);
 
 	/**
 	 * Gets the data for `map`.
@@ -42230,7 +36592,7 @@
 
 
 /***/ },
-/* 275 */
+/* 241 */
 /***/ function(module, exports) {
 
 	/**
@@ -42251,10 +36613,10 @@
 
 
 /***/ },
-/* 276 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(274);
+	var getMapData = __webpack_require__(240);
 
 	/**
 	 * Gets the map value for `key`.
@@ -42273,10 +36635,10 @@
 
 
 /***/ },
-/* 277 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(274);
+	var getMapData = __webpack_require__(240);
 
 	/**
 	 * Checks if a map value for `key` exists.
@@ -42295,10 +36657,10 @@
 
 
 /***/ },
-/* 278 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(274);
+	var getMapData = __webpack_require__(240);
 
 	/**
 	 * Sets the map `key` to `value`.
@@ -42323,7 +36685,7 @@
 
 
 /***/ },
-/* 279 */
+/* 245 */
 /***/ function(module, exports) {
 
 	/** Used to stand-in for `undefined` hash values. */
@@ -42348,7 +36710,7 @@
 
 
 /***/ },
-/* 280 */
+/* 246 */
 /***/ function(module, exports) {
 
 	/**
@@ -42368,10 +36730,10 @@
 
 
 /***/ },
-/* 281 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(282);
+	var baseIndexOf = __webpack_require__(248);
 
 	/**
 	 * A specialized version of `_.includes` for arrays without support for
@@ -42391,12 +36753,12 @@
 
 
 /***/ },
-/* 282 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFindIndex = __webpack_require__(283),
-	    baseIsNaN = __webpack_require__(284),
-	    strictIndexOf = __webpack_require__(285);
+	var baseFindIndex = __webpack_require__(249),
+	    baseIsNaN = __webpack_require__(250),
+	    strictIndexOf = __webpack_require__(251);
 
 	/**
 	 * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
@@ -42417,7 +36779,7 @@
 
 
 /***/ },
-/* 283 */
+/* 249 */
 /***/ function(module, exports) {
 
 	/**
@@ -42447,7 +36809,7 @@
 
 
 /***/ },
-/* 284 */
+/* 250 */
 /***/ function(module, exports) {
 
 	/**
@@ -42465,7 +36827,7 @@
 
 
 /***/ },
-/* 285 */
+/* 251 */
 /***/ function(module, exports) {
 
 	/**
@@ -42494,7 +36856,7 @@
 
 
 /***/ },
-/* 286 */
+/* 252 */
 /***/ function(module, exports) {
 
 	/**
@@ -42522,7 +36884,7 @@
 
 
 /***/ },
-/* 287 */
+/* 253 */
 /***/ function(module, exports) {
 
 	/**
@@ -42541,12 +36903,12 @@
 
 
 /***/ },
-/* 288 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var identity = __webpack_require__(289),
-	    overRest = __webpack_require__(290),
-	    setToString = __webpack_require__(292);
+	var identity = __webpack_require__(255),
+	    overRest = __webpack_require__(256),
+	    setToString = __webpack_require__(258);
 
 	/**
 	 * The base implementation of `_.rest` which doesn't validate or coerce arguments.
@@ -42564,7 +36926,7 @@
 
 
 /***/ },
-/* 289 */
+/* 255 */
 /***/ function(module, exports) {
 
 	/**
@@ -42591,10 +36953,10 @@
 
 
 /***/ },
-/* 290 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var apply = __webpack_require__(291);
+	var apply = __webpack_require__(257);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMax = Math.max;
@@ -42633,7 +36995,7 @@
 
 
 /***/ },
-/* 291 */
+/* 257 */
 /***/ function(module, exports) {
 
 	/**
@@ -42660,11 +37022,11 @@
 
 
 /***/ },
-/* 292 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseSetToString = __webpack_require__(293),
-	    shortOut = __webpack_require__(296);
+	var baseSetToString = __webpack_require__(259),
+	    shortOut = __webpack_require__(262);
 
 	/**
 	 * Sets the `toString` method of `func` to return `string`.
@@ -42680,12 +37042,12 @@
 
 
 /***/ },
-/* 293 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var constant = __webpack_require__(294),
-	    defineProperty = __webpack_require__(295),
-	    identity = __webpack_require__(289);
+	var constant = __webpack_require__(260),
+	    defineProperty = __webpack_require__(261),
+	    identity = __webpack_require__(255);
 
 	/**
 	 * The base implementation of `setToString` without support for hot loop shorting.
@@ -42708,7 +37070,7 @@
 
 
 /***/ },
-/* 294 */
+/* 260 */
 /***/ function(module, exports) {
 
 	/**
@@ -42740,10 +37102,10 @@
 
 
 /***/ },
-/* 295 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254);
+	var getNative = __webpack_require__(220);
 
 	var defineProperty = (function() {
 	  try {
@@ -42757,7 +37119,7 @@
 
 
 /***/ },
-/* 296 */
+/* 262 */
 /***/ function(module, exports) {
 
 	/** Used to detect hot functions by number of calls within a span of milliseconds. */
@@ -42800,10 +37162,10 @@
 
 
 /***/ },
-/* 297 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArrayLikeObject = __webpack_require__(298);
+	var isArrayLikeObject = __webpack_require__(264);
 
 	/**
 	 * Casts `value` to an empty array if it's not an array like object.
@@ -42820,11 +37182,11 @@
 
 
 /***/ },
-/* 298 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArrayLike = __webpack_require__(242),
-	    isObjectLike = __webpack_require__(227);
+	var isArrayLike = __webpack_require__(208),
+	    isObjectLike = __webpack_require__(193);
 
 	/**
 	 * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -42859,11 +37221,11 @@
 
 
 /***/ },
-/* 299 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseForOwn = __webpack_require__(300),
-	    castFunction = __webpack_require__(303);
+	var baseForOwn = __webpack_require__(266),
+	    castFunction = __webpack_require__(269);
 
 	/**
 	 * Iterates over own enumerable string keyed properties of an object and
@@ -42901,11 +37263,11 @@
 
 
 /***/ },
-/* 300 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFor = __webpack_require__(301),
-	    keys = __webpack_require__(216);
+	var baseFor = __webpack_require__(267),
+	    keys = __webpack_require__(182);
 
 	/**
 	 * The base implementation of `_.forOwn` without support for iteratee shorthands.
@@ -42923,10 +37285,10 @@
 
 
 /***/ },
-/* 301 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var createBaseFor = __webpack_require__(302);
+	var createBaseFor = __webpack_require__(268);
 
 	/**
 	 * The base implementation of `baseForOwn` which iterates over `object`
@@ -42945,7 +37307,7 @@
 
 
 /***/ },
-/* 302 */
+/* 268 */
 /***/ function(module, exports) {
 
 	/**
@@ -42976,10 +37338,10 @@
 
 
 /***/ },
-/* 303 */
+/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var identity = __webpack_require__(289);
+	var identity = __webpack_require__(255);
 
 	/**
 	 * Casts `value` to `identity` if it's not a function.
@@ -42996,13 +37358,13 @@
 
 
 /***/ },
-/* 304 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayEach = __webpack_require__(305),
-	    baseEach = __webpack_require__(306),
-	    castFunction = __webpack_require__(303),
-	    isArray = __webpack_require__(228);
+	var arrayEach = __webpack_require__(271),
+	    baseEach = __webpack_require__(272),
+	    castFunction = __webpack_require__(269),
+	    isArray = __webpack_require__(194);
 
 	/**
 	 * Iterates over elements of `collection` and invokes `iteratee` for each element.
@@ -43043,7 +37405,7 @@
 
 
 /***/ },
-/* 305 */
+/* 271 */
 /***/ function(module, exports) {
 
 	/**
@@ -43071,11 +37433,11 @@
 
 
 /***/ },
-/* 306 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseForOwn = __webpack_require__(300),
-	    createBaseEach = __webpack_require__(307);
+	var baseForOwn = __webpack_require__(266),
+	    createBaseEach = __webpack_require__(273);
 
 	/**
 	 * The base implementation of `_.forEach` without support for iteratee shorthands.
@@ -43091,10 +37453,10 @@
 
 
 /***/ },
-/* 307 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArrayLike = __webpack_require__(242);
+	var isArrayLike = __webpack_require__(208);
 
 	/**
 	 * Creates a `baseEach` or `baseEachRight` function.
@@ -43129,13 +37491,13 @@
 
 
 /***/ },
-/* 308 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayFilter = __webpack_require__(309),
-	    baseFilter = __webpack_require__(310),
-	    baseIteratee = __webpack_require__(311),
-	    isArray = __webpack_require__(228);
+	var arrayFilter = __webpack_require__(275),
+	    baseFilter = __webpack_require__(276),
+	    baseIteratee = __webpack_require__(277),
+	    isArray = __webpack_require__(194);
 
 	/**
 	 * Iterates over elements of `collection`, returning an array of all elements
@@ -43183,7 +37545,7 @@
 
 
 /***/ },
-/* 309 */
+/* 275 */
 /***/ function(module, exports) {
 
 	/**
@@ -43214,10 +37576,10 @@
 
 
 /***/ },
-/* 310 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseEach = __webpack_require__(306);
+	var baseEach = __webpack_require__(272);
 
 	/**
 	 * The base implementation of `_.filter` without support for iteratee shorthands.
@@ -43241,14 +37603,14 @@
 
 
 /***/ },
-/* 311 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseMatches = __webpack_require__(312),
-	    baseMatchesProperty = __webpack_require__(337),
-	    identity = __webpack_require__(289),
-	    isArray = __webpack_require__(228),
-	    property = __webpack_require__(352);
+	var baseMatches = __webpack_require__(278),
+	    baseMatchesProperty = __webpack_require__(303),
+	    identity = __webpack_require__(255),
+	    isArray = __webpack_require__(194),
+	    property = __webpack_require__(318);
 
 	/**
 	 * The base implementation of `_.iteratee`.
@@ -43278,12 +37640,12 @@
 
 
 /***/ },
-/* 312 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsMatch = __webpack_require__(313),
-	    getMatchData = __webpack_require__(334),
-	    matchesStrictComparable = __webpack_require__(336);
+	var baseIsMatch = __webpack_require__(279),
+	    getMatchData = __webpack_require__(300),
+	    matchesStrictComparable = __webpack_require__(302);
 
 	/**
 	 * The base implementation of `_.matches` which doesn't clone `source`.
@@ -43306,11 +37668,11 @@
 
 
 /***/ },
-/* 313 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(314),
-	    baseIsEqual = __webpack_require__(320);
+	var Stack = __webpack_require__(280),
+	    baseIsEqual = __webpack_require__(286);
 
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -43374,15 +37736,15 @@
 
 
 /***/ },
-/* 314 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(264),
-	    stackClear = __webpack_require__(315),
-	    stackDelete = __webpack_require__(316),
-	    stackGet = __webpack_require__(317),
-	    stackHas = __webpack_require__(318),
-	    stackSet = __webpack_require__(319);
+	var ListCache = __webpack_require__(230),
+	    stackClear = __webpack_require__(281),
+	    stackDelete = __webpack_require__(282),
+	    stackGet = __webpack_require__(283),
+	    stackHas = __webpack_require__(284),
+	    stackSet = __webpack_require__(285);
 
 	/**
 	 * Creates a stack cache object to store key-value pairs.
@@ -43407,10 +37769,10 @@
 
 
 /***/ },
-/* 315 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(264);
+	var ListCache = __webpack_require__(230);
 
 	/**
 	 * Removes all key-value entries from the stack.
@@ -43428,7 +37790,7 @@
 
 
 /***/ },
-/* 316 */
+/* 282 */
 /***/ function(module, exports) {
 
 	/**
@@ -43452,7 +37814,7 @@
 
 
 /***/ },
-/* 317 */
+/* 283 */
 /***/ function(module, exports) {
 
 	/**
@@ -43472,7 +37834,7 @@
 
 
 /***/ },
-/* 318 */
+/* 284 */
 /***/ function(module, exports) {
 
 	/**
@@ -43492,12 +37854,12 @@
 
 
 /***/ },
-/* 319 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(264),
-	    Map = __webpack_require__(272),
-	    MapCache = __webpack_require__(249);
+	var ListCache = __webpack_require__(230),
+	    Map = __webpack_require__(238),
+	    MapCache = __webpack_require__(215);
 
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -43532,12 +37894,12 @@
 
 
 /***/ },
-/* 320 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqualDeep = __webpack_require__(321),
-	    isObject = __webpack_require__(244),
-	    isObjectLike = __webpack_require__(227);
+	var baseIsEqualDeep = __webpack_require__(287),
+	    isObject = __webpack_require__(210),
+	    isObjectLike = __webpack_require__(193);
 
 	/**
 	 * The base implementation of `_.isEqual` which supports partial comparisons
@@ -43567,17 +37929,17 @@
 
 
 /***/ },
-/* 321 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(314),
-	    equalArrays = __webpack_require__(322),
-	    equalByTag = __webpack_require__(324),
-	    equalObjects = __webpack_require__(328),
-	    getTag = __webpack_require__(329),
-	    isArray = __webpack_require__(228),
-	    isBuffer = __webpack_require__(229),
-	    isTypedArray = __webpack_require__(233);
+	var Stack = __webpack_require__(280),
+	    equalArrays = __webpack_require__(288),
+	    equalByTag = __webpack_require__(290),
+	    equalObjects = __webpack_require__(294),
+	    getTag = __webpack_require__(295),
+	    isArray = __webpack_require__(194),
+	    isBuffer = __webpack_require__(195),
+	    isTypedArray = __webpack_require__(199);
 
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1;
@@ -43661,12 +38023,12 @@
 
 
 /***/ },
-/* 322 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var SetCache = __webpack_require__(248),
-	    arraySome = __webpack_require__(323),
-	    cacheHas = __webpack_require__(287);
+	var SetCache = __webpack_require__(214),
+	    arraySome = __webpack_require__(289),
+	    cacheHas = __webpack_require__(253);
 
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -43750,7 +38112,7 @@
 
 
 /***/ },
-/* 323 */
+/* 289 */
 /***/ function(module, exports) {
 
 	/**
@@ -43779,15 +38141,15 @@
 
 
 /***/ },
-/* 324 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(222),
-	    Uint8Array = __webpack_require__(325),
-	    eq = __webpack_require__(268),
-	    equalArrays = __webpack_require__(322),
-	    mapToArray = __webpack_require__(326),
-	    setToArray = __webpack_require__(327);
+	var Symbol = __webpack_require__(188),
+	    Uint8Array = __webpack_require__(291),
+	    eq = __webpack_require__(234),
+	    equalArrays = __webpack_require__(288),
+	    mapToArray = __webpack_require__(292),
+	    setToArray = __webpack_require__(293);
 
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -43897,10 +38259,10 @@
 
 
 /***/ },
-/* 325 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(223);
+	var root = __webpack_require__(189);
 
 	/** Built-in value references. */
 	var Uint8Array = root.Uint8Array;
@@ -43909,7 +38271,7 @@
 
 
 /***/ },
-/* 326 */
+/* 292 */
 /***/ function(module, exports) {
 
 	/**
@@ -43933,7 +38295,7 @@
 
 
 /***/ },
-/* 327 */
+/* 293 */
 /***/ function(module, exports) {
 
 	/**
@@ -43957,10 +38319,10 @@
 
 
 /***/ },
-/* 328 */
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var keys = __webpack_require__(216);
+	var keys = __webpack_require__(182);
 
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1;
@@ -44052,16 +38414,16 @@
 
 
 /***/ },
-/* 329 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var DataView = __webpack_require__(330),
-	    Map = __webpack_require__(272),
-	    Promise = __webpack_require__(331),
-	    Set = __webpack_require__(332),
-	    WeakMap = __webpack_require__(333),
-	    baseGetTag = __webpack_require__(221),
-	    toSource = __webpack_require__(258);
+	var DataView = __webpack_require__(296),
+	    Map = __webpack_require__(238),
+	    Promise = __webpack_require__(297),
+	    Set = __webpack_require__(298),
+	    WeakMap = __webpack_require__(299),
+	    baseGetTag = __webpack_require__(187),
+	    toSource = __webpack_require__(224);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -44116,11 +38478,11 @@
 
 
 /***/ },
-/* 330 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254),
-	    root = __webpack_require__(223);
+	var getNative = __webpack_require__(220),
+	    root = __webpack_require__(189);
 
 	/* Built-in method references that are verified to be native. */
 	var DataView = getNative(root, 'DataView');
@@ -44129,11 +38491,11 @@
 
 
 /***/ },
-/* 331 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254),
-	    root = __webpack_require__(223);
+	var getNative = __webpack_require__(220),
+	    root = __webpack_require__(189);
 
 	/* Built-in method references that are verified to be native. */
 	var Promise = getNative(root, 'Promise');
@@ -44142,11 +38504,11 @@
 
 
 /***/ },
-/* 332 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254),
-	    root = __webpack_require__(223);
+	var getNative = __webpack_require__(220),
+	    root = __webpack_require__(189);
 
 	/* Built-in method references that are verified to be native. */
 	var Set = getNative(root, 'Set');
@@ -44155,11 +38517,11 @@
 
 
 /***/ },
-/* 333 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(254),
-	    root = __webpack_require__(223);
+	var getNative = __webpack_require__(220),
+	    root = __webpack_require__(189);
 
 	/* Built-in method references that are verified to be native. */
 	var WeakMap = getNative(root, 'WeakMap');
@@ -44168,11 +38530,11 @@
 
 
 /***/ },
-/* 334 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isStrictComparable = __webpack_require__(335),
-	    keys = __webpack_require__(216);
+	var isStrictComparable = __webpack_require__(301),
+	    keys = __webpack_require__(182);
 
 	/**
 	 * Gets the property names, values, and compare flags of `object`.
@@ -44198,10 +38560,10 @@
 
 
 /***/ },
-/* 335 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(244);
+	var isObject = __webpack_require__(210);
 
 	/**
 	 * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
@@ -44219,7 +38581,7 @@
 
 
 /***/ },
-/* 336 */
+/* 302 */
 /***/ function(module, exports) {
 
 	/**
@@ -44245,16 +38607,16 @@
 
 
 /***/ },
-/* 337 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqual = __webpack_require__(320),
-	    get = __webpack_require__(338),
-	    hasIn = __webpack_require__(349),
-	    isKey = __webpack_require__(341),
-	    isStrictComparable = __webpack_require__(335),
-	    matchesStrictComparable = __webpack_require__(336),
-	    toKey = __webpack_require__(348);
+	var baseIsEqual = __webpack_require__(286),
+	    get = __webpack_require__(304),
+	    hasIn = __webpack_require__(315),
+	    isKey = __webpack_require__(307),
+	    isStrictComparable = __webpack_require__(301),
+	    matchesStrictComparable = __webpack_require__(302),
+	    toKey = __webpack_require__(314);
 
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -44284,10 +38646,10 @@
 
 
 /***/ },
-/* 338 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(339);
+	var baseGet = __webpack_require__(305);
 
 	/**
 	 * Gets the value at `path` of `object`. If the resolved value is
@@ -44323,11 +38685,11 @@
 
 
 /***/ },
-/* 339 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(340),
-	    toKey = __webpack_require__(348);
+	var castPath = __webpack_require__(306),
+	    toKey = __webpack_require__(314);
 
 	/**
 	 * The base implementation of `_.get` without support for default values.
@@ -44353,13 +38715,13 @@
 
 
 /***/ },
-/* 340 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(228),
-	    isKey = __webpack_require__(341),
-	    stringToPath = __webpack_require__(343),
-	    toString = __webpack_require__(346);
+	var isArray = __webpack_require__(194),
+	    isKey = __webpack_require__(307),
+	    stringToPath = __webpack_require__(309),
+	    toString = __webpack_require__(312);
 
 	/**
 	 * Casts `value` to a path array if it's not one.
@@ -44380,11 +38742,11 @@
 
 
 /***/ },
-/* 341 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(228),
-	    isSymbol = __webpack_require__(342);
+	var isArray = __webpack_require__(194),
+	    isSymbol = __webpack_require__(308);
 
 	/** Used to match property names within property paths. */
 	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
@@ -44415,11 +38777,11 @@
 
 
 /***/ },
-/* 342 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    isObjectLike = __webpack_require__(227);
+	var baseGetTag = __webpack_require__(187),
+	    isObjectLike = __webpack_require__(193);
 
 	/** `Object#toString` result references. */
 	var symbolTag = '[object Symbol]';
@@ -44450,10 +38812,10 @@
 
 
 /***/ },
-/* 343 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var memoizeCapped = __webpack_require__(344);
+	var memoizeCapped = __webpack_require__(310);
 
 	/** Used to match property names within property paths. */
 	var reLeadingDot = /^\./,
@@ -44484,10 +38846,10 @@
 
 
 /***/ },
-/* 344 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var memoize = __webpack_require__(345);
+	var memoize = __webpack_require__(311);
 
 	/** Used as the maximum memoize cache size. */
 	var MAX_MEMOIZE_SIZE = 500;
@@ -44516,10 +38878,10 @@
 
 
 /***/ },
-/* 345 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var MapCache = __webpack_require__(249);
+	var MapCache = __webpack_require__(215);
 
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -44595,10 +38957,10 @@
 
 
 /***/ },
-/* 346 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseToString = __webpack_require__(347);
+	var baseToString = __webpack_require__(313);
 
 	/**
 	 * Converts `value` to a string. An empty string is returned for `null`
@@ -44629,13 +38991,13 @@
 
 
 /***/ },
-/* 347 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(222),
-	    arrayMap = __webpack_require__(246),
-	    isArray = __webpack_require__(228),
-	    isSymbol = __webpack_require__(342);
+	var Symbol = __webpack_require__(188),
+	    arrayMap = __webpack_require__(212),
+	    isArray = __webpack_require__(194),
+	    isSymbol = __webpack_require__(308);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -44672,10 +39034,10 @@
 
 
 /***/ },
-/* 348 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isSymbol = __webpack_require__(342);
+	var isSymbol = __webpack_require__(308);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -44699,11 +39061,11 @@
 
 
 /***/ },
-/* 349 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseHasIn = __webpack_require__(350),
-	    hasPath = __webpack_require__(351);
+	var baseHasIn = __webpack_require__(316),
+	    hasPath = __webpack_require__(317);
 
 	/**
 	 * Checks if `path` is a direct or inherited property of `object`.
@@ -44739,7 +39101,7 @@
 
 
 /***/ },
-/* 350 */
+/* 316 */
 /***/ function(module, exports) {
 
 	/**
@@ -44758,15 +39120,15 @@
 
 
 /***/ },
-/* 351 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(340),
-	    isArguments = __webpack_require__(219),
-	    isArray = __webpack_require__(228),
-	    isIndex = __webpack_require__(232),
-	    isLength = __webpack_require__(235),
-	    toKey = __webpack_require__(348);
+	var castPath = __webpack_require__(306),
+	    isArguments = __webpack_require__(185),
+	    isArray = __webpack_require__(194),
+	    isIndex = __webpack_require__(198),
+	    isLength = __webpack_require__(201),
+	    toKey = __webpack_require__(314);
 
 	/**
 	 * Checks if `path` exists on `object`.
@@ -44803,13 +39165,13 @@
 
 
 /***/ },
-/* 352 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseProperty = __webpack_require__(353),
-	    basePropertyDeep = __webpack_require__(354),
-	    isKey = __webpack_require__(341),
-	    toKey = __webpack_require__(348);
+	var baseProperty = __webpack_require__(319),
+	    basePropertyDeep = __webpack_require__(320),
+	    isKey = __webpack_require__(307),
+	    toKey = __webpack_require__(314);
 
 	/**
 	 * Creates a function that returns the value at `path` of a given object.
@@ -44841,7 +39203,7 @@
 
 
 /***/ },
-/* 353 */
+/* 319 */
 /***/ function(module, exports) {
 
 	/**
@@ -44861,10 +39223,10 @@
 
 
 /***/ },
-/* 354 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(339);
+	var baseGet = __webpack_require__(305);
 
 	/**
 	 * A specialized version of `baseProperty` which supports deep paths.
@@ -44883,13 +39245,13 @@
 
 
 /***/ },
-/* 355 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(246),
-	    baseIteratee = __webpack_require__(311),
-	    baseMap = __webpack_require__(356),
-	    isArray = __webpack_require__(228);
+	var arrayMap = __webpack_require__(212),
+	    baseIteratee = __webpack_require__(277),
+	    baseMap = __webpack_require__(322),
+	    isArray = __webpack_require__(194);
 
 	/**
 	 * Creates an array of values by running each element in `collection` thru
@@ -44942,11 +39304,11 @@
 
 
 /***/ },
-/* 356 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseEach = __webpack_require__(306),
-	    isArrayLike = __webpack_require__(242);
+	var baseEach = __webpack_require__(272),
+	    isArrayLike = __webpack_require__(208);
 
 	/**
 	 * The base implementation of `_.map` without support for iteratee shorthands.
@@ -44970,14 +39332,14 @@
 
 
 /***/ },
-/* 357 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayReduce = __webpack_require__(358),
-	    baseEach = __webpack_require__(306),
-	    baseIteratee = __webpack_require__(311),
-	    baseReduce = __webpack_require__(359),
-	    isArray = __webpack_require__(228);
+	var arrayReduce = __webpack_require__(324),
+	    baseEach = __webpack_require__(272),
+	    baseIteratee = __webpack_require__(277),
+	    baseReduce = __webpack_require__(325),
+	    isArray = __webpack_require__(194);
 
 	/**
 	 * Reduces `collection` to a value which is the accumulated result of running
@@ -45027,7 +39389,7 @@
 
 
 /***/ },
-/* 358 */
+/* 324 */
 /***/ function(module, exports) {
 
 	/**
@@ -45059,7 +39421,7 @@
 
 
 /***/ },
-/* 359 */
+/* 325 */
 /***/ function(module, exports) {
 
 	/**
@@ -45088,16 +39450,16 @@
 
 
 /***/ },
-/* 360 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(246),
-	    baseClone = __webpack_require__(361),
-	    baseUnset = __webpack_require__(395),
-	    castPath = __webpack_require__(340),
-	    copyObject = __webpack_require__(365),
-	    flatRest = __webpack_require__(399),
-	    getAllKeysIn = __webpack_require__(381);
+	var arrayMap = __webpack_require__(212),
+	    baseClone = __webpack_require__(327),
+	    baseUnset = __webpack_require__(361),
+	    castPath = __webpack_require__(306),
+	    copyObject = __webpack_require__(331),
+	    flatRest = __webpack_require__(365),
+	    getAllKeysIn = __webpack_require__(347);
 
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1,
@@ -45150,28 +39512,28 @@
 
 
 /***/ },
-/* 361 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(314),
-	    arrayEach = __webpack_require__(305),
-	    assignValue = __webpack_require__(362),
-	    baseAssign = __webpack_require__(364),
-	    baseAssignIn = __webpack_require__(366),
-	    cloneBuffer = __webpack_require__(370),
-	    copyArray = __webpack_require__(371),
-	    copySymbols = __webpack_require__(372),
-	    copySymbolsIn = __webpack_require__(375),
-	    getAllKeys = __webpack_require__(379),
-	    getAllKeysIn = __webpack_require__(381),
-	    getTag = __webpack_require__(329),
-	    initCloneArray = __webpack_require__(382),
-	    initCloneByTag = __webpack_require__(383),
-	    initCloneObject = __webpack_require__(393),
-	    isArray = __webpack_require__(228),
-	    isBuffer = __webpack_require__(229),
-	    isObject = __webpack_require__(244),
-	    keys = __webpack_require__(216);
+	var Stack = __webpack_require__(280),
+	    arrayEach = __webpack_require__(271),
+	    assignValue = __webpack_require__(328),
+	    baseAssign = __webpack_require__(330),
+	    baseAssignIn = __webpack_require__(332),
+	    cloneBuffer = __webpack_require__(336),
+	    copyArray = __webpack_require__(337),
+	    copySymbols = __webpack_require__(338),
+	    copySymbolsIn = __webpack_require__(341),
+	    getAllKeys = __webpack_require__(345),
+	    getAllKeysIn = __webpack_require__(347),
+	    getTag = __webpack_require__(295),
+	    initCloneArray = __webpack_require__(348),
+	    initCloneByTag = __webpack_require__(349),
+	    initCloneObject = __webpack_require__(359),
+	    isArray = __webpack_require__(194),
+	    isBuffer = __webpack_require__(195),
+	    isObject = __webpack_require__(210),
+	    keys = __webpack_require__(182);
 
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1,
@@ -45309,11 +39671,11 @@
 
 
 /***/ },
-/* 362 */
+/* 328 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseAssignValue = __webpack_require__(363),
-	    eq = __webpack_require__(268);
+	var baseAssignValue = __webpack_require__(329),
+	    eq = __webpack_require__(234);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -45343,10 +39705,10 @@
 
 
 /***/ },
-/* 363 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var defineProperty = __webpack_require__(295);
+	var defineProperty = __webpack_require__(261);
 
 	/**
 	 * The base implementation of `assignValue` and `assignMergeValue` without
@@ -45374,11 +39736,11 @@
 
 
 /***/ },
-/* 364 */
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(365),
-	    keys = __webpack_require__(216);
+	var copyObject = __webpack_require__(331),
+	    keys = __webpack_require__(182);
 
 	/**
 	 * The base implementation of `_.assign` without support for multiple sources
@@ -45397,11 +39759,11 @@
 
 
 /***/ },
-/* 365 */
+/* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(362),
-	    baseAssignValue = __webpack_require__(363);
+	var assignValue = __webpack_require__(328),
+	    baseAssignValue = __webpack_require__(329);
 
 	/**
 	 * Copies properties of `source` to `object`.
@@ -45443,11 +39805,11 @@
 
 
 /***/ },
-/* 366 */
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(365),
-	    keysIn = __webpack_require__(367);
+	var copyObject = __webpack_require__(331),
+	    keysIn = __webpack_require__(333);
 
 	/**
 	 * The base implementation of `_.assignIn` without support for multiple sources
@@ -45466,12 +39828,12 @@
 
 
 /***/ },
-/* 367 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayLikeKeys = __webpack_require__(217),
-	    baseKeysIn = __webpack_require__(368),
-	    isArrayLike = __webpack_require__(242);
+	var arrayLikeKeys = __webpack_require__(183),
+	    baseKeysIn = __webpack_require__(334),
+	    isArrayLike = __webpack_require__(208);
 
 	/**
 	 * Creates an array of the own and inherited enumerable property names of `object`.
@@ -45504,12 +39866,12 @@
 
 
 /***/ },
-/* 368 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(244),
-	    isPrototype = __webpack_require__(239),
-	    nativeKeysIn = __webpack_require__(369);
+	var isObject = __webpack_require__(210),
+	    isPrototype = __webpack_require__(205),
+	    nativeKeysIn = __webpack_require__(335);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -45543,7 +39905,7 @@
 
 
 /***/ },
-/* 369 */
+/* 335 */
 /***/ function(module, exports) {
 
 	/**
@@ -45569,10 +39931,10 @@
 
 
 /***/ },
-/* 370 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(223);
+	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(189);
 
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -45608,10 +39970,10 @@
 
 	module.exports = cloneBuffer;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(230)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(196)(module)))
 
 /***/ },
-/* 371 */
+/* 337 */
 /***/ function(module, exports) {
 
 	/**
@@ -45637,11 +39999,11 @@
 
 
 /***/ },
-/* 372 */
+/* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(365),
-	    getSymbols = __webpack_require__(373);
+	var copyObject = __webpack_require__(331),
+	    getSymbols = __webpack_require__(339);
 
 	/**
 	 * Copies own symbols of `source` to `object`.
@@ -45659,11 +40021,11 @@
 
 
 /***/ },
-/* 373 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(241),
-	    stubArray = __webpack_require__(374);
+	var overArg = __webpack_require__(207),
+	    stubArray = __webpack_require__(340);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -45681,7 +40043,7 @@
 
 
 /***/ },
-/* 374 */
+/* 340 */
 /***/ function(module, exports) {
 
 	/**
@@ -45710,11 +40072,11 @@
 
 
 /***/ },
-/* 375 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(365),
-	    getSymbolsIn = __webpack_require__(376);
+	var copyObject = __webpack_require__(331),
+	    getSymbolsIn = __webpack_require__(342);
 
 	/**
 	 * Copies own and inherited symbols of `source` to `object`.
@@ -45732,13 +40094,13 @@
 
 
 /***/ },
-/* 376 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(377),
-	    getPrototype = __webpack_require__(378),
-	    getSymbols = __webpack_require__(373),
-	    stubArray = __webpack_require__(374);
+	var arrayPush = __webpack_require__(343),
+	    getPrototype = __webpack_require__(344),
+	    getSymbols = __webpack_require__(339),
+	    stubArray = __webpack_require__(340);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -45763,7 +40125,7 @@
 
 
 /***/ },
-/* 377 */
+/* 343 */
 /***/ function(module, exports) {
 
 	/**
@@ -45789,10 +40151,10 @@
 
 
 /***/ },
-/* 378 */
+/* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(241);
+	var overArg = __webpack_require__(207);
 
 	/** Built-in value references. */
 	var getPrototype = overArg(Object.getPrototypeOf, Object);
@@ -45801,12 +40163,12 @@
 
 
 /***/ },
-/* 379 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(380),
-	    getSymbols = __webpack_require__(373),
-	    keys = __webpack_require__(216);
+	var baseGetAllKeys = __webpack_require__(346),
+	    getSymbols = __webpack_require__(339),
+	    keys = __webpack_require__(182);
 
 	/**
 	 * Creates an array of own enumerable property names and symbols of `object`.
@@ -45823,11 +40185,11 @@
 
 
 /***/ },
-/* 380 */
+/* 346 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(377),
-	    isArray = __webpack_require__(228);
+	var arrayPush = __webpack_require__(343),
+	    isArray = __webpack_require__(194);
 
 	/**
 	 * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
@@ -45849,12 +40211,12 @@
 
 
 /***/ },
-/* 381 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(380),
-	    getSymbolsIn = __webpack_require__(376),
-	    keysIn = __webpack_require__(367);
+	var baseGetAllKeys = __webpack_require__(346),
+	    getSymbolsIn = __webpack_require__(342),
+	    keysIn = __webpack_require__(333);
 
 	/**
 	 * Creates an array of own and inherited enumerable property names and
@@ -45872,7 +40234,7 @@
 
 
 /***/ },
-/* 382 */
+/* 348 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -45904,16 +40266,16 @@
 
 
 /***/ },
-/* 383 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(384),
-	    cloneDataView = __webpack_require__(385),
-	    cloneMap = __webpack_require__(386),
-	    cloneRegExp = __webpack_require__(388),
-	    cloneSet = __webpack_require__(389),
-	    cloneSymbol = __webpack_require__(391),
-	    cloneTypedArray = __webpack_require__(392);
+	var cloneArrayBuffer = __webpack_require__(350),
+	    cloneDataView = __webpack_require__(351),
+	    cloneMap = __webpack_require__(352),
+	    cloneRegExp = __webpack_require__(354),
+	    cloneSet = __webpack_require__(355),
+	    cloneSymbol = __webpack_require__(357),
+	    cloneTypedArray = __webpack_require__(358);
 
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -45990,10 +40352,10 @@
 
 
 /***/ },
-/* 384 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Uint8Array = __webpack_require__(325);
+	var Uint8Array = __webpack_require__(291);
 
 	/**
 	 * Creates a clone of `arrayBuffer`.
@@ -46012,10 +40374,10 @@
 
 
 /***/ },
-/* 385 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(384);
+	var cloneArrayBuffer = __webpack_require__(350);
 
 	/**
 	 * Creates a clone of `dataView`.
@@ -46034,12 +40396,12 @@
 
 
 /***/ },
-/* 386 */
+/* 352 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addMapEntry = __webpack_require__(387),
-	    arrayReduce = __webpack_require__(358),
-	    mapToArray = __webpack_require__(326);
+	var addMapEntry = __webpack_require__(353),
+	    arrayReduce = __webpack_require__(324),
+	    mapToArray = __webpack_require__(292);
 
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1;
@@ -46062,7 +40424,7 @@
 
 
 /***/ },
-/* 387 */
+/* 353 */
 /***/ function(module, exports) {
 
 	/**
@@ -46083,7 +40445,7 @@
 
 
 /***/ },
-/* 388 */
+/* 354 */
 /***/ function(module, exports) {
 
 	/** Used to match `RegExp` flags from their coerced string values. */
@@ -46106,12 +40468,12 @@
 
 
 /***/ },
-/* 389 */
+/* 355 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addSetEntry = __webpack_require__(390),
-	    arrayReduce = __webpack_require__(358),
-	    setToArray = __webpack_require__(327);
+	var addSetEntry = __webpack_require__(356),
+	    arrayReduce = __webpack_require__(324),
+	    setToArray = __webpack_require__(293);
 
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1;
@@ -46134,7 +40496,7 @@
 
 
 /***/ },
-/* 390 */
+/* 356 */
 /***/ function(module, exports) {
 
 	/**
@@ -46155,10 +40517,10 @@
 
 
 /***/ },
-/* 391 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(222);
+	var Symbol = __webpack_require__(188);
 
 	/** Used to convert symbols to primitives and strings. */
 	var symbolProto = Symbol ? Symbol.prototype : undefined,
@@ -46179,10 +40541,10 @@
 
 
 /***/ },
-/* 392 */
+/* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(384);
+	var cloneArrayBuffer = __webpack_require__(350);
 
 	/**
 	 * Creates a clone of `typedArray`.
@@ -46201,12 +40563,12 @@
 
 
 /***/ },
-/* 393 */
+/* 359 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseCreate = __webpack_require__(394),
-	    getPrototype = __webpack_require__(378),
-	    isPrototype = __webpack_require__(239);
+	var baseCreate = __webpack_require__(360),
+	    getPrototype = __webpack_require__(344),
+	    isPrototype = __webpack_require__(205);
 
 	/**
 	 * Initializes an object clone.
@@ -46225,10 +40587,10 @@
 
 
 /***/ },
-/* 394 */
+/* 360 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(244);
+	var isObject = __webpack_require__(210);
 
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -46261,13 +40623,13 @@
 
 
 /***/ },
-/* 395 */
+/* 361 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(340),
-	    last = __webpack_require__(396),
-	    parent = __webpack_require__(397),
-	    toKey = __webpack_require__(348);
+	var castPath = __webpack_require__(306),
+	    last = __webpack_require__(362),
+	    parent = __webpack_require__(363),
+	    toKey = __webpack_require__(314);
 
 	/**
 	 * The base implementation of `_.unset`.
@@ -46287,7 +40649,7 @@
 
 
 /***/ },
-/* 396 */
+/* 362 */
 /***/ function(module, exports) {
 
 	/**
@@ -46313,11 +40675,11 @@
 
 
 /***/ },
-/* 397 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(339),
-	    baseSlice = __webpack_require__(398);
+	var baseGet = __webpack_require__(305),
+	    baseSlice = __webpack_require__(364);
 
 	/**
 	 * Gets the parent value at `path` of `object`.
@@ -46335,7 +40697,7 @@
 
 
 /***/ },
-/* 398 */
+/* 364 */
 /***/ function(module, exports) {
 
 	/**
@@ -46372,12 +40734,12 @@
 
 
 /***/ },
-/* 399 */
+/* 365 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var flatten = __webpack_require__(400),
-	    overRest = __webpack_require__(290),
-	    setToString = __webpack_require__(292);
+	var flatten = __webpack_require__(366),
+	    overRest = __webpack_require__(256),
+	    setToString = __webpack_require__(258);
 
 	/**
 	 * A specialized version of `baseRest` which flattens the rest array.
@@ -46394,10 +40756,10 @@
 
 
 /***/ },
-/* 400 */
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFlatten = __webpack_require__(401);
+	var baseFlatten = __webpack_require__(367);
 
 	/**
 	 * Flattens `array` a single level deep.
@@ -46422,11 +40784,11 @@
 
 
 /***/ },
-/* 401 */
+/* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(377),
-	    isFlattenable = __webpack_require__(402);
+	var arrayPush = __webpack_require__(343),
+	    isFlattenable = __webpack_require__(368);
 
 	/**
 	 * The base implementation of `_.flatten` with support for restricting flattening.
@@ -46466,12 +40828,12 @@
 
 
 /***/ },
-/* 402 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(222),
-	    isArguments = __webpack_require__(219),
-	    isArray = __webpack_require__(228);
+	var Symbol = __webpack_require__(188),
+	    isArguments = __webpack_require__(185),
+	    isArray = __webpack_require__(194);
 
 	/** Built-in value references. */
 	var spreadableSymbol = Symbol ? Symbol.isConcatSpreadable : undefined;
@@ -46492,11 +40854,11 @@
 
 
 /***/ },
-/* 403 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(282),
-	    toInteger = __webpack_require__(404);
+	var baseIndexOf = __webpack_require__(248),
+	    toInteger = __webpack_require__(370);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMax = Math.max;
@@ -46540,10 +40902,10 @@
 
 
 /***/ },
-/* 404 */
+/* 370 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var toFinite = __webpack_require__(405);
+	var toFinite = __webpack_require__(371);
 
 	/**
 	 * Converts `value` to an integer.
@@ -46582,10 +40944,10 @@
 
 
 /***/ },
-/* 405 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var toNumber = __webpack_require__(406);
+	var toNumber = __webpack_require__(372);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0,
@@ -46630,11 +40992,11 @@
 
 
 /***/ },
-/* 406 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(244),
-	    isSymbol = __webpack_require__(342);
+	var isObject = __webpack_require__(210),
+	    isSymbol = __webpack_require__(308);
 
 	/** Used as references for various `Number` constants. */
 	var NAN = 0 / 0;
@@ -46702,10 +41064,10 @@
 
 
 /***/ },
-/* 407 */
+/* 373 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isNumber = __webpack_require__(408);
+	var isNumber = __webpack_require__(374);
 
 	/**
 	 * Checks if `value` is `NaN`.
@@ -46746,11 +41108,11 @@
 
 
 /***/ },
-/* 408 */
+/* 374 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    isObjectLike = __webpack_require__(227);
+	var baseGetTag = __webpack_require__(187),
+	    isObjectLike = __webpack_require__(193);
 
 	/** `Object#toString` result references. */
 	var numberTag = '[object Number]';
@@ -46790,17 +41152,17 @@
 
 
 /***/ },
-/* 409 */
+/* 375 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseKeys = __webpack_require__(238),
-	    getTag = __webpack_require__(329),
-	    isArguments = __webpack_require__(219),
-	    isArray = __webpack_require__(228),
-	    isArrayLike = __webpack_require__(242),
-	    isBuffer = __webpack_require__(229),
-	    isPrototype = __webpack_require__(239),
-	    isTypedArray = __webpack_require__(233);
+	var baseKeys = __webpack_require__(204),
+	    getTag = __webpack_require__(295),
+	    isArguments = __webpack_require__(185),
+	    isArray = __webpack_require__(194),
+	    isArrayLike = __webpack_require__(208),
+	    isBuffer = __webpack_require__(195),
+	    isPrototype = __webpack_require__(205),
+	    isTypedArray = __webpack_require__(199);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -46873,10 +41235,10 @@
 
 
 /***/ },
-/* 410 */
+/* 376 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqual = __webpack_require__(320);
+	var baseIsEqual = __webpack_require__(286);
 
 	/**
 	 * Performs a deep comparison between two values to determine if they are
@@ -46914,7 +41276,7 @@
 
 
 /***/ },
-/* 411 */
+/* 377 */
 /***/ function(module, exports) {
 
 	/**
@@ -46942,12 +41304,12 @@
 
 
 /***/ },
-/* 412 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    isArray = __webpack_require__(228),
-	    isObjectLike = __webpack_require__(227);
+	var baseGetTag = __webpack_require__(187),
+	    isArray = __webpack_require__(194),
+	    isObjectLike = __webpack_require__(193);
 
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -46978,11 +41340,11 @@
 
 
 /***/ },
-/* 413 */
+/* 379 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var createFind = __webpack_require__(414),
-	    findIndex = __webpack_require__(415);
+	var createFind = __webpack_require__(380),
+	    findIndex = __webpack_require__(381);
 
 	/**
 	 * Iterates over elements of `collection`, returning the first element
@@ -47026,12 +41388,12 @@
 
 
 /***/ },
-/* 414 */
+/* 380 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIteratee = __webpack_require__(311),
-	    isArrayLike = __webpack_require__(242),
-	    keys = __webpack_require__(216);
+	var baseIteratee = __webpack_require__(277),
+	    isArrayLike = __webpack_require__(208),
+	    keys = __webpack_require__(182);
 
 	/**
 	 * Creates a `_.find` or `_.findLast` function.
@@ -47057,12 +41419,12 @@
 
 
 /***/ },
-/* 415 */
+/* 381 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFindIndex = __webpack_require__(283),
-	    baseIteratee = __webpack_require__(311),
-	    toInteger = __webpack_require__(404);
+	var baseFindIndex = __webpack_require__(249),
+	    baseIteratee = __webpack_require__(277),
+	    toInteger = __webpack_require__(370);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMax = Math.max;
@@ -47118,15 +41480,15 @@
 
 
 /***/ },
-/* 416 */
+/* 382 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseToString = __webpack_require__(347),
-	    castSlice = __webpack_require__(417),
-	    charsEndIndex = __webpack_require__(418),
-	    charsStartIndex = __webpack_require__(419),
-	    stringToArray = __webpack_require__(420),
-	    toString = __webpack_require__(346);
+	var baseToString = __webpack_require__(313),
+	    castSlice = __webpack_require__(383),
+	    charsEndIndex = __webpack_require__(384),
+	    charsStartIndex = __webpack_require__(385),
+	    stringToArray = __webpack_require__(386),
+	    toString = __webpack_require__(312);
 
 	/** Used to match leading and trailing whitespace. */
 	var reTrim = /^\s+|\s+$/g;
@@ -47173,10 +41535,10 @@
 
 
 /***/ },
-/* 417 */
+/* 383 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseSlice = __webpack_require__(398);
+	var baseSlice = __webpack_require__(364);
 
 	/**
 	 * Casts `array` to a slice if it's needed.
@@ -47197,10 +41559,10 @@
 
 
 /***/ },
-/* 418 */
+/* 384 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(282);
+	var baseIndexOf = __webpack_require__(248);
 
 	/**
 	 * Used by `_.trim` and `_.trimEnd` to get the index of the last string symbol
@@ -47222,10 +41584,10 @@
 
 
 /***/ },
-/* 419 */
+/* 385 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(282);
+	var baseIndexOf = __webpack_require__(248);
 
 	/**
 	 * Used by `_.trim` and `_.trimStart` to get the index of the first string symbol
@@ -47248,12 +41610,12 @@
 
 
 /***/ },
-/* 420 */
+/* 386 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var asciiToArray = __webpack_require__(421),
-	    hasUnicode = __webpack_require__(422),
-	    unicodeToArray = __webpack_require__(423);
+	var asciiToArray = __webpack_require__(387),
+	    hasUnicode = __webpack_require__(388),
+	    unicodeToArray = __webpack_require__(389);
 
 	/**
 	 * Converts `string` to an array.
@@ -47272,7 +41634,7 @@
 
 
 /***/ },
-/* 421 */
+/* 387 */
 /***/ function(module, exports) {
 
 	/**
@@ -47290,7 +41652,7 @@
 
 
 /***/ },
-/* 422 */
+/* 388 */
 /***/ function(module, exports) {
 
 	/** Used to compose unicode character classes. */
@@ -47322,7 +41684,7 @@
 
 
 /***/ },
-/* 423 */
+/* 389 */
 /***/ function(module, exports) {
 
 	/** Used to compose unicode character classes. */
@@ -47368,13 +41730,13 @@
 
 
 /***/ },
-/* 424 */
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var apply = __webpack_require__(291),
-	    assignInDefaults = __webpack_require__(425),
-	    assignInWith = __webpack_require__(426),
-	    baseRest = __webpack_require__(288);
+	var apply = __webpack_require__(257),
+	    assignInDefaults = __webpack_require__(391),
+	    assignInWith = __webpack_require__(392),
+	    baseRest = __webpack_require__(254);
 
 	/**
 	 * Assigns own and inherited enumerable string keyed properties of source
@@ -47406,10 +41768,10 @@
 
 
 /***/ },
-/* 425 */
+/* 391 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var eq = __webpack_require__(268);
+	var eq = __webpack_require__(234);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -47439,12 +41801,12 @@
 
 
 /***/ },
-/* 426 */
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(365),
-	    createAssigner = __webpack_require__(427),
-	    keysIn = __webpack_require__(367);
+	var copyObject = __webpack_require__(331),
+	    createAssigner = __webpack_require__(393),
+	    keysIn = __webpack_require__(333);
 
 	/**
 	 * This method is like `_.assignIn` except that it accepts `customizer`
@@ -47483,11 +41845,11 @@
 
 
 /***/ },
-/* 427 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseRest = __webpack_require__(288),
-	    isIterateeCall = __webpack_require__(428);
+	var baseRest = __webpack_require__(254),
+	    isIterateeCall = __webpack_require__(394);
 
 	/**
 	 * Creates a function like `_.assign`.
@@ -47526,13 +41888,13 @@
 
 
 /***/ },
-/* 428 */
+/* 394 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var eq = __webpack_require__(268),
-	    isArrayLike = __webpack_require__(242),
-	    isIndex = __webpack_require__(232),
-	    isObject = __webpack_require__(244);
+	var eq = __webpack_require__(234),
+	    isArrayLike = __webpack_require__(208),
+	    isIndex = __webpack_require__(198),
+	    isObject = __webpack_require__(210);
 
 	/**
 	 * Checks if the given arguments are from an iteratee call.
@@ -47562,11 +41924,11 @@
 
 
 /***/ },
-/* 429 */
+/* 395 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseMerge = __webpack_require__(430),
-	    createAssigner = __webpack_require__(427);
+	var baseMerge = __webpack_require__(396),
+	    createAssigner = __webpack_require__(393);
 
 	/**
 	 * This method is like `_.assign` except that it recursively merges own and
@@ -47607,15 +41969,15 @@
 
 
 /***/ },
-/* 430 */
+/* 396 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(314),
-	    assignMergeValue = __webpack_require__(431),
-	    baseFor = __webpack_require__(301),
-	    baseMergeDeep = __webpack_require__(432),
-	    isObject = __webpack_require__(244),
-	    keysIn = __webpack_require__(367);
+	var Stack = __webpack_require__(280),
+	    assignMergeValue = __webpack_require__(397),
+	    baseFor = __webpack_require__(267),
+	    baseMergeDeep = __webpack_require__(398),
+	    isObject = __webpack_require__(210),
+	    keysIn = __webpack_require__(333);
 
 	/**
 	 * The base implementation of `_.merge` without support for multiple sources.
@@ -47654,11 +42016,11 @@
 
 
 /***/ },
-/* 431 */
+/* 397 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseAssignValue = __webpack_require__(363),
-	    eq = __webpack_require__(268);
+	var baseAssignValue = __webpack_require__(329),
+	    eq = __webpack_require__(234);
 
 	/**
 	 * This function is like `assignValue` except that it doesn't assign
@@ -47680,23 +42042,23 @@
 
 
 /***/ },
-/* 432 */
+/* 398 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignMergeValue = __webpack_require__(431),
-	    cloneBuffer = __webpack_require__(370),
-	    cloneTypedArray = __webpack_require__(392),
-	    copyArray = __webpack_require__(371),
-	    initCloneObject = __webpack_require__(393),
-	    isArguments = __webpack_require__(219),
-	    isArray = __webpack_require__(228),
-	    isArrayLikeObject = __webpack_require__(298),
-	    isBuffer = __webpack_require__(229),
-	    isFunction = __webpack_require__(243),
-	    isObject = __webpack_require__(244),
-	    isPlainObject = __webpack_require__(433),
-	    isTypedArray = __webpack_require__(233),
-	    toPlainObject = __webpack_require__(434);
+	var assignMergeValue = __webpack_require__(397),
+	    cloneBuffer = __webpack_require__(336),
+	    cloneTypedArray = __webpack_require__(358),
+	    copyArray = __webpack_require__(337),
+	    initCloneObject = __webpack_require__(359),
+	    isArguments = __webpack_require__(185),
+	    isArray = __webpack_require__(194),
+	    isArrayLikeObject = __webpack_require__(264),
+	    isBuffer = __webpack_require__(195),
+	    isFunction = __webpack_require__(209),
+	    isObject = __webpack_require__(210),
+	    isPlainObject = __webpack_require__(399),
+	    isTypedArray = __webpack_require__(199),
+	    toPlainObject = __webpack_require__(400);
 
 	/**
 	 * A specialized version of `baseMerge` for arrays and objects which performs
@@ -47779,12 +42141,12 @@
 
 
 /***/ },
-/* 433 */
+/* 399 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(221),
-	    getPrototype = __webpack_require__(378),
-	    isObjectLike = __webpack_require__(227);
+	var baseGetTag = __webpack_require__(187),
+	    getPrototype = __webpack_require__(344),
+	    isObjectLike = __webpack_require__(193);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -47847,11 +42209,11 @@
 
 
 /***/ },
-/* 434 */
+/* 400 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(365),
-	    keysIn = __webpack_require__(367);
+	var copyObject = __webpack_require__(331),
+	    keysIn = __webpack_require__(333);
 
 	/**
 	 * Converts `value` to a plain object flattening inherited enumerable string
@@ -47885,15 +42247,15 @@
 
 
 /***/ },
-/* 435 */
+/* 401 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var map = __webpack_require__(355);
-	var isArray = __webpack_require__(228);
-	var isNumber = __webpack_require__(408);
-	var isString = __webpack_require__(412);
+	var map = __webpack_require__(321);
+	var isArray = __webpack_require__(194);
+	var isNumber = __webpack_require__(374);
+	var isString = __webpack_require__(378);
 	function valToNumber(v) {
 	  if (isNumber(v)) {
 	    return v;
@@ -47910,16 +42272,16 @@
 
 
 /***/ },
-/* 436 */
+/* 402 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var forEach = __webpack_require__(304);
-	var filter = __webpack_require__(308);
-	var map = __webpack_require__(355);
-	var isEmpty = __webpack_require__(409);
-	var indexOf = __webpack_require__(403);
+	var forEach = __webpack_require__(270);
+	var filter = __webpack_require__(274);
+	var map = __webpack_require__(321);
+	var isEmpty = __webpack_require__(375);
+	var indexOf = __webpack_require__(369);
 
 	function filterState(state, filters) {
 	  var partialState = {};
@@ -47983,7 +42345,7 @@
 
 
 /***/ },
-/* 437 */
+/* 403 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -48000,15 +42362,15 @@
 	 * @typedef {Object.<string, SearchParameters.refinementList.Refinements>} SearchParameters.refinementList.RefinementList
 	 */
 
-	var isUndefined = __webpack_require__(411);
-	var isString = __webpack_require__(412);
-	var isFunction = __webpack_require__(243);
-	var isEmpty = __webpack_require__(409);
-	var defaults = __webpack_require__(424);
+	var isUndefined = __webpack_require__(377);
+	var isString = __webpack_require__(378);
+	var isFunction = __webpack_require__(209);
+	var isEmpty = __webpack_require__(375);
+	var defaults = __webpack_require__(390);
 
-	var reduce = __webpack_require__(357);
-	var filter = __webpack_require__(308);
-	var omit = __webpack_require__(360);
+	var reduce = __webpack_require__(323);
+	var filter = __webpack_require__(274);
+	var omit = __webpack_require__(326);
 
 	var lib = {
 	  /**
@@ -48109,7 +42471,7 @@
 	   * @return {boolean}
 	   */
 	  isRefined: function isRefined(refinementList, attribute, refinementValue) {
-	    var indexOf = __webpack_require__(403);
+	    var indexOf = __webpack_require__(369);
 
 	    var containsRefinements = !!refinementList[attribute] &&
 	      refinementList[attribute].length > 0;
@@ -48128,35 +42490,35 @@
 
 
 /***/ },
-/* 438 */
+/* 404 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var forEach = __webpack_require__(304);
-	var compact = __webpack_require__(439);
-	var indexOf = __webpack_require__(403);
-	var findIndex = __webpack_require__(415);
-	var get = __webpack_require__(338);
+	var forEach = __webpack_require__(270);
+	var compact = __webpack_require__(405);
+	var indexOf = __webpack_require__(369);
+	var findIndex = __webpack_require__(381);
+	var get = __webpack_require__(304);
 
-	var sumBy = __webpack_require__(440);
-	var find = __webpack_require__(413);
-	var includes = __webpack_require__(442);
-	var map = __webpack_require__(355);
-	var orderBy = __webpack_require__(445);
+	var sumBy = __webpack_require__(406);
+	var find = __webpack_require__(379);
+	var includes = __webpack_require__(408);
+	var map = __webpack_require__(321);
+	var orderBy = __webpack_require__(411);
 
-	var defaults = __webpack_require__(424);
-	var merge = __webpack_require__(429);
+	var defaults = __webpack_require__(390);
+	var merge = __webpack_require__(395);
 
-	var isArray = __webpack_require__(228);
-	var isFunction = __webpack_require__(243);
+	var isArray = __webpack_require__(194);
+	var isFunction = __webpack_require__(209);
 
-	var partial = __webpack_require__(450);
-	var partialRight = __webpack_require__(482);
+	var partial = __webpack_require__(416);
+	var partialRight = __webpack_require__(448);
 
-	var formatSort = __webpack_require__(483);
+	var formatSort = __webpack_require__(449);
 
-	var generateHierarchicalTree = __webpack_require__(486);
+	var generateHierarchicalTree = __webpack_require__(452);
 
 	/**
 	 * @typedef SearchResults.Facet
@@ -48887,7 +43249,7 @@
 
 
 /***/ },
-/* 439 */
+/* 405 */
 /***/ function(module, exports) {
 
 	/**
@@ -48924,11 +43286,11 @@
 
 
 /***/ },
-/* 440 */
+/* 406 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIteratee = __webpack_require__(311),
-	    baseSum = __webpack_require__(441);
+	var baseIteratee = __webpack_require__(277),
+	    baseSum = __webpack_require__(407);
 
 	/**
 	 * This method is like `_.sum` except that it accepts `iteratee` which is
@@ -48963,7 +43325,7 @@
 
 
 /***/ },
-/* 441 */
+/* 407 */
 /***/ function(module, exports) {
 
 	/**
@@ -48993,14 +43355,14 @@
 
 
 /***/ },
-/* 442 */
+/* 408 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(282),
-	    isArrayLike = __webpack_require__(242),
-	    isString = __webpack_require__(412),
-	    toInteger = __webpack_require__(404),
-	    values = __webpack_require__(443);
+	var baseIndexOf = __webpack_require__(248),
+	    isArrayLike = __webpack_require__(208),
+	    isString = __webpack_require__(378),
+	    toInteger = __webpack_require__(370),
+	    values = __webpack_require__(409);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMax = Math.max;
@@ -49052,11 +43414,11 @@
 
 
 /***/ },
-/* 443 */
+/* 409 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseValues = __webpack_require__(444),
-	    keys = __webpack_require__(216);
+	var baseValues = __webpack_require__(410),
+	    keys = __webpack_require__(182);
 
 	/**
 	 * Creates an array of the own enumerable string keyed property values of `object`.
@@ -49092,10 +43454,10 @@
 
 
 /***/ },
-/* 444 */
+/* 410 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(246);
+	var arrayMap = __webpack_require__(212);
 
 	/**
 	 * The base implementation of `_.values` and `_.valuesIn` which creates an
@@ -49117,11 +43479,11 @@
 
 
 /***/ },
-/* 445 */
+/* 411 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseOrderBy = __webpack_require__(446),
-	    isArray = __webpack_require__(228);
+	var baseOrderBy = __webpack_require__(412),
+	    isArray = __webpack_require__(194);
 
 	/**
 	 * This method is like `_.sortBy` except that it allows specifying the sort
@@ -49170,16 +43532,16 @@
 
 
 /***/ },
-/* 446 */
+/* 412 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(246),
-	    baseIteratee = __webpack_require__(311),
-	    baseMap = __webpack_require__(356),
-	    baseSortBy = __webpack_require__(447),
-	    baseUnary = __webpack_require__(236),
-	    compareMultiple = __webpack_require__(448),
-	    identity = __webpack_require__(289);
+	var arrayMap = __webpack_require__(212),
+	    baseIteratee = __webpack_require__(277),
+	    baseMap = __webpack_require__(322),
+	    baseSortBy = __webpack_require__(413),
+	    baseUnary = __webpack_require__(202),
+	    compareMultiple = __webpack_require__(414),
+	    identity = __webpack_require__(255);
 
 	/**
 	 * The base implementation of `_.orderBy` without param guards.
@@ -49210,7 +43572,7 @@
 
 
 /***/ },
-/* 447 */
+/* 413 */
 /***/ function(module, exports) {
 
 	/**
@@ -49237,10 +43599,10 @@
 
 
 /***/ },
-/* 448 */
+/* 414 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var compareAscending = __webpack_require__(449);
+	var compareAscending = __webpack_require__(415);
 
 	/**
 	 * Used by `_.orderBy` to compare multiple properties of a value to another
@@ -49287,10 +43649,10 @@
 
 
 /***/ },
-/* 449 */
+/* 415 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isSymbol = __webpack_require__(342);
+	var isSymbol = __webpack_require__(308);
 
 	/**
 	 * Compares values to sort them in ascending order.
@@ -49334,13 +43696,13 @@
 
 
 /***/ },
-/* 450 */
+/* 416 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseRest = __webpack_require__(288),
-	    createWrap = __webpack_require__(451),
-	    getHolder = __webpack_require__(477),
-	    replaceHolders = __webpack_require__(479);
+	var baseRest = __webpack_require__(254),
+	    createWrap = __webpack_require__(417),
+	    getHolder = __webpack_require__(443),
+	    replaceHolders = __webpack_require__(445);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_PARTIAL_FLAG = 32;
@@ -49390,19 +43752,19 @@
 
 
 /***/ },
-/* 451 */
+/* 417 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseSetData = __webpack_require__(452),
-	    createBind = __webpack_require__(454),
-	    createCurry = __webpack_require__(456),
-	    createHybrid = __webpack_require__(457),
-	    createPartial = __webpack_require__(480),
-	    getData = __webpack_require__(465),
-	    mergeData = __webpack_require__(481),
-	    setData = __webpack_require__(472),
-	    setWrapToString = __webpack_require__(473),
-	    toInteger = __webpack_require__(404);
+	var baseSetData = __webpack_require__(418),
+	    createBind = __webpack_require__(420),
+	    createCurry = __webpack_require__(422),
+	    createHybrid = __webpack_require__(423),
+	    createPartial = __webpack_require__(446),
+	    getData = __webpack_require__(431),
+	    mergeData = __webpack_require__(447),
+	    setData = __webpack_require__(438),
+	    setWrapToString = __webpack_require__(439),
+	    toInteger = __webpack_require__(370);
 
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -49502,11 +43864,11 @@
 
 
 /***/ },
-/* 452 */
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var identity = __webpack_require__(289),
-	    metaMap = __webpack_require__(453);
+	var identity = __webpack_require__(255),
+	    metaMap = __webpack_require__(419);
 
 	/**
 	 * The base implementation of `setData` without support for hot loop shorting.
@@ -49525,10 +43887,10 @@
 
 
 /***/ },
-/* 453 */
+/* 419 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var WeakMap = __webpack_require__(333);
+	var WeakMap = __webpack_require__(299);
 
 	/** Used to store function metadata. */
 	var metaMap = WeakMap && new WeakMap;
@@ -49537,11 +43899,11 @@
 
 
 /***/ },
-/* 454 */
+/* 420 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var createCtor = __webpack_require__(455),
-	    root = __webpack_require__(223);
+	var createCtor = __webpack_require__(421),
+	    root = __webpack_require__(189);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_BIND_FLAG = 1;
@@ -49571,11 +43933,11 @@
 
 
 /***/ },
-/* 455 */
+/* 421 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseCreate = __webpack_require__(394),
-	    isObject = __webpack_require__(244);
+	var baseCreate = __webpack_require__(360),
+	    isObject = __webpack_require__(210);
 
 	/**
 	 * Creates a function that produces an instance of `Ctor` regardless of
@@ -49614,16 +43976,16 @@
 
 
 /***/ },
-/* 456 */
+/* 422 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var apply = __webpack_require__(291),
-	    createCtor = __webpack_require__(455),
-	    createHybrid = __webpack_require__(457),
-	    createRecurry = __webpack_require__(461),
-	    getHolder = __webpack_require__(477),
-	    replaceHolders = __webpack_require__(479),
-	    root = __webpack_require__(223);
+	var apply = __webpack_require__(257),
+	    createCtor = __webpack_require__(421),
+	    createHybrid = __webpack_require__(423),
+	    createRecurry = __webpack_require__(427),
+	    getHolder = __webpack_require__(443),
+	    replaceHolders = __webpack_require__(445),
+	    root = __webpack_require__(189);
 
 	/**
 	 * Creates a function that wraps `func` to enable currying.
@@ -49666,18 +44028,18 @@
 
 
 /***/ },
-/* 457 */
+/* 423 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var composeArgs = __webpack_require__(458),
-	    composeArgsRight = __webpack_require__(459),
-	    countHolders = __webpack_require__(460),
-	    createCtor = __webpack_require__(455),
-	    createRecurry = __webpack_require__(461),
-	    getHolder = __webpack_require__(477),
-	    reorder = __webpack_require__(478),
-	    replaceHolders = __webpack_require__(479),
-	    root = __webpack_require__(223);
+	var composeArgs = __webpack_require__(424),
+	    composeArgsRight = __webpack_require__(425),
+	    countHolders = __webpack_require__(426),
+	    createCtor = __webpack_require__(421),
+	    createRecurry = __webpack_require__(427),
+	    getHolder = __webpack_require__(443),
+	    reorder = __webpack_require__(444),
+	    replaceHolders = __webpack_require__(445),
+	    root = __webpack_require__(189);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_BIND_FLAG = 1,
@@ -49764,7 +44126,7 @@
 
 
 /***/ },
-/* 458 */
+/* 424 */
 /***/ function(module, exports) {
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
@@ -49809,7 +44171,7 @@
 
 
 /***/ },
-/* 459 */
+/* 425 */
 /***/ function(module, exports) {
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
@@ -49856,7 +44218,7 @@
 
 
 /***/ },
-/* 460 */
+/* 426 */
 /***/ function(module, exports) {
 
 	/**
@@ -49883,12 +44245,12 @@
 
 
 /***/ },
-/* 461 */
+/* 427 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isLaziable = __webpack_require__(462),
-	    setData = __webpack_require__(472),
-	    setWrapToString = __webpack_require__(473);
+	var isLaziable = __webpack_require__(428),
+	    setData = __webpack_require__(438),
+	    setWrapToString = __webpack_require__(439);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_BIND_FLAG = 1,
@@ -49945,13 +44307,13 @@
 
 
 /***/ },
-/* 462 */
+/* 428 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var LazyWrapper = __webpack_require__(463),
-	    getData = __webpack_require__(465),
-	    getFuncName = __webpack_require__(467),
-	    lodash = __webpack_require__(469);
+	var LazyWrapper = __webpack_require__(429),
+	    getData = __webpack_require__(431),
+	    getFuncName = __webpack_require__(433),
+	    lodash = __webpack_require__(435);
 
 	/**
 	 * Checks if `func` has a lazy counterpart.
@@ -49979,11 +44341,11 @@
 
 
 /***/ },
-/* 463 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseCreate = __webpack_require__(394),
-	    baseLodash = __webpack_require__(464);
+	var baseCreate = __webpack_require__(360),
+	    baseLodash = __webpack_require__(430);
 
 	/** Used as references for the maximum length and index of an array. */
 	var MAX_ARRAY_LENGTH = 4294967295;
@@ -50013,7 +44375,7 @@
 
 
 /***/ },
-/* 464 */
+/* 430 */
 /***/ function(module, exports) {
 
 	/**
@@ -50029,11 +44391,11 @@
 
 
 /***/ },
-/* 465 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var metaMap = __webpack_require__(453),
-	    noop = __webpack_require__(466);
+	var metaMap = __webpack_require__(419),
+	    noop = __webpack_require__(432);
 
 	/**
 	 * Gets metadata for `func`.
@@ -50050,7 +44412,7 @@
 
 
 /***/ },
-/* 466 */
+/* 432 */
 /***/ function(module, exports) {
 
 	/**
@@ -50073,10 +44435,10 @@
 
 
 /***/ },
-/* 467 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var realNames = __webpack_require__(468);
+	var realNames = __webpack_require__(434);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -50110,7 +44472,7 @@
 
 
 /***/ },
-/* 468 */
+/* 434 */
 /***/ function(module, exports) {
 
 	/** Used to lookup unminified function names. */
@@ -50120,15 +44482,15 @@
 
 
 /***/ },
-/* 469 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var LazyWrapper = __webpack_require__(463),
-	    LodashWrapper = __webpack_require__(470),
-	    baseLodash = __webpack_require__(464),
-	    isArray = __webpack_require__(228),
-	    isObjectLike = __webpack_require__(227),
-	    wrapperClone = __webpack_require__(471);
+	var LazyWrapper = __webpack_require__(429),
+	    LodashWrapper = __webpack_require__(436),
+	    baseLodash = __webpack_require__(430),
+	    isArray = __webpack_require__(194),
+	    isObjectLike = __webpack_require__(193),
+	    wrapperClone = __webpack_require__(437);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -50273,11 +44635,11 @@
 
 
 /***/ },
-/* 470 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseCreate = __webpack_require__(394),
-	    baseLodash = __webpack_require__(464);
+	var baseCreate = __webpack_require__(360),
+	    baseLodash = __webpack_require__(430);
 
 	/**
 	 * The base constructor for creating `lodash` wrapper objects.
@@ -50301,12 +44663,12 @@
 
 
 /***/ },
-/* 471 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var LazyWrapper = __webpack_require__(463),
-	    LodashWrapper = __webpack_require__(470),
-	    copyArray = __webpack_require__(371);
+	var LazyWrapper = __webpack_require__(429),
+	    LodashWrapper = __webpack_require__(436),
+	    copyArray = __webpack_require__(337);
 
 	/**
 	 * Creates a clone of `wrapper`.
@@ -50330,11 +44692,11 @@
 
 
 /***/ },
-/* 472 */
+/* 438 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseSetData = __webpack_require__(452),
-	    shortOut = __webpack_require__(296);
+	var baseSetData = __webpack_require__(418),
+	    shortOut = __webpack_require__(262);
 
 	/**
 	 * Sets metadata for `func`.
@@ -50356,13 +44718,13 @@
 
 
 /***/ },
-/* 473 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getWrapDetails = __webpack_require__(474),
-	    insertWrapDetails = __webpack_require__(475),
-	    setToString = __webpack_require__(292),
-	    updateWrapDetails = __webpack_require__(476);
+	var getWrapDetails = __webpack_require__(440),
+	    insertWrapDetails = __webpack_require__(441),
+	    setToString = __webpack_require__(258),
+	    updateWrapDetails = __webpack_require__(442);
 
 	/**
 	 * Sets the `toString` method of `wrapper` to mimic the source of `reference`
@@ -50383,7 +44745,7 @@
 
 
 /***/ },
-/* 474 */
+/* 440 */
 /***/ function(module, exports) {
 
 	/** Used to match wrap detail comments. */
@@ -50406,7 +44768,7 @@
 
 
 /***/ },
-/* 475 */
+/* 441 */
 /***/ function(module, exports) {
 
 	/** Used to match wrap detail comments. */
@@ -50435,11 +44797,11 @@
 
 
 /***/ },
-/* 476 */
+/* 442 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayEach = __webpack_require__(305),
-	    arrayIncludes = __webpack_require__(281);
+	var arrayEach = __webpack_require__(271),
+	    arrayIncludes = __webpack_require__(247);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_BIND_FLAG = 1,
@@ -50487,7 +44849,7 @@
 
 
 /***/ },
-/* 477 */
+/* 443 */
 /***/ function(module, exports) {
 
 	/**
@@ -50506,11 +44868,11 @@
 
 
 /***/ },
-/* 478 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyArray = __webpack_require__(371),
-	    isIndex = __webpack_require__(232);
+	var copyArray = __webpack_require__(337),
+	    isIndex = __webpack_require__(198);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMin = Math.min;
@@ -50541,7 +44903,7 @@
 
 
 /***/ },
-/* 479 */
+/* 445 */
 /***/ function(module, exports) {
 
 	/** Used as the internal argument placeholder. */
@@ -50576,12 +44938,12 @@
 
 
 /***/ },
-/* 480 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var apply = __webpack_require__(291),
-	    createCtor = __webpack_require__(455),
-	    root = __webpack_require__(223);
+	var apply = __webpack_require__(257),
+	    createCtor = __webpack_require__(421),
+	    root = __webpack_require__(189);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_BIND_FLAG = 1;
@@ -50625,12 +44987,12 @@
 
 
 /***/ },
-/* 481 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var composeArgs = __webpack_require__(458),
-	    composeArgsRight = __webpack_require__(459),
-	    replaceHolders = __webpack_require__(479);
+	var composeArgs = __webpack_require__(424),
+	    composeArgsRight = __webpack_require__(425),
+	    replaceHolders = __webpack_require__(445);
 
 	/** Used as the internal argument placeholder. */
 	var PLACEHOLDER = '__lodash_placeholder__';
@@ -50721,13 +45083,13 @@
 
 
 /***/ },
-/* 482 */
+/* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseRest = __webpack_require__(288),
-	    createWrap = __webpack_require__(451),
-	    getHolder = __webpack_require__(477),
-	    replaceHolders = __webpack_require__(479);
+	var baseRest = __webpack_require__(254),
+	    createWrap = __webpack_require__(417),
+	    getHolder = __webpack_require__(443),
+	    replaceHolders = __webpack_require__(445);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_PARTIAL_RIGHT_FLAG = 64;
@@ -50776,14 +45138,14 @@
 
 
 /***/ },
-/* 483 */
+/* 449 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var reduce = __webpack_require__(357);
-	var find = __webpack_require__(413);
-	var startsWith = __webpack_require__(484);
+	var reduce = __webpack_require__(323);
+	var find = __webpack_require__(379);
+	var startsWith = __webpack_require__(450);
 
 	/**
 	 * Transform sort format from user friendly notation to lodash format
@@ -50809,13 +45171,13 @@
 
 
 /***/ },
-/* 484 */
+/* 450 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseClamp = __webpack_require__(485),
-	    baseToString = __webpack_require__(347),
-	    toInteger = __webpack_require__(404),
-	    toString = __webpack_require__(346);
+	var baseClamp = __webpack_require__(451),
+	    baseToString = __webpack_require__(313),
+	    toInteger = __webpack_require__(370),
+	    toString = __webpack_require__(312);
 
 	/**
 	 * Checks if `string` starts with the given target string.
@@ -50851,7 +45213,7 @@
 
 
 /***/ },
-/* 485 */
+/* 451 */
 /***/ function(module, exports) {
 
 	/**
@@ -50879,22 +45241,22 @@
 
 
 /***/ },
-/* 486 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = generateTrees;
 
-	var last = __webpack_require__(396);
-	var map = __webpack_require__(355);
-	var reduce = __webpack_require__(357);
-	var orderBy = __webpack_require__(445);
-	var trim = __webpack_require__(416);
-	var find = __webpack_require__(413);
-	var pickBy = __webpack_require__(487);
+	var last = __webpack_require__(362);
+	var map = __webpack_require__(321);
+	var reduce = __webpack_require__(323);
+	var orderBy = __webpack_require__(411);
+	var trim = __webpack_require__(382);
+	var find = __webpack_require__(379);
+	var pickBy = __webpack_require__(453);
 
-	var prepareHierarchicalFacetSortBy = __webpack_require__(483);
+	var prepareHierarchicalFacetSortBy = __webpack_require__(449);
 
 	function generateTrees(state) {
 	  return function generate(hierarchicalFacetResult, hierarchicalFacetIndex) {
@@ -51010,13 +45372,13 @@
 
 
 /***/ },
-/* 487 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(246),
-	    baseIteratee = __webpack_require__(311),
-	    basePickBy = __webpack_require__(488),
-	    getAllKeysIn = __webpack_require__(381);
+	var arrayMap = __webpack_require__(212),
+	    baseIteratee = __webpack_require__(277),
+	    basePickBy = __webpack_require__(454),
+	    getAllKeysIn = __webpack_require__(347);
 
 	/**
 	 * Creates an object composed of the `object` properties `predicate` returns
@@ -51053,12 +45415,12 @@
 
 
 /***/ },
-/* 488 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(339),
-	    baseSet = __webpack_require__(489),
-	    castPath = __webpack_require__(340);
+	var baseGet = __webpack_require__(305),
+	    baseSet = __webpack_require__(455),
+	    castPath = __webpack_require__(306);
 
 	/**
 	 * The base implementation of  `_.pickBy` without support for iteratee shorthands.
@@ -51089,14 +45451,14 @@
 
 
 /***/ },
-/* 489 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(362),
-	    castPath = __webpack_require__(340),
-	    isIndex = __webpack_require__(232),
-	    isObject = __webpack_require__(244),
-	    toKey = __webpack_require__(348);
+	var assignValue = __webpack_require__(328),
+	    castPath = __webpack_require__(306),
+	    isIndex = __webpack_require__(198),
+	    isObject = __webpack_require__(210),
+	    toKey = __webpack_require__(314);
 
 	/**
 	 * The base implementation of `_.set`.
@@ -51142,16 +45504,16 @@
 
 
 /***/ },
-/* 490 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var forEach = __webpack_require__(304);
-	var map = __webpack_require__(355);
-	var reduce = __webpack_require__(357);
-	var merge = __webpack_require__(429);
-	var isArray = __webpack_require__(228);
+	var forEach = __webpack_require__(270);
+	var map = __webpack_require__(321);
+	var reduce = __webpack_require__(323);
+	var merge = __webpack_require__(395);
+	var isArray = __webpack_require__(194);
 
 	var requestBuilder = {
 	  /**
@@ -51453,7 +45815,7 @@
 
 
 /***/ },
-/* 491 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -51981,7 +46343,7 @@
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(492);
+	exports.isBuffer = __webpack_require__(458);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -52025,7 +46387,7 @@
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(493);
+	exports.inherits = __webpack_require__(459);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -52046,7 +46408,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(3)))
 
 /***/ },
-/* 492 */
+/* 458 */
 /***/ function(module, exports) {
 
 	module.exports = function isBuffer(arg) {
@@ -52057,7 +46419,7 @@
 	}
 
 /***/ },
-/* 493 */
+/* 459 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -52086,13 +46448,321 @@
 
 
 /***/ },
-/* 494 */
+/* 460 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	module.exports = EventEmitter;
+
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function(n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n))
+	    throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	EventEmitter.prototype.emit = function(type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error ||
+	        (isObject(this._events.error) && !this._events.error.length)) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
+	      }
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler))
+	    return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        args = Array.prototype.slice.call(arguments, 1);
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    args = Array.prototype.slice.call(arguments, 1);
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++)
+	      listeners[i].apply(this, args);
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function(type, listener) {
+	  var m;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener)
+	    this.emit('newListener', type,
+	              isFunction(listener.listener) ?
+	              listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;
+	  else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);
+	  else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' +
+	                    'leak detected. %d listeners added. ' +
+	                    'Use emitter.setMaxListeners() to increase limit.',
+	                    this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.once = function(type, listener) {
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function(type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type])
+	    return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener ||
+	      (isFunction(list.listener) && list.listener === listener)) {
+	    delete this._events[type];
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener ||
+	          (list[i].listener && list[i].listener === listener)) {
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0)
+	      return this;
+
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  var key, listeners;
+
+	  if (!this._events)
+	    return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0)
+	      this._events = {};
+	    else if (this._events[type])
+	      delete this._events[type];
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    while (listeners.length)
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	  }
+	  delete this._events[type];
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function(type) {
+	  var ret;
+	  if (!this._events || !this._events[type])
+	    ret = [];
+	  else if (isFunction(this._events[type]))
+	    ret = [this._events[type]];
+	  else
+	    ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.prototype.listenerCount = function(type) {
+	  if (this._events) {
+	    var evlistener = this._events[type];
+
+	    if (isFunction(evlistener))
+	      return 1;
+	    else if (evlistener)
+	      return evlistener.length;
+	  }
+	  return 0;
+	};
+
+	EventEmitter.listenerCount = function(emitter, type) {
+	  return emitter.listenerCount(type);
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+
+
+/***/ },
+/* 461 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseRest = __webpack_require__(288),
-	    createWrap = __webpack_require__(451),
-	    getHolder = __webpack_require__(477),
-	    replaceHolders = __webpack_require__(479);
+	var baseRest = __webpack_require__(254),
+	    createWrap = __webpack_require__(417),
+	    getHolder = __webpack_require__(443),
+	    replaceHolders = __webpack_require__(445);
 
 	/** Used to compose bitmasks for function metadata. */
 	var WRAP_BIND_FLAG = 1,
@@ -52149,7 +46819,7 @@
 
 
 /***/ },
-/* 495 */
+/* 462 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52160,23 +46830,23 @@
 	 * @module algoliasearchHelper.url
 	 */
 
-	var shortener = __webpack_require__(496);
-	var SearchParameters = __webpack_require__(215);
+	var shortener = __webpack_require__(463);
+	var SearchParameters = __webpack_require__(181);
 
-	var qs = __webpack_require__(500);
+	var qs = __webpack_require__(467);
 
-	var bind = __webpack_require__(494);
-	var forEach = __webpack_require__(304);
-	var pick = __webpack_require__(504);
-	var map = __webpack_require__(355);
-	var mapKeys = __webpack_require__(506);
-	var mapValues = __webpack_require__(507);
-	var isString = __webpack_require__(412);
-	var isPlainObject = __webpack_require__(433);
-	var isArray = __webpack_require__(228);
-	var invert = __webpack_require__(497);
+	var bind = __webpack_require__(461);
+	var forEach = __webpack_require__(270);
+	var pick = __webpack_require__(471);
+	var map = __webpack_require__(321);
+	var mapKeys = __webpack_require__(473);
+	var mapValues = __webpack_require__(474);
+	var isString = __webpack_require__(378);
+	var isPlainObject = __webpack_require__(399);
+	var isArray = __webpack_require__(194);
+	var invert = __webpack_require__(464);
 
-	var encode = __webpack_require__(502).encode;
+	var encode = __webpack_require__(469).encode;
 
 	function recursiveEncode(input) {
 	  if (isPlainObject(input)) {
@@ -52325,13 +46995,13 @@
 
 
 /***/ },
-/* 496 */
+/* 463 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var invert = __webpack_require__(497);
-	var keys = __webpack_require__(216);
+	var invert = __webpack_require__(464);
+	var keys = __webpack_require__(182);
 
 	var keys2Short = {
 	  advancedSyntax: 'aS',
@@ -52416,12 +47086,12 @@
 
 
 /***/ },
-/* 497 */
+/* 464 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var constant = __webpack_require__(294),
-	    createInverter = __webpack_require__(498),
-	    identity = __webpack_require__(289);
+	var constant = __webpack_require__(260),
+	    createInverter = __webpack_require__(465),
+	    identity = __webpack_require__(255);
 
 	/**
 	 * Creates an object composed of the inverted keys and values of `object`.
@@ -52449,10 +47119,10 @@
 
 
 /***/ },
-/* 498 */
+/* 465 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseInverter = __webpack_require__(499);
+	var baseInverter = __webpack_require__(466);
 
 	/**
 	 * Creates a function like `_.invertBy`.
@@ -52472,10 +47142,10 @@
 
 
 /***/ },
-/* 499 */
+/* 466 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseForOwn = __webpack_require__(300);
+	var baseForOwn = __webpack_require__(266);
 
 	/**
 	 * The base implementation of `_.invert` and `_.invertBy` which inverts
@@ -52499,13 +47169,13 @@
 
 
 /***/ },
-/* 500 */
+/* 467 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stringify = __webpack_require__(501);
-	var Parse = __webpack_require__(503);
+	var Stringify = __webpack_require__(468);
+	var Parse = __webpack_require__(470);
 
 	module.exports = {
 	    stringify: Stringify,
@@ -52514,12 +47184,12 @@
 
 
 /***/ },
-/* 501 */
+/* 468 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Utils = __webpack_require__(502);
+	var Utils = __webpack_require__(469);
 
 	var arrayPrefixGenerators = {
 	    brackets: function brackets(prefix) {
@@ -52657,7 +47327,7 @@
 
 
 /***/ },
-/* 502 */
+/* 469 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -52827,12 +47497,12 @@
 
 
 /***/ },
-/* 503 */
+/* 470 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Utils = __webpack_require__(502);
+	var Utils = __webpack_require__(469);
 
 	var has = Object.prototype.hasOwnProperty;
 
@@ -52999,11 +47669,11 @@
 
 
 /***/ },
-/* 504 */
+/* 471 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var basePick = __webpack_require__(505),
-	    flatRest = __webpack_require__(399);
+	var basePick = __webpack_require__(472),
+	    flatRest = __webpack_require__(365);
 
 	/**
 	 * Creates an object composed of the picked `object` properties.
@@ -53030,11 +47700,11 @@
 
 
 /***/ },
-/* 505 */
+/* 472 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var basePickBy = __webpack_require__(488),
-	    hasIn = __webpack_require__(349);
+	var basePickBy = __webpack_require__(454),
+	    hasIn = __webpack_require__(315);
 
 	/**
 	 * The base implementation of `_.pick` without support for individual
@@ -53056,12 +47726,12 @@
 
 
 /***/ },
-/* 506 */
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseAssignValue = __webpack_require__(363),
-	    baseForOwn = __webpack_require__(300),
-	    baseIteratee = __webpack_require__(311);
+	var baseAssignValue = __webpack_require__(329),
+	    baseForOwn = __webpack_require__(266),
+	    baseIteratee = __webpack_require__(277);
 
 	/**
 	 * The opposite of `_.mapValues`; this method creates an object with the
@@ -53098,12 +47768,12 @@
 
 
 /***/ },
-/* 507 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseAssignValue = __webpack_require__(363),
-	    baseForOwn = __webpack_require__(300),
-	    baseIteratee = __webpack_require__(311);
+	var baseAssignValue = __webpack_require__(329),
+	    baseForOwn = __webpack_require__(266),
+	    baseIteratee = __webpack_require__(277);
 
 	/**
 	 * Creates an object with the same keys as `object` and values generated
@@ -53147,7 +47817,7 @@
 
 
 /***/ },
-/* 508 */
+/* 475 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -53156,7 +47826,7 @@
 
 
 /***/ },
-/* 509 */
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -53176,14 +47846,14 @@
 
 	// This file is for use with Node.js. See dist/ for browser files.
 
-	var Hogan = __webpack_require__(510);
-	Hogan.Template = __webpack_require__(511).Template;
+	var Hogan = __webpack_require__(477);
+	Hogan.Template = __webpack_require__(478).Template;
 	Hogan.template = Hogan.Template;
 	module.exports = Hogan;
 
 
 /***/ },
-/* 510 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -53612,7 +48282,7 @@
 
 
 /***/ },
-/* 511 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -53959,7 +48629,7 @@
 
 
 /***/ },
-/* 512 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -53974,17 +48644,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Header = __webpack_require__(513);
+	var _Header = __webpack_require__(480);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Sidebar = __webpack_require__(514);
+	var _Sidebar = __webpack_require__(481);
 
 	var _Sidebar2 = _interopRequireDefault(_Sidebar);
 
-	var _MainColumn = __webpack_require__(515);
+	var _MainColumn = __webpack_require__(482);
 
 	var _MainColumn2 = _interopRequireDefault(_MainColumn);
+
+	var _AlgoliaClient = __webpack_require__(483);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -54006,20 +48678,23 @@
 				searchQuery: '',
 				facetFoodType: ''
 			};
-			_this.setQuery = _this.setQuery.bind(_this);
 			_this.sendQuery = _this.sendQuery.bind(_this);
+			_this.setQuery = _this.setQuery.bind(_this);
 			return _this;
 		}
 
 		_createClass(App, [{
 			key: 'sendQuery',
-			value: function sendQuery() {}
+			value: function sendQuery() {
+				_AlgoliaClient.algoliaHelper.setQuery(this.state.searchQuery).search();
+			}
 		}, {
 			key: 'setQuery',
-			value: function setQuery(searchQuery) {
-				// set state to include the searchQuery
-				this.setState({ searchQuery: searchQuery });
-				this.sendQuery();
+			value: function setQuery(newSearchQuery) {
+				// set the search
+				this.setState({ searchQuery: newSearchQuery },
+				// send query after state is saved:
+				this.sendQuery);
 			}
 		}, {
 			key: 'render',
@@ -54040,7 +48715,7 @@
 	exports.default = App;
 
 /***/ },
-/* 513 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -54090,7 +48765,7 @@
 						spellCheck: "false",
 						autoCorrect: "off",
 						placeholder: "Search for Restaurants by Name, Cuisine, Location",
-						onChange: function onChange(e) {
+						onKeyUp: function onKeyUp(e) {
 							return _this2.props.setQuery(_this2.searchinput.value);
 						}
 					})
@@ -54104,7 +48779,7 @@
 	exports.default = Header;
 
 /***/ },
-/* 514 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -54153,7 +48828,7 @@
 	exports.default = Sidebar;
 
 /***/ },
-/* 515 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -54204,16 +48879,5363 @@
 	exports.default = MainColumn;
 
 /***/ },
+/* 483 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.algoliaHelper = exports.ALGOLIA_QUERY_PARAMS = undefined;
+
+	var _algoliasearch = __webpack_require__(484);
+
+	var _algoliasearch2 = _interopRequireDefault(_algoliasearch);
+
+	var _algoliasearchHelper = __webpack_require__(179);
+
+	var _algoliasearchHelper2 = _interopRequireDefault(_algoliasearchHelper);
+
+	var _CustomSettings = __webpack_require__(518);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var ALGOLIA_QUERY_PARAMS = exports.ALGOLIA_QUERY_PARAMS = {
+		hitsPerPage: 3,
+		maxValuesPerFacet: 7, // demo only shows 7 food types, can increase it here
+		index: _CustomSettings.ALGOLIA_SETTINGS['INDEX_NAME'],
+		facets: ['food_type']
+	};
+
+	var algoliaClient = (0, _algoliasearch2.default)(_CustomSettings.ALGOLIA_SETTINGS['APPLICATION_ID'], _CustomSettings.ALGOLIA_SETTINGS['SEARCH_ONLY_API_KEY']);
+
+	var algoliaHelper = exports.algoliaHelper = (0, _algoliasearchHelper2.default)(algoliaClient, _CustomSettings.ALGOLIA_SETTINGS['INDEX_NAME'], ALGOLIA_QUERY_PARAMS);
+
+/***/ },
+/* 484 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var AlgoliaSearch = __webpack_require__(485);
+	var createAlgoliasearch = __webpack_require__(507);
+
+	module.exports = createAlgoliasearch(AlgoliaSearch);
+
+
+/***/ },
+/* 485 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = AlgoliaSearch;
+
+	var Index = __webpack_require__(486);
+	var deprecate = __webpack_require__(492);
+	var deprecatedMessage = __webpack_require__(493);
+	var AlgoliaSearchCore = __webpack_require__(503);
+	var inherits = __webpack_require__(487);
+	var errors = __webpack_require__(490);
+
+	function AlgoliaSearch() {
+	  AlgoliaSearchCore.apply(this, arguments);
+	}
+
+	inherits(AlgoliaSearch, AlgoliaSearchCore);
+
+	/*
+	 * Delete an index
+	 *
+	 * @param indexName the name of index to delete
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer that contains the task ID
+	 */
+	AlgoliaSearch.prototype.deleteIndex = function(indexName, callback) {
+	  return this._jsonRequest({
+	    method: 'DELETE',
+	    url: '/1/indexes/' + encodeURIComponent(indexName),
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/**
+	 * Move an existing index.
+	 * @param srcIndexName the name of index to copy.
+	 * @param dstIndexName the new index name that will contains a copy of
+	 * srcIndexName (destination will be overriten if it already exist).
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer that contains the task ID
+	 */
+	AlgoliaSearch.prototype.moveIndex = function(srcIndexName, dstIndexName, callback) {
+	  var postObj = {
+	    operation: 'move', destination: dstIndexName
+	  };
+	  return this._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/**
+	 * Copy an existing index.
+	 * @param srcIndexName the name of index to copy.
+	 * @param dstIndexName the new index name that will contains a copy
+	 * of srcIndexName (destination will be overriten if it already exist).
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer that contains the task ID
+	 */
+	AlgoliaSearch.prototype.copyIndex = function(srcIndexName, dstIndexName, callback) {
+	  var postObj = {
+	    operation: 'copy', destination: dstIndexName
+	  };
+	  return this._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/**
+	 * Return last log entries.
+	 * @param offset Specify the first entry to retrieve (0-based, 0 is the most recent log entry).
+	 * @param length Specify the maximum number of entries to retrieve starting
+	 * at offset. Maximum allowed value: 1000.
+	 * @param type Specify the maximum number of entries to retrieve starting
+	 * at offset. Maximum allowed value: 1000.
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer that contains the task ID
+	 */
+	AlgoliaSearch.prototype.getLogs = function(offset, length, callback) {
+	  var clone = __webpack_require__(495);
+	  var params = {};
+	  if (typeof offset === 'object') {
+	    // getLogs(params)
+	    params = clone(offset);
+	    callback = length;
+	  } else if (arguments.length === 0 || typeof offset === 'function') {
+	    // getLogs([cb])
+	    callback = offset;
+	  } else if (arguments.length === 1 || typeof length === 'function') {
+	    // getLogs(1, [cb)]
+	    callback = length;
+	    params.offset = offset;
+	  } else {
+	    // getLogs(1, 2, [cb])
+	    params.offset = offset;
+	    params.length = length;
+	  }
+
+	  if (params.offset === undefined) params.offset = 0;
+	  if (params.length === undefined) params.length = 10;
+
+	  return this._jsonRequest({
+	    method: 'GET',
+	    url: '/1/logs?' + this._getSearchParams(params, ''),
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	 * List all existing indexes (paginated)
+	 *
+	 * @param page The page to retrieve, starting at 0.
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer with index list
+	 */
+	AlgoliaSearch.prototype.listIndexes = function(page, callback) {
+	  var params = '';
+
+	  if (page === undefined || typeof page === 'function') {
+	    callback = page;
+	  } else {
+	    params = '?page=' + page;
+	  }
+
+	  return this._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes' + params,
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	 * Get the index object initialized
+	 *
+	 * @param indexName the name of index
+	 * @param callback the result callback with one argument (the Index instance)
+	 */
+	AlgoliaSearch.prototype.initIndex = function(indexName) {
+	  return new Index(this, indexName);
+	};
+
+	/*
+	 * List all existing user keys with their associated ACLs
+	 *
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer with user keys list
+	 */
+	AlgoliaSearch.prototype.listUserKeys = function(callback) {
+	  return this._jsonRequest({
+	    method: 'GET',
+	    url: '/1/keys',
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	 * Get ACL of a user key
+	 *
+	 * @param key
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer with user keys list
+	 */
+	AlgoliaSearch.prototype.getUserKeyACL = function(key, callback) {
+	  return this._jsonRequest({
+	    method: 'GET',
+	    url: '/1/keys/' + key,
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	 * Delete an existing user key
+	 * @param key
+	 * @param callback the result callback called with two arguments
+	 *  error: null or Error('message')
+	 *  content: the server answer with user keys list
+	 */
+	AlgoliaSearch.prototype.deleteUserKey = function(key, callback) {
+	  return this._jsonRequest({
+	    method: 'DELETE',
+	    url: '/1/keys/' + key,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	 * Add a new global API key
+	 *
+	 * @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
+	 *   can contains the following values:
+	 *     - search: allow to search (https and http)
+	 *     - addObject: allows to add/update an object in the index (https only)
+	 *     - deleteObject : allows to delete an existing object (https only)
+	 *     - deleteIndex : allows to delete index content (https only)
+	 *     - settings : allows to get index settings (https only)
+	 *     - editSettings : allows to change index settings (https only)
+	 * @param {Object} [params] - Optionnal parameters to set for the key
+	 * @param {number} params.validity - Number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+	 * @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
+	 * @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
+	 * @param {string[]} params.indexes - Allowed targeted indexes for this key
+	 * @param {string} params.description - A description for your key
+	 * @param {string[]} params.referers - A list of authorized referers
+	 * @param {Object} params.queryParameters - Force the key to use specific query parameters
+	 * @param {Function} callback - The result callback called with two arguments
+	 *   error: null or Error('message')
+	 *   content: the server answer with user keys list
+	 * @return {Promise|undefined} Returns a promise if no callback given
+	 * @example
+	 * client.addUserKey(['search'], {
+	 *   validity: 300,
+	 *   maxQueriesPerIPPerHour: 2000,
+	 *   maxHitsPerQuery: 3,
+	 *   indexes: ['fruits'],
+	 *   description: 'Eat three fruits',
+	 *   referers: ['*.algolia.com'],
+	 *   queryParameters: {
+	 *     tagFilters: ['public'],
+	 *   }
+	 * })
+	 * @see {@link https://www.algolia.com/doc/rest_api#AddKey|Algolia REST API Documentation}
+	 */
+	AlgoliaSearch.prototype.addUserKey = function(acls, params, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: client.addUserKey(arrayOfAcls[, params, callback])';
+
+	  if (!isArray(acls)) {
+	    throw new Error(usage);
+	  }
+
+	  if (arguments.length === 1 || typeof params === 'function') {
+	    callback = params;
+	    params = null;
+	  }
+
+	  var postObj = {
+	    acl: acls
+	  };
+
+	  if (params) {
+	    postObj.validity = params.validity;
+	    postObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
+	    postObj.maxHitsPerQuery = params.maxHitsPerQuery;
+	    postObj.indexes = params.indexes;
+	    postObj.description = params.description;
+
+	    if (params.queryParameters) {
+	      postObj.queryParameters = this._getSearchParams(params.queryParameters, '');
+	    }
+
+	    postObj.referers = params.referers;
+	  }
+
+	  return this._jsonRequest({
+	    method: 'POST',
+	    url: '/1/keys',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/**
+	 * Add a new global API key
+	 * @deprecated Please use client.addUserKey()
+	 */
+	AlgoliaSearch.prototype.addUserKeyWithValidity = deprecate(function(acls, params, callback) {
+	  return this.addUserKey(acls, params, callback);
+	}, deprecatedMessage('client.addUserKeyWithValidity()', 'client.addUserKey()'));
+
+	/**
+	 * Update an existing API key
+	 * @param {string} key - The key to update
+	 * @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
+	 *   can contains the following values:
+	 *     - search: allow to search (https and http)
+	 *     - addObject: allows to add/update an object in the index (https only)
+	 *     - deleteObject : allows to delete an existing object (https only)
+	 *     - deleteIndex : allows to delete index content (https only)
+	 *     - settings : allows to get index settings (https only)
+	 *     - editSettings : allows to change index settings (https only)
+	 * @param {Object} [params] - Optionnal parameters to set for the key
+	 * @param {number} params.validity - Number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+	 * @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
+	 * @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
+	 * @param {string[]} params.indexes - Allowed targeted indexes for this key
+	 * @param {string} params.description - A description for your key
+	 * @param {string[]} params.referers - A list of authorized referers
+	 * @param {Object} params.queryParameters - Force the key to use specific query parameters
+	 * @param {Function} callback - The result callback called with two arguments
+	 *   error: null or Error('message')
+	 *   content: the server answer with user keys list
+	 * @return {Promise|undefined} Returns a promise if no callback given
+	 * @example
+	 * client.updateUserKey('APIKEY', ['search'], {
+	 *   validity: 300,
+	 *   maxQueriesPerIPPerHour: 2000,
+	 *   maxHitsPerQuery: 3,
+	 *   indexes: ['fruits'],
+	 *   description: 'Eat three fruits',
+	 *   referers: ['*.algolia.com'],
+	 *   queryParameters: {
+	 *     tagFilters: ['public'],
+	 *   }
+	 * })
+	 * @see {@link https://www.algolia.com/doc/rest_api#UpdateIndexKey|Algolia REST API Documentation}
+	 */
+	AlgoliaSearch.prototype.updateUserKey = function(key, acls, params, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: client.updateUserKey(key, arrayOfAcls[, params, callback])';
+
+	  if (!isArray(acls)) {
+	    throw new Error(usage);
+	  }
+
+	  if (arguments.length === 2 || typeof params === 'function') {
+	    callback = params;
+	    params = null;
+	  }
+
+	  var putObj = {
+	    acl: acls
+	  };
+
+	  if (params) {
+	    putObj.validity = params.validity;
+	    putObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
+	    putObj.maxHitsPerQuery = params.maxHitsPerQuery;
+	    putObj.indexes = params.indexes;
+	    putObj.description = params.description;
+
+	    if (params.queryParameters) {
+	      putObj.queryParameters = this._getSearchParams(params.queryParameters, '');
+	    }
+
+	    putObj.referers = params.referers;
+	  }
+
+	  return this._jsonRequest({
+	    method: 'PUT',
+	    url: '/1/keys/' + key,
+	    body: putObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/**
+	 * Initialize a new batch of search queries
+	 * @deprecated use client.search()
+	 */
+	AlgoliaSearch.prototype.startQueriesBatch = deprecate(function startQueriesBatchDeprecated() {
+	  this._batch = [];
+	}, deprecatedMessage('client.startQueriesBatch()', 'client.search()'));
+
+	/**
+	 * Add a search query in the batch
+	 * @deprecated use client.search()
+	 */
+	AlgoliaSearch.prototype.addQueryInBatch = deprecate(function addQueryInBatchDeprecated(indexName, query, args) {
+	  this._batch.push({
+	    indexName: indexName,
+	    query: query,
+	    params: args
+	  });
+	}, deprecatedMessage('client.addQueryInBatch()', 'client.search()'));
+
+	/**
+	 * Launch the batch of queries using XMLHttpRequest.
+	 * @deprecated use client.search()
+	 */
+	AlgoliaSearch.prototype.sendQueriesBatch = deprecate(function sendQueriesBatchDeprecated(callback) {
+	  return this.search(this._batch, callback);
+	}, deprecatedMessage('client.sendQueriesBatch()', 'client.search()'));
+
+	/**
+	 * Perform write operations accross multiple indexes.
+	 *
+	 * To reduce the amount of time spent on network round trips,
+	 * you can create, update, or delete several objects in one call,
+	 * using the batch endpoint (all operations are done in the given order).
+	 *
+	 * Available actions:
+	 *   - addObject
+	 *   - updateObject
+	 *   - partialUpdateObject
+	 *   - partialUpdateObjectNoCreate
+	 *   - deleteObject
+	 *
+	 * https://www.algolia.com/doc/rest_api#Indexes
+	 * @param  {Object[]} operations An array of operations to perform
+	 * @return {Promise|undefined} Returns a promise if no callback given
+	 * @example
+	 * client.batch([{
+	 *   action: 'addObject',
+	 *   indexName: 'clients',
+	 *   body: {
+	 *     name: 'Bill'
+	 *   }
+	 * }, {
+	 *   action: 'udpateObject',
+	 *   indexName: 'fruits',
+	 *   body: {
+	 *     objectID: '29138',
+	 *     name: 'banana'
+	 *   }
+	 * }], cb)
+	 */
+	AlgoliaSearch.prototype.batch = function(operations, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: client.batch(operations[, callback])';
+
+	  if (!isArray(operations)) {
+	    throw new Error(usage);
+	  }
+
+	  return this._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/*/batch',
+	    body: {
+	      requests: operations
+	    },
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	// environment specific methods
+	AlgoliaSearch.prototype.destroy = notImplemented;
+	AlgoliaSearch.prototype.enableRateLimitForward = notImplemented;
+	AlgoliaSearch.prototype.disableRateLimitForward = notImplemented;
+	AlgoliaSearch.prototype.useSecuredAPIKey = notImplemented;
+	AlgoliaSearch.prototype.disableSecuredAPIKey = notImplemented;
+	AlgoliaSearch.prototype.generateSecuredApiKey = notImplemented;
+
+	function notImplemented() {
+	  var message = 'Not implemented in this environment.\n' +
+	    'If you feel this is a mistake, write to support@algolia.com';
+
+	  throw new errors.AlgoliaSearchError(message);
+	}
+
+
+/***/ },
+/* 486 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var inherits = __webpack_require__(487);
+	var IndexCore = __webpack_require__(488);
+	var deprecate = __webpack_require__(492);
+	var deprecatedMessage = __webpack_require__(493);
+	var exitPromise = __webpack_require__(501);
+	var errors = __webpack_require__(490);
+
+	module.exports = Index;
+
+	function Index() {
+	  IndexCore.apply(this, arguments);
+	}
+
+	inherits(Index, IndexCore);
+
+	/*
+	* Add an object in this index
+	*
+	* @param content contains the javascript object to add inside the index
+	* @param objectID (optional) an objectID you want to attribute to this object
+	* (if the attribute already exist the old object will be overwrite)
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
+	*/
+	Index.prototype.addObject = function(content, objectID, callback) {
+	  var indexObj = this;
+
+	  if (arguments.length === 1 || typeof objectID === 'function') {
+	    callback = objectID;
+	    objectID = undefined;
+	  }
+
+	  return this.as._jsonRequest({
+	    method: objectID !== undefined ?
+	    'PUT' : // update or create
+	    'POST', // create (API generates an objectID)
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + // create
+	    (objectID !== undefined ? '/' + encodeURIComponent(objectID) : ''), // update or create
+	    body: content,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Add several objects
+	*
+	* @param objects contains an array of objects to add
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that updateAt and taskID
+	*/
+	Index.prototype.addObjects = function(objects, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: index.addObjects(arrayOfObjects[, callback])';
+
+	  if (!isArray(objects)) {
+	    throw new Error(usage);
+	  }
+
+	  var indexObj = this;
+	  var postObj = {
+	    requests: []
+	  };
+	  for (var i = 0; i < objects.length; ++i) {
+	    var request = {
+	      action: 'addObject',
+	      body: objects[i]
+	    };
+	    postObj.requests.push(request);
+	  }
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Update partially an object (only update attributes passed in argument)
+	*
+	* @param partialObject contains the javascript attributes to override, the
+	*  object must contains an objectID attribute
+	* @param createIfNotExists (optional) if false, avoid an automatic creation of the object
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
+	*/
+	Index.prototype.partialUpdateObject = function(partialObject, createIfNotExists, callback) {
+	  if (arguments.length === 1 || typeof createIfNotExists === 'function') {
+	    callback = createIfNotExists;
+	    createIfNotExists = undefined;
+	  }
+
+	  var indexObj = this;
+	  var url = '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(partialObject.objectID) + '/partial';
+	  if (createIfNotExists === false) {
+	    url += '?createIfNotExists=false';
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: url,
+	    body: partialObject,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Partially Override the content of several objects
+	*
+	* @param objects contains an array of objects to update (each object must contains a objectID attribute)
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that updateAt and taskID
+	*/
+	Index.prototype.partialUpdateObjects = function(objects, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: index.partialUpdateObjects(arrayOfObjects[, callback])';
+
+	  if (!isArray(objects)) {
+	    throw new Error(usage);
+	  }
+
+	  var indexObj = this;
+	  var postObj = {
+	    requests: []
+	  };
+	  for (var i = 0; i < objects.length; ++i) {
+	    var request = {
+	      action: 'partialUpdateObject',
+	      objectID: objects[i].objectID,
+	      body: objects[i]
+	    };
+	    postObj.requests.push(request);
+	  }
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Override the content of object
+	*
+	* @param object contains the javascript object to save, the object must contains an objectID attribute
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that updateAt and taskID
+	*/
+	Index.prototype.saveObject = function(object, callback) {
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'PUT',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(object.objectID),
+	    body: object,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Override the content of several objects
+	*
+	* @param objects contains an array of objects to update (each object must contains a objectID attribute)
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that updateAt and taskID
+	*/
+	Index.prototype.saveObjects = function(objects, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: index.saveObjects(arrayOfObjects[, callback])';
+
+	  if (!isArray(objects)) {
+	    throw new Error(usage);
+	  }
+
+	  var indexObj = this;
+	  var postObj = {
+	    requests: []
+	  };
+	  for (var i = 0; i < objects.length; ++i) {
+	    var request = {
+	      action: 'updateObject',
+	      objectID: objects[i].objectID,
+	      body: objects[i]
+	    };
+	    postObj.requests.push(request);
+	  }
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Delete an object from the index
+	*
+	* @param objectID the unique identifier of object to delete
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
+	*/
+	Index.prototype.deleteObject = function(objectID, callback) {
+	  if (typeof objectID === 'function' || typeof objectID !== 'string' && typeof objectID !== 'number') {
+	    var err = new errors.AlgoliaSearchError('Cannot delete an object without an objectID');
+	    callback = objectID;
+	    if (typeof callback === 'function') {
+	      return callback(err);
+	    }
+
+	    return this.as._promise.reject(err);
+	  }
+
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'DELETE',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(objectID),
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Delete several objects from an index
+	*
+	* @param objectIDs contains an array of objectID to delete
+	* @param callback (optional) the result callback called with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that contains 3 elements: createAt, taskId and objectID
+	*/
+	Index.prototype.deleteObjects = function(objectIDs, callback) {
+	  var isArray = __webpack_require__(499);
+	  var map = __webpack_require__(500);
+
+	  var usage = 'Usage: index.deleteObjects(arrayOfObjectIDs[, callback])';
+
+	  if (!isArray(objectIDs)) {
+	    throw new Error(usage);
+	  }
+
+	  var indexObj = this;
+	  var postObj = {
+	    requests: map(objectIDs, function prepareRequest(objectID) {
+	      return {
+	        action: 'deleteObject',
+	        objectID: objectID,
+	        body: {
+	          objectID: objectID
+	        }
+	      };
+	    })
+	  };
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/batch',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Delete all objects matching a query
+	*
+	* @param query the query string
+	* @param params the optional query parameters
+	* @param callback (optional) the result callback called with one argument
+	*  error: null or Error('message')
+	*/
+	Index.prototype.deleteByQuery = function(query, params, callback) {
+	  var clone = __webpack_require__(495);
+	  var map = __webpack_require__(500);
+
+	  var indexObj = this;
+	  var client = indexObj.as;
+
+	  if (arguments.length === 1 || typeof params === 'function') {
+	    callback = params;
+	    params = {};
+	  } else {
+	    params = clone(params);
+	  }
+
+	  params.attributesToRetrieve = 'objectID';
+	  params.hitsPerPage = 1000;
+	  params.distinct = false;
+
+	  // when deleting, we should never use cache to get the
+	  // search results
+	  this.clearCache();
+
+	  // there's a problem in how we use the promise chain,
+	  // see how waitTask is done
+	  var promise = this
+	  .search(query, params)
+	  .then(stopOrDelete);
+
+	  function stopOrDelete(searchContent) {
+	    // stop here
+	    if (searchContent.nbHits === 0) {
+	      // return indexObj.as._request.resolve();
+	      return searchContent;
+	    }
+
+	    // continue and do a recursive call
+	    var objectIDs = map(searchContent.hits, function getObjectID(object) {
+	      return object.objectID;
+	    });
+
+	    return indexObj
+	    .deleteObjects(objectIDs)
+	    .then(waitTask)
+	    .then(doDeleteByQuery);
+	  }
+
+	  function waitTask(deleteObjectsContent) {
+	    return indexObj.waitTask(deleteObjectsContent.taskID);
+	  }
+
+	  function doDeleteByQuery() {
+	    return indexObj.deleteByQuery(query, params);
+	  }
+
+	  if (!callback) {
+	    return promise;
+	  }
+
+	  promise.then(success, failure);
+
+	  function success() {
+	    exitPromise(function exit() {
+	      callback(null);
+	    }, client._setTimeout || setTimeout);
+	  }
+
+	  function failure(err) {
+	    exitPromise(function exit() {
+	      callback(err);
+	    }, client._setTimeout || setTimeout);
+	  }
+	};
+
+	/*
+	* Browse all content from an index using events. Basically this will do
+	* .browse() -> .browseFrom -> .browseFrom -> .. until all the results are returned
+	*
+	* @param {string} query - The full text query
+	* @param {Object} [queryParameters] - Any search query parameter
+	* @return {EventEmitter}
+	* @example
+	* var browser = index.browseAll('cool songs', {
+	*   tagFilters: 'public,comments',
+	*   hitsPerPage: 500
+	* });
+	*
+	* browser.on('result', function resultCallback(content) {
+	*   console.log(content.hits);
+	* });
+	*
+	* // if any error occurs, you get it
+	* browser.on('error', function(err) {
+	*   throw err;
+	* });
+	*
+	* // when you have browsed the whole index, you get this event
+	* browser.on('end', function() {
+	*   console.log('finished');
+	* });
+	*
+	* // at any point if you want to stop the browsing process, you can stop it manually
+	* // otherwise it will go on and on
+	* browser.stop();
+	*
+	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
+	*/
+	Index.prototype.browseAll = function(query, queryParameters) {
+	  if (typeof query === 'object') {
+	    queryParameters = query;
+	    query = undefined;
+	  }
+
+	  var merge = __webpack_require__(494);
+
+	  var IndexBrowser = __webpack_require__(502);
+
+	  var browser = new IndexBrowser();
+	  var client = this.as;
+	  var index = this;
+	  var params = client._getSearchParams(
+	    merge({}, queryParameters || {}, {
+	      query: query
+	    }), ''
+	  );
+
+	  // start browsing
+	  browseLoop();
+
+	  function browseLoop(cursor) {
+	    if (browser._stopped) {
+	      return;
+	    }
+
+	    var queryString;
+
+	    if (cursor !== undefined) {
+	      queryString = 'cursor=' + encodeURIComponent(cursor);
+	    } else {
+	      queryString = params;
+	    }
+
+	    client._jsonRequest({
+	      method: 'GET',
+	      url: '/1/indexes/' + encodeURIComponent(index.indexName) + '/browse?' + queryString,
+	      hostType: 'read',
+	      callback: browseCallback
+	    });
+	  }
+
+	  function browseCallback(err, content) {
+	    if (browser._stopped) {
+	      return;
+	    }
+
+	    if (err) {
+	      browser._error(err);
+	      return;
+	    }
+
+	    browser._result(content);
+
+	    // no cursor means we are finished browsing
+	    if (content.cursor === undefined) {
+	      browser._end();
+	      return;
+	    }
+
+	    browseLoop(content.cursor);
+	  }
+
+	  return browser;
+	};
+
+	/*
+	* Get a Typeahead.js adapter
+	* @param searchParams contains an object with query parameters (see search for details)
+	*/
+	Index.prototype.ttAdapter = function(params) {
+	  var self = this;
+	  return function ttAdapter(query, syncCb, asyncCb) {
+	    var cb;
+
+	    if (typeof asyncCb === 'function') {
+	      // typeahead 0.11
+	      cb = asyncCb;
+	    } else {
+	      // pre typeahead 0.11
+	      cb = syncCb;
+	    }
+
+	    self.search(query, params, function searchDone(err, content) {
+	      if (err) {
+	        cb(err);
+	        return;
+	      }
+
+	      cb(content.hits);
+	    });
+	  };
+	};
+
+	/*
+	* Wait the publication of a task on the server.
+	* All server task are asynchronous and you can check with this method that the task is published.
+	*
+	* @param taskID the id of the task returned by server
+	* @param callback the result callback with with two arguments:
+	*  error: null or Error('message')
+	*  content: the server answer that contains the list of results
+	*/
+	Index.prototype.waitTask = function(taskID, callback) {
+	  // wait minimum 100ms before retrying
+	  var baseDelay = 100;
+	  // wait maximum 5s before retrying
+	  var maxDelay = 5000;
+	  var loop = 0;
+
+	  // waitTask() must be handled differently from other methods,
+	  // it's a recursive method using a timeout
+	  var indexObj = this;
+	  var client = indexObj.as;
+
+	  var promise = retryLoop();
+
+	  function retryLoop() {
+	    return client._jsonRequest({
+	      method: 'GET',
+	      hostType: 'read',
+	      url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/task/' + taskID
+	    }).then(function success(content) {
+	      loop++;
+	      var delay = baseDelay * loop * loop;
+	      if (delay > maxDelay) {
+	        delay = maxDelay;
+	      }
+
+	      if (content.status !== 'published') {
+	        return client._promise.delay(delay).then(retryLoop);
+	      }
+
+	      return content;
+	    });
+	  }
+
+	  if (!callback) {
+	    return promise;
+	  }
+
+	  promise.then(successCb, failureCb);
+
+	  function successCb(content) {
+	    exitPromise(function exit() {
+	      callback(null, content);
+	    }, client._setTimeout || setTimeout);
+	  }
+
+	  function failureCb(err) {
+	    exitPromise(function exit() {
+	      callback(err);
+	    }, client._setTimeout || setTimeout);
+	  }
+	};
+
+	/*
+	* This function deletes the index content. Settings and index specific API keys are kept untouched.
+	*
+	* @param callback (optional) the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the settings object or the error message if a failure occured
+	*/
+	Index.prototype.clearIndex = function(callback) {
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/clear',
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Get settings of this index
+	*
+	* @param callback (optional) the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the settings object or the error message if a failure occured
+	*/
+	Index.prototype.getSettings = function(callback) {
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/settings?getVersion=2',
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	Index.prototype.searchSynonyms = function(params, callback) {
+	  if (typeof params === 'function') {
+	    callback = params;
+	    params = {};
+	  } else if (params === undefined) {
+	    params = {};
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/search',
+	    body: params,
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	Index.prototype.saveSynonym = function(synonym, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  } else if (opts === undefined) {
+	    opts = {};
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'PUT',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/' + encodeURIComponent(synonym.objectID) +
+	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false'),
+	    body: synonym,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	Index.prototype.getSynonym = function(objectID, callback) {
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/' + encodeURIComponent(objectID),
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	Index.prototype.deleteSynonym = function(objectID, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  } else if (opts === undefined) {
+	    opts = {};
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'DELETE',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/' + encodeURIComponent(objectID) +
+	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false'),
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	Index.prototype.clearSynonyms = function(opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  } else if (opts === undefined) {
+	    opts = {};
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/clear' +
+	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false'),
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	Index.prototype.batchSynonyms = function(synonyms, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  } else if (opts === undefined) {
+	    opts = {};
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/synonyms/batch' +
+	      '?forwardToSlaves=' + (opts.forwardToSlaves ? 'true' : 'false') +
+	      '&replaceExistingSynonyms=' + (opts.replaceExistingSynonyms ? 'true' : 'false'),
+	    hostType: 'write',
+	    body: synonyms,
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Set settings for this index
+	*
+	* @param settigns the settings object that can contains :
+	* - minWordSizefor1Typo: (integer) the minimum number of characters to accept one typo (default = 3).
+	* - minWordSizefor2Typos: (integer) the minimum number of characters to accept two typos (default = 7).
+	* - hitsPerPage: (integer) the number of hits per page (default = 10).
+	* - attributesToRetrieve: (array of strings) default list of attributes to retrieve in objects.
+	*   If set to null, all attributes are retrieved.
+	* - attributesToHighlight: (array of strings) default list of attributes to highlight.
+	*   If set to null, all indexed attributes are highlighted.
+	* - attributesToSnippet**: (array of strings) default list of attributes to snippet alongside the number
+	* of words to return (syntax is attributeName:nbWords).
+	*   By default no snippet is computed. If set to null, no snippet is computed.
+	* - attributesToIndex: (array of strings) the list of fields you want to index.
+	*   If set to null, all textual and numerical attributes of your objects are indexed,
+	*   but you should update it to get optimal results.
+	*   This parameter has two important uses:
+	*     - Limit the attributes to index: For example if you store a binary image in base64,
+	*     you want to store it and be able to
+	*       retrieve it but you don't want to search in the base64 string.
+	*     - Control part of the ranking*: (see the ranking parameter for full explanation)
+	*     Matches in attributes at the beginning of
+	*       the list will be considered more important than matches in attributes further down the list.
+	*       In one attribute, matching text at the beginning of the attribute will be
+	*       considered more important than text after, you can disable
+	*       this behavior if you add your attribute inside `unordered(AttributeName)`,
+	*       for example attributesToIndex: ["title", "unordered(text)"].
+	* - attributesForFaceting: (array of strings) The list of fields you want to use for faceting.
+	*   All strings in the attribute selected for faceting are extracted and added as a facet.
+	*   If set to null, no attribute is used for faceting.
+	* - attributeForDistinct: (string) The attribute name used for the Distinct feature.
+	* This feature is similar to the SQL "distinct" keyword: when enabled
+	*   in query with the distinct=1 parameter, all hits containing a duplicate
+	*   value for this attribute are removed from results.
+	*   For example, if the chosen attribute is show_name and several hits have
+	*   the same value for show_name, then only the best one is kept and others are removed.
+	* - ranking: (array of strings) controls the way results are sorted.
+	*   We have six available criteria:
+	*    - typo: sort according to number of typos,
+	*    - geo: sort according to decreassing distance when performing a geo-location based search,
+	*    - proximity: sort according to the proximity of query words in hits,
+	*    - attribute: sort according to the order of attributes defined by attributesToIndex,
+	*    - exact:
+	*        - if the user query contains one word: sort objects having an attribute
+	*        that is exactly the query word before others.
+	*          For example if you search for the "V" TV show, you want to find it
+	*          with the "V" query and avoid to have all popular TV
+	*          show starting by the v letter before it.
+	*        - if the user query contains multiple words: sort according to the
+	*        number of words that matched exactly (and not as a prefix).
+	*    - custom: sort according to a user defined formula set in **customRanking** attribute.
+	*   The standard order is ["typo", "geo", "proximity", "attribute", "exact", "custom"]
+	* - customRanking: (array of strings) lets you specify part of the ranking.
+	*   The syntax of this condition is an array of strings containing attributes
+	*   prefixed by asc (ascending order) or desc (descending order) operator.
+	*   For example `"customRanking" => ["desc(population)", "asc(name)"]`
+	* - queryType: Select how the query words are interpreted, it can be one of the following value:
+	*   - prefixAll: all query words are interpreted as prefixes,
+	*   - prefixLast: only the last word is interpreted as a prefix (default behavior),
+	*   - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
+	* - highlightPreTag: (string) Specify the string that is inserted before
+	* the highlighted parts in the query result (default to "<em>").
+	* - highlightPostTag: (string) Specify the string that is inserted after
+	* the highlighted parts in the query result (default to "</em>").
+	* - optionalWords: (array of strings) Specify a list of words that should
+	* be considered as optional when found in the query.
+	* @param callback (optional) the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the server answer or the error message if a failure occured
+	*/
+	Index.prototype.setSettings = function(settings, opts, callback) {
+	  if (arguments.length === 1 || typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+
+	  var forwardToSlaves = opts.forwardToSlaves || false;
+
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'PUT',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/settings?forwardToSlaves='
+	      + (forwardToSlaves ? 'true' : 'false'),
+	    hostType: 'write',
+	    body: settings,
+	    callback: callback
+	  });
+	};
+
+	/*
+	* List all existing user keys associated to this index
+	*
+	* @param callback the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the server answer with user keys list
+	*/
+	Index.prototype.listUserKeys = function(callback) {
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Get ACL of a user key associated to this index
+	*
+	* @param key
+	* @param callback the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the server answer with user keys list
+	*/
+	Index.prototype.getUserKeyACL = function(key, callback) {
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Delete an existing user key associated to this index
+	*
+	* @param key
+	* @param callback the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the server answer with user keys list
+	*/
+	Index.prototype.deleteUserKey = function(key, callback) {
+	  var indexObj = this;
+	  return this.as._jsonRequest({
+	    method: 'DELETE',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Add a new API key to this index
+	*
+	* @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
+	*   can contains the following values:
+	*     - search: allow to search (https and http)
+	*     - addObject: allows to add/update an object in the index (https only)
+	*     - deleteObject : allows to delete an existing object (https only)
+	*     - deleteIndex : allows to delete index content (https only)
+	*     - settings : allows to get index settings (https only)
+	*     - editSettings : allows to change index settings (https only)
+	* @param {Object} [params] - Optionnal parameters to set for the key
+	* @param {number} params.validity - Number of seconds after which the key will
+	* be automatically removed (0 means no time limit for this key)
+	* @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
+	* @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
+	* @param {string} params.description - A description for your key
+	* @param {string[]} params.referers - A list of authorized referers
+	* @param {Object} params.queryParameters - Force the key to use specific query parameters
+	* @param {Function} callback - The result callback called with two arguments
+	*   error: null or Error('message')
+	*   content: the server answer with user keys list
+	* @return {Promise|undefined} Returns a promise if no callback given
+	* @example
+	* index.addUserKey(['search'], {
+	*   validity: 300,
+	*   maxQueriesPerIPPerHour: 2000,
+	*   maxHitsPerQuery: 3,
+	*   description: 'Eat three fruits',
+	*   referers: ['*.algolia.com'],
+	*   queryParameters: {
+	*     tagFilters: ['public'],
+	*   }
+	* })
+	* @see {@link https://www.algolia.com/doc/rest_api#AddIndexKey|Algolia REST API Documentation}
+	*/
+	Index.prototype.addUserKey = function(acls, params, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: index.addUserKey(arrayOfAcls[, params, callback])';
+
+	  if (!isArray(acls)) {
+	    throw new Error(usage);
+	  }
+
+	  if (arguments.length === 1 || typeof params === 'function') {
+	    callback = params;
+	    params = null;
+	  }
+
+	  var postObj = {
+	    acl: acls
+	  };
+
+	  if (params) {
+	    postObj.validity = params.validity;
+	    postObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
+	    postObj.maxHitsPerQuery = params.maxHitsPerQuery;
+	    postObj.description = params.description;
+
+	    if (params.queryParameters) {
+	      postObj.queryParameters = this.as._getSearchParams(params.queryParameters, '');
+	    }
+
+	    postObj.referers = params.referers;
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys',
+	    body: postObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+	/**
+	* Add an existing user key associated to this index
+	* @deprecated use index.addUserKey()
+	*/
+	Index.prototype.addUserKeyWithValidity = deprecate(function deprecatedAddUserKeyWithValidity(acls, params, callback) {
+	  return this.addUserKey(acls, params, callback);
+	}, deprecatedMessage('index.addUserKeyWithValidity()', 'index.addUserKey()'));
+
+	/**
+	* Update an existing API key of this index
+	* @param {string} key - The key to update
+	* @param {string[]} acls - The list of ACL for this key. Defined by an array of strings that
+	*   can contains the following values:
+	*     - search: allow to search (https and http)
+	*     - addObject: allows to add/update an object in the index (https only)
+	*     - deleteObject : allows to delete an existing object (https only)
+	*     - deleteIndex : allows to delete index content (https only)
+	*     - settings : allows to get index settings (https only)
+	*     - editSettings : allows to change index settings (https only)
+	* @param {Object} [params] - Optionnal parameters to set for the key
+	* @param {number} params.validity - Number of seconds after which the key will
+	* be automatically removed (0 means no time limit for this key)
+	* @param {number} params.maxQueriesPerIPPerHour - Number of API calls allowed from an IP address per hour
+	* @param {number} params.maxHitsPerQuery - Number of hits this API key can retrieve in one call
+	* @param {string} params.description - A description for your key
+	* @param {string[]} params.referers - A list of authorized referers
+	* @param {Object} params.queryParameters - Force the key to use specific query parameters
+	* @param {Function} callback - The result callback called with two arguments
+	*   error: null or Error('message')
+	*   content: the server answer with user keys list
+	* @return {Promise|undefined} Returns a promise if no callback given
+	* @example
+	* index.updateUserKey('APIKEY', ['search'], {
+	*   validity: 300,
+	*   maxQueriesPerIPPerHour: 2000,
+	*   maxHitsPerQuery: 3,
+	*   description: 'Eat three fruits',
+	*   referers: ['*.algolia.com'],
+	*   queryParameters: {
+	*     tagFilters: ['public'],
+	*   }
+	* })
+	* @see {@link https://www.algolia.com/doc/rest_api#UpdateIndexKey|Algolia REST API Documentation}
+	*/
+	Index.prototype.updateUserKey = function(key, acls, params, callback) {
+	  var isArray = __webpack_require__(499);
+	  var usage = 'Usage: index.updateUserKey(key, arrayOfAcls[, params, callback])';
+
+	  if (!isArray(acls)) {
+	    throw new Error(usage);
+	  }
+
+	  if (arguments.length === 2 || typeof params === 'function') {
+	    callback = params;
+	    params = null;
+	  }
+
+	  var putObj = {
+	    acl: acls
+	  };
+
+	  if (params) {
+	    putObj.validity = params.validity;
+	    putObj.maxQueriesPerIPPerHour = params.maxQueriesPerIPPerHour;
+	    putObj.maxHitsPerQuery = params.maxHitsPerQuery;
+	    putObj.description = params.description;
+
+	    if (params.queryParameters) {
+	      putObj.queryParameters = this.as._getSearchParams(params.queryParameters, '');
+	    }
+
+	    putObj.referers = params.referers;
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'PUT',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key,
+	    body: putObj,
+	    hostType: 'write',
+	    callback: callback
+	  });
+	};
+
+
+/***/ },
+/* 487 */
+/***/ function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 488 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var buildSearchMethod = __webpack_require__(489);
+	var deprecate = __webpack_require__(492);
+	var deprecatedMessage = __webpack_require__(493);
+
+	module.exports = IndexCore;
+
+	/*
+	* Index class constructor.
+	* You should not use this method directly but use initIndex() function
+	*/
+	function IndexCore(algoliasearch, indexName) {
+	  this.indexName = indexName;
+	  this.as = algoliasearch;
+	  this.typeAheadArgs = null;
+	  this.typeAheadValueOption = null;
+
+	  // make sure every index instance has it's own cache
+	  this.cache = {};
+	}
+
+	/*
+	* Clear all queries in cache
+	*/
+	IndexCore.prototype.clearCache = function() {
+	  this.cache = {};
+	};
+
+	/*
+	* Search inside the index using XMLHttpRequest request (Using a POST query to
+	* minimize number of OPTIONS queries: Cross-Origin Resource Sharing).
+	*
+	* @param query the full text query
+	* @param args (optional) if set, contains an object with query parameters:
+	* - page: (integer) Pagination parameter used to select the page to retrieve.
+	*                   Page is zero-based and defaults to 0. Thus,
+	*                   to retrieve the 10th page you need to set page=9
+	* - hitsPerPage: (integer) Pagination parameter used to select the number of hits per page. Defaults to 20.
+	* - attributesToRetrieve: a string that contains the list of object attributes
+	* you want to retrieve (let you minimize the answer size).
+	*   Attributes are separated with a comma (for example "name,address").
+	*   You can also use an array (for example ["name","address"]).
+	*   By default, all attributes are retrieved. You can also use '*' to retrieve all
+	*   values when an attributesToRetrieve setting is specified for your index.
+	* - attributesToHighlight: a string that contains the list of attributes you
+	*   want to highlight according to the query.
+	*   Attributes are separated by a comma. You can also use an array (for example ["name","address"]).
+	*   If an attribute has no match for the query, the raw value is returned.
+	*   By default all indexed text attributes are highlighted.
+	*   You can use `*` if you want to highlight all textual attributes.
+	*   Numerical attributes are not highlighted.
+	*   A matchLevel is returned for each highlighted attribute and can contain:
+	*      - full: if all the query terms were found in the attribute,
+	*      - partial: if only some of the query terms were found,
+	*      - none: if none of the query terms were found.
+	* - attributesToSnippet: a string that contains the list of attributes to snippet alongside
+	* the number of words to return (syntax is `attributeName:nbWords`).
+	*    Attributes are separated by a comma (Example: attributesToSnippet=name:10,content:10).
+	*    You can also use an array (Example: attributesToSnippet: ['name:10','content:10']).
+	*    By default no snippet is computed.
+	* - minWordSizefor1Typo: the minimum number of characters in a query word to accept one typo in this word.
+	* Defaults to 3.
+	* - minWordSizefor2Typos: the minimum number of characters in a query word
+	* to accept two typos in this word. Defaults to 7.
+	* - getRankingInfo: if set to 1, the result hits will contain ranking
+	* information in _rankingInfo attribute.
+	* - aroundLatLng: search for entries around a given
+	* latitude/longitude (specified as two floats separated by a comma).
+	*   For example aroundLatLng=47.316669,5.016670).
+	*   You can specify the maximum distance in meters with the aroundRadius parameter (in meters)
+	*   and the precision for ranking with aroundPrecision
+	*   (for example if you set aroundPrecision=100, two objects that are distant of
+	*   less than 100m will be considered as identical for "geo" ranking parameter).
+	*   At indexing, you should specify geoloc of an object with the _geoloc attribute
+	*   (in the form {"_geoloc":{"lat":48.853409, "lng":2.348800}})
+	* - insideBoundingBox: search entries inside a given area defined by the two extreme points
+	* of a rectangle (defined by 4 floats: p1Lat,p1Lng,p2Lat,p2Lng).
+	*   For example insideBoundingBox=47.3165,4.9665,47.3424,5.0201).
+	*   At indexing, you should specify geoloc of an object with the _geoloc attribute
+	*   (in the form {"_geoloc":{"lat":48.853409, "lng":2.348800}})
+	* - numericFilters: a string that contains the list of numeric filters you want to
+	* apply separated by a comma.
+	*   The syntax of one filter is `attributeName` followed by `operand` followed by `value`.
+	*   Supported operands are `<`, `<=`, `=`, `>` and `>=`.
+	*   You can have multiple conditions on one attribute like for example numericFilters=price>100,price<1000.
+	*   You can also use an array (for example numericFilters: ["price>100","price<1000"]).
+	* - tagFilters: filter the query by a set of tags. You can AND tags by separating them by commas.
+	*   To OR tags, you must add parentheses. For example, tags=tag1,(tag2,tag3) means tag1 AND (tag2 OR tag3).
+	*   You can also use an array, for example tagFilters: ["tag1",["tag2","tag3"]]
+	*   means tag1 AND (tag2 OR tag3).
+	*   At indexing, tags should be added in the _tags** attribute
+	*   of objects (for example {"_tags":["tag1","tag2"]}).
+	* - facetFilters: filter the query by a list of facets.
+	*   Facets are separated by commas and each facet is encoded as `attributeName:value`.
+	*   For example: `facetFilters=category:Book,author:John%20Doe`.
+	*   You can also use an array (for example `["category:Book","author:John%20Doe"]`).
+	* - facets: List of object attributes that you want to use for faceting.
+	*   Comma separated list: `"category,author"` or array `['category','author']`
+	*   Only attributes that have been added in **attributesForFaceting** index setting
+	*   can be used in this parameter.
+	*   You can also use `*` to perform faceting on all attributes specified in **attributesForFaceting**.
+	* - queryType: select how the query words are interpreted, it can be one of the following value:
+	*    - prefixAll: all query words are interpreted as prefixes,
+	*    - prefixLast: only the last word is interpreted as a prefix (default behavior),
+	*    - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
+	* - optionalWords: a string that contains the list of words that should
+	* be considered as optional when found in the query.
+	*   Comma separated and array are accepted.
+	* - distinct: If set to 1, enable the distinct feature (disabled by default)
+	* if the attributeForDistinct index setting is set.
+	*   This feature is similar to the SQL "distinct" keyword: when enabled
+	*   in a query with the distinct=1 parameter,
+	*   all hits containing a duplicate value for the attributeForDistinct attribute are removed from results.
+	*   For example, if the chosen attribute is show_name and several hits have
+	*   the same value for show_name, then only the best
+	*   one is kept and others are removed.
+	* - restrictSearchableAttributes: List of attributes you want to use for
+	* textual search (must be a subset of the attributesToIndex index setting)
+	* either comma separated or as an array
+	* @param callback the result callback called with two arguments:
+	*  error: null or Error('message'). If false, the content contains the error.
+	*  content: the server answer that contains the list of results.
+	*/
+	IndexCore.prototype.search = buildSearchMethod('query');
+
+	/*
+	* -- BETA --
+	* Search a record similar to the query inside the index using XMLHttpRequest request (Using a POST query to
+	* minimize number of OPTIONS queries: Cross-Origin Resource Sharing).
+	*
+	* @param query the similar query
+	* @param args (optional) if set, contains an object with query parameters.
+	*   All search parameters are supported (see search function), restrictSearchableAttributes and facetFilters
+	*   are the two most useful to restrict the similar results and get more relevant content
+	*/
+	IndexCore.prototype.similarSearch = buildSearchMethod('similarQuery');
+
+	/*
+	* Browse index content. The response content will have a `cursor` property that you can use
+	* to browse subsequent pages for this query. Use `index.browseFrom(cursor)` when you want.
+	*
+	* @param {string} query - The full text query
+	* @param {Object} [queryParameters] - Any search query parameter
+	* @param {Function} [callback] - The result callback called with two arguments
+	*   error: null or Error('message')
+	*   content: the server answer with the browse result
+	* @return {Promise|undefined} Returns a promise if no callback given
+	* @example
+	* index.browse('cool songs', {
+	*   tagFilters: 'public,comments',
+	*   hitsPerPage: 500
+	* }, callback);
+	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
+	*/
+	IndexCore.prototype.browse = function(query, queryParameters, callback) {
+	  var merge = __webpack_require__(494);
+
+	  var indexObj = this;
+
+	  var page;
+	  var hitsPerPage;
+
+	  // we check variadic calls that are not the one defined
+	  // .browse()/.browse(fn)
+	  // => page = 0
+	  if (arguments.length === 0 || arguments.length === 1 && typeof arguments[0] === 'function') {
+	    page = 0;
+	    callback = arguments[0];
+	    query = undefined;
+	  } else if (typeof arguments[0] === 'number') {
+	    // .browse(2)/.browse(2, 10)/.browse(2, fn)/.browse(2, 10, fn)
+	    page = arguments[0];
+	    if (typeof arguments[1] === 'number') {
+	      hitsPerPage = arguments[1];
+	    } else if (typeof arguments[1] === 'function') {
+	      callback = arguments[1];
+	      hitsPerPage = undefined;
+	    }
+	    query = undefined;
+	    queryParameters = undefined;
+	  } else if (typeof arguments[0] === 'object') {
+	    // .browse(queryParameters)/.browse(queryParameters, cb)
+	    if (typeof arguments[1] === 'function') {
+	      callback = arguments[1];
+	    }
+	    queryParameters = arguments[0];
+	    query = undefined;
+	  } else if (typeof arguments[0] === 'string' && typeof arguments[1] === 'function') {
+	    // .browse(query, cb)
+	    callback = arguments[1];
+	    queryParameters = undefined;
+	  }
+
+	  // otherwise it's a .browse(query)/.browse(query, queryParameters)/.browse(query, queryParameters, cb)
+
+	  // get search query parameters combining various possible calls
+	  // to .browse();
+	  queryParameters = merge({}, queryParameters || {}, {
+	    page: page,
+	    hitsPerPage: hitsPerPage,
+	    query: query
+	  });
+
+	  var params = this.as._getSearchParams(queryParameters, '');
+
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/browse?' + params,
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Continue browsing from a previous position (cursor), obtained via a call to `.browse()`.
+	*
+	* @param {string} query - The full text query
+	* @param {Object} [queryParameters] - Any search query parameter
+	* @param {Function} [callback] - The result callback called with two arguments
+	*   error: null or Error('message')
+	*   content: the server answer with the browse result
+	* @return {Promise|undefined} Returns a promise if no callback given
+	* @example
+	* index.browseFrom('14lkfsakl32', callback);
+	* @see {@link https://www.algolia.com/doc/rest_api#Browse|Algolia REST API Documentation}
+	*/
+	IndexCore.prototype.browseFrom = function(cursor, callback) {
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(this.indexName) + '/browse?cursor=' + encodeURIComponent(cursor),
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Search for facet values
+	* https://www.algolia.com/doc/rest-api/search#search-for-facet-values
+	*
+	* @param {string} params.facetName Facet name, name of the attribute to search for values in.
+	* Must be declared as a facet
+	* @param {string} params.facetQuery Query for the facet search
+	* @param {string} [params.*] Any search parameter of Algolia,
+	* see https://www.algolia.com/doc/api-client/javascript/search#search-parameters
+	* Pagination is not supported. The page and hitsPerPage parameters will be ignored.
+	* @param callback (optional)
+	*/
+	IndexCore.prototype.searchForFacetValues = function(params, callback) {
+	  var clone = __webpack_require__(495);
+	  var omit = __webpack_require__(496);
+	  var usage = 'Usage: index.searchForFacetValues({facetName, facetQuery, ...params}[, callback])';
+
+	  if (params.facetName === undefined || params.facetQuery === undefined) {
+	    throw new Error(usage);
+	  }
+
+	  var facetName = params.facetName;
+	  var filteredParams = omit(clone(params), function(keyName) {
+	    return keyName === 'facetName';
+	  });
+	  var searchParameters = this.as._getSearchParams(filteredParams, '');
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/' +
+	      encodeURIComponent(this.indexName) + '/facets/' + encodeURIComponent(facetName) + '/query',
+	    hostType: 'read',
+	    body: {params: searchParameters},
+	    callback: callback
+	  });
+	};
+
+	IndexCore.prototype.searchFacet = deprecate(function(params, callback) {
+	  return this.searchForFacetValues(params, callback);
+	}, deprecatedMessage(
+	  'index.searchFacet(params[, callback])',
+	  'index.searchForFacetValues(params[, callback])'
+	));
+
+	IndexCore.prototype._search = function(params, url, callback) {
+	  return this.as._jsonRequest({
+	    cache: this.cache,
+	    method: 'POST',
+	    url: url || '/1/indexes/' + encodeURIComponent(this.indexName) + '/query',
+	    body: {params: params},
+	    hostType: 'read',
+	    fallback: {
+	      method: 'GET',
+	      url: '/1/indexes/' + encodeURIComponent(this.indexName),
+	      body: {params: params}
+	    },
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Get an object from this index
+	*
+	* @param objectID the unique identifier of the object to retrieve
+	* @param attrs (optional) if set, contains the array of attribute names to retrieve
+	* @param callback (optional) the result callback called with two arguments
+	*  error: null or Error('message')
+	*  content: the object to retrieve or the error message if a failure occured
+	*/
+	IndexCore.prototype.getObject = function(objectID, attrs, callback) {
+	  var indexObj = this;
+
+	  if (arguments.length === 1 || typeof attrs === 'function') {
+	    callback = attrs;
+	    attrs = undefined;
+	  }
+
+	  var params = '';
+	  if (attrs !== undefined) {
+	    params = '?attributes=';
+	    for (var i = 0; i < attrs.length; ++i) {
+	      if (i !== 0) {
+	        params += ',';
+	      }
+	      params += attrs[i];
+	    }
+	  }
+
+	  return this.as._jsonRequest({
+	    method: 'GET',
+	    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(objectID) + params,
+	    hostType: 'read',
+	    callback: callback
+	  });
+	};
+
+	/*
+	* Get several objects from this index
+	*
+	* @param objectIDs the array of unique identifier of objects to retrieve
+	*/
+	IndexCore.prototype.getObjects = function(objectIDs, attributesToRetrieve, callback) {
+	  var isArray = __webpack_require__(499);
+	  var map = __webpack_require__(500);
+
+	  var usage = 'Usage: index.getObjects(arrayOfObjectIDs[, callback])';
+
+	  if (!isArray(objectIDs)) {
+	    throw new Error(usage);
+	  }
+
+	  var indexObj = this;
+
+	  if (arguments.length === 1 || typeof attributesToRetrieve === 'function') {
+	    callback = attributesToRetrieve;
+	    attributesToRetrieve = undefined;
+	  }
+
+	  var body = {
+	    requests: map(objectIDs, function prepareRequest(objectID) {
+	      var request = {
+	        indexName: indexObj.indexName,
+	        objectID: objectID
+	      };
+
+	      if (attributesToRetrieve) {
+	        request.attributesToRetrieve = attributesToRetrieve.join(',');
+	      }
+
+	      return request;
+	    })
+	  };
+
+	  return this.as._jsonRequest({
+	    method: 'POST',
+	    url: '/1/indexes/*/objects',
+	    hostType: 'read',
+	    body: body,
+	    callback: callback
+	  });
+	};
+
+	IndexCore.prototype.as = null;
+	IndexCore.prototype.indexName = null;
+	IndexCore.prototype.typeAheadArgs = null;
+	IndexCore.prototype.typeAheadValueOption = null;
+
+
+/***/ },
+/* 489 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = buildSearchMethod;
+
+	var errors = __webpack_require__(490);
+
+	function buildSearchMethod(queryParam, url) {
+	  return function search(query, args, callback) {
+	    // warn V2 users on how to search
+	    if (typeof query === 'function' && typeof args === 'object' ||
+	      typeof callback === 'object') {
+	      // .search(query, params, cb)
+	      // .search(cb, params)
+	      throw new errors.AlgoliaSearchError('index.search usage is index.search(query, params, cb)');
+	    }
+
+	    if (arguments.length === 0 || typeof query === 'function') {
+	      // .search(), .search(cb)
+	      callback = query;
+	      query = '';
+	    } else if (arguments.length === 1 || typeof args === 'function') {
+	      // .search(query/args), .search(query, cb)
+	      callback = args;
+	      args = undefined;
+	    }
+
+	    // .search(args), careful: typeof null === 'object'
+	    if (typeof query === 'object' && query !== null) {
+	      args = query;
+	      query = undefined;
+	    } else if (query === undefined || query === null) { // .search(undefined/null)
+	      query = '';
+	    }
+
+	    var params = '';
+
+	    if (query !== undefined) {
+	      params += queryParam + '=' + encodeURIComponent(query);
+	    }
+
+	    if (args !== undefined) {
+	      // `_getSearchParams` will augment params, do not be fooled by the = versus += from previous if
+	      params = this.as._getSearchParams(args, params);
+	    }
+
+	    return this._search(params, url, callback);
+	  };
+	}
+
+
+/***/ },
+/* 490 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// This file hosts our error definitions
+	// We use custom error "types" so that we can act on them when we need it
+	// e.g.: if error instanceof errors.UnparsableJSON then..
+
+	var inherits = __webpack_require__(487);
+
+	function AlgoliaSearchError(message, extraProperties) {
+	  var forEach = __webpack_require__(491);
+
+	  var error = this;
+
+	  // try to get a stacktrace
+	  if (typeof Error.captureStackTrace === 'function') {
+	    Error.captureStackTrace(this, this.constructor);
+	  } else {
+	    error.stack = (new Error()).stack || 'Cannot get a stacktrace, browser is too old';
+	  }
+
+	  this.name = 'AlgoliaSearchError';
+	  this.message = message || 'Unknown error';
+
+	  if (extraProperties) {
+	    forEach(extraProperties, function addToErrorObject(value, key) {
+	      error[key] = value;
+	    });
+	  }
+	}
+
+	inherits(AlgoliaSearchError, Error);
+
+	function createCustomError(name, message) {
+	  function AlgoliaSearchCustomError() {
+	    var args = Array.prototype.slice.call(arguments, 0);
+
+	    // custom message not set, use default
+	    if (typeof args[0] !== 'string') {
+	      args.unshift(message);
+	    }
+
+	    AlgoliaSearchError.apply(this, args);
+	    this.name = 'AlgoliaSearch' + name + 'Error';
+	  }
+
+	  inherits(AlgoliaSearchCustomError, AlgoliaSearchError);
+
+	  return AlgoliaSearchCustomError;
+	}
+
+	// late exports to let various fn defs and inherits take place
+	module.exports = {
+	  AlgoliaSearchError: AlgoliaSearchError,
+	  UnparsableJSON: createCustomError(
+	    'UnparsableJSON',
+	    'Could not parse the incoming response as JSON, see err.more for details'
+	  ),
+	  RequestTimeout: createCustomError(
+	    'RequestTimeout',
+	    'Request timedout before getting a response'
+	  ),
+	  Network: createCustomError(
+	    'Network',
+	    'Network issue, see err.more for details'
+	  ),
+	  JSONPScriptFail: createCustomError(
+	    'JSONPScriptFail',
+	    '<script> was loaded but did not call our provided callback'
+	  ),
+	  JSONPScriptError: createCustomError(
+	    'JSONPScriptError',
+	    '<script> unable to load due to an `error` event on it'
+	  ),
+	  Unknown: createCustomError(
+	    'Unknown',
+	    'Unknown error occured'
+	  )
+	};
+
+
+/***/ },
+/* 491 */
+/***/ function(module, exports) {
+
+	
+	var hasOwn = Object.prototype.hasOwnProperty;
+	var toString = Object.prototype.toString;
+
+	module.exports = function forEach (obj, fn, ctx) {
+	    if (toString.call(fn) !== '[object Function]') {
+	        throw new TypeError('iterator must be a function');
+	    }
+	    var l = obj.length;
+	    if (l === +l) {
+	        for (var i = 0; i < l; i++) {
+	            fn.call(ctx, obj[i], i, obj);
+	        }
+	    } else {
+	        for (var k in obj) {
+	            if (hasOwn.call(obj, k)) {
+	                fn.call(ctx, obj[k], k, obj);
+	            }
+	        }
+	    }
+	};
+
+
+
+/***/ },
+/* 492 */
+/***/ function(module, exports) {
+
+	module.exports = function deprecate(fn, message) {
+	  var warned = false;
+
+	  function deprecated() {
+	    if (!warned) {
+	      /* eslint no-console:0 */
+	      console.log(message);
+	      warned = true;
+	    }
+
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	};
+
+
+/***/ },
+/* 493 */
+/***/ function(module, exports) {
+
+	module.exports = function deprecatedMessage(previousUsage, newUsage) {
+	  var githubAnchorLink = previousUsage.toLowerCase()
+	    .replace('.', '')
+	    .replace('()', '');
+
+	  return 'algoliasearch: `' + previousUsage + '` was replaced by `' + newUsage +
+	    '`. Please see https://github.com/algolia/algoliasearch-client-js/wiki/Deprecated#' + githubAnchorLink;
+	};
+
+
+/***/ },
+/* 494 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var foreach = __webpack_require__(491);
+
+	module.exports = function merge(destination/* , sources */) {
+	  var sources = Array.prototype.slice.call(arguments);
+
+	  foreach(sources, function(source) {
+	    for (var keyName in source) {
+	      if (source.hasOwnProperty(keyName)) {
+	        if (typeof destination[keyName] === 'object' && typeof source[keyName] === 'object') {
+	          destination[keyName] = merge({}, destination[keyName], source[keyName]);
+	        } else if (source[keyName] !== undefined) {
+	          destination[keyName] = source[keyName];
+	        }
+	      }
+	    }
+	  });
+
+	  return destination;
+	};
+
+
+/***/ },
+/* 495 */
+/***/ function(module, exports) {
+
+	module.exports = function clone(obj) {
+	  return JSON.parse(JSON.stringify(obj));
+	};
+
+
+/***/ },
+/* 496 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function omit(obj, test) {
+	  var keys = __webpack_require__(497);
+	  var foreach = __webpack_require__(491);
+
+	  var filtered = {};
+
+	  foreach(keys(obj), function doFilter(keyName) {
+	    if (test(keyName) !== true) {
+	      filtered[keyName] = obj[keyName];
+	    }
+	  });
+
+	  return filtered;
+	};
+
+
+/***/ },
+/* 497 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// modified from https://github.com/es-shims/es5-shim
+	var has = Object.prototype.hasOwnProperty;
+	var toStr = Object.prototype.toString;
+	var slice = Array.prototype.slice;
+	var isArgs = __webpack_require__(498);
+	var isEnumerable = Object.prototype.propertyIsEnumerable;
+	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
+	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
+	var dontEnums = [
+		'toString',
+		'toLocaleString',
+		'valueOf',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'constructor'
+	];
+	var equalsConstructorPrototype = function (o) {
+		var ctor = o.constructor;
+		return ctor && ctor.prototype === o;
+	};
+	var excludedKeys = {
+		$console: true,
+		$external: true,
+		$frame: true,
+		$frameElement: true,
+		$frames: true,
+		$innerHeight: true,
+		$innerWidth: true,
+		$outerHeight: true,
+		$outerWidth: true,
+		$pageXOffset: true,
+		$pageYOffset: true,
+		$parent: true,
+		$scrollLeft: true,
+		$scrollTop: true,
+		$scrollX: true,
+		$scrollY: true,
+		$self: true,
+		$webkitIndexedDB: true,
+		$webkitStorageInfo: true,
+		$window: true
+	};
+	var hasAutomationEqualityBug = (function () {
+		/* global window */
+		if (typeof window === 'undefined') { return false; }
+		for (var k in window) {
+			try {
+				if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+					try {
+						equalsConstructorPrototype(window[k]);
+					} catch (e) {
+						return true;
+					}
+				}
+			} catch (e) {
+				return true;
+			}
+		}
+		return false;
+	}());
+	var equalsConstructorPrototypeIfNotBuggy = function (o) {
+		/* global window */
+		if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
+			return equalsConstructorPrototype(o);
+		}
+		try {
+			return equalsConstructorPrototype(o);
+		} catch (e) {
+			return false;
+		}
+	};
+
+	var keysShim = function keys(object) {
+		var isObject = object !== null && typeof object === 'object';
+		var isFunction = toStr.call(object) === '[object Function]';
+		var isArguments = isArgs(object);
+		var isString = isObject && toStr.call(object) === '[object String]';
+		var theKeys = [];
+
+		if (!isObject && !isFunction && !isArguments) {
+			throw new TypeError('Object.keys called on a non-object');
+		}
+
+		var skipProto = hasProtoEnumBug && isFunction;
+		if (isString && object.length > 0 && !has.call(object, 0)) {
+			for (var i = 0; i < object.length; ++i) {
+				theKeys.push(String(i));
+			}
+		}
+
+		if (isArguments && object.length > 0) {
+			for (var j = 0; j < object.length; ++j) {
+				theKeys.push(String(j));
+			}
+		} else {
+			for (var name in object) {
+				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+					theKeys.push(String(name));
+				}
+			}
+		}
+
+		if (hasDontEnumBug) {
+			var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
+
+			for (var k = 0; k < dontEnums.length; ++k) {
+				if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
+					theKeys.push(dontEnums[k]);
+				}
+			}
+		}
+		return theKeys;
+	};
+
+	keysShim.shim = function shimObjectKeys() {
+		if (Object.keys) {
+			var keysWorksWithArguments = (function () {
+				// Safari 5.0 bug
+				return (Object.keys(arguments) || '').length === 2;
+			}(1, 2));
+			if (!keysWorksWithArguments) {
+				var originalKeys = Object.keys;
+				Object.keys = function keys(object) {
+					if (isArgs(object)) {
+						return originalKeys(slice.call(object));
+					} else {
+						return originalKeys(object);
+					}
+				};
+			}
+		} else {
+			Object.keys = keysShim;
+		}
+		return Object.keys || keysShim;
+	};
+
+	module.exports = keysShim;
+
+
+/***/ },
+/* 498 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var toStr = Object.prototype.toString;
+
+	module.exports = function isArguments(value) {
+		var str = toStr.call(value);
+		var isArgs = str === '[object Arguments]';
+		if (!isArgs) {
+			isArgs = str !== '[object Array]' &&
+				value !== null &&
+				typeof value === 'object' &&
+				typeof value.length === 'number' &&
+				value.length >= 0 &&
+				toStr.call(value.callee) === '[object Function]';
+		}
+		return isArgs;
+	};
+
+
+/***/ },
+/* 499 */
+/***/ function(module, exports) {
+
+	var toString = {}.toString;
+
+	module.exports = Array.isArray || function (arr) {
+	  return toString.call(arr) == '[object Array]';
+	};
+
+
+/***/ },
+/* 500 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var foreach = __webpack_require__(491);
+
+	module.exports = function map(arr, fn) {
+	  var newArr = [];
+	  foreach(arr, function(item, itemIndex) {
+	    newArr.push(fn(item, itemIndex, arr));
+	  });
+	  return newArr;
+	};
+
+
+/***/ },
+/* 501 */
+/***/ function(module, exports) {
+
+	// Parse cloud does not supports setTimeout
+	// We do not store a setTimeout reference in the client everytime
+	// We only fallback to a fake setTimeout when not available
+	// setTimeout cannot be override globally sadly
+	module.exports = function exitPromise(fn, _setTimeout) {
+	  _setTimeout(fn, 0);
+	};
+
+
+/***/ },
+/* 502 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// This is the object returned by the `index.browseAll()` method
+
+	module.exports = IndexBrowser;
+
+	var inherits = __webpack_require__(487);
+	var EventEmitter = __webpack_require__(460).EventEmitter;
+
+	function IndexBrowser() {
+	}
+
+	inherits(IndexBrowser, EventEmitter);
+
+	IndexBrowser.prototype.stop = function() {
+	  this._stopped = true;
+	  this._clean();
+	};
+
+	IndexBrowser.prototype._end = function() {
+	  this.emit('end');
+	  this._clean();
+	};
+
+	IndexBrowser.prototype._error = function(err) {
+	  this.emit('error', err);
+	  this._clean();
+	};
+
+	IndexBrowser.prototype._result = function(content) {
+	  this.emit('result', content);
+	};
+
+	IndexBrowser.prototype._clean = function() {
+	  this.removeAllListeners('stop');
+	  this.removeAllListeners('end');
+	  this.removeAllListeners('error');
+	  this.removeAllListeners('result');
+	};
+
+
+/***/ },
+/* 503 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = AlgoliaSearchCore;
+
+	var errors = __webpack_require__(490);
+	var exitPromise = __webpack_require__(501);
+	var IndexCore = __webpack_require__(488);
+
+	// We will always put the API KEY in the JSON body in case of too long API KEY
+	var MAX_API_KEY_LENGTH = 500;
+
+	/*
+	 * Algolia Search library initialization
+	 * https://www.algolia.com/
+	 *
+	 * @param {string} applicationID - Your applicationID, found in your dashboard
+	 * @param {string} apiKey - Your API key, found in your dashboard
+	 * @param {Object} [opts]
+	 * @param {number} [opts.timeout=2000] - The request timeout set in milliseconds,
+	 * another request will be issued after this timeout
+	 * @param {string} [opts.protocol='http:'] - The protocol used to query Algolia Search API.
+	 *                                        Set to 'https:' to force using https.
+	 *                                        Default to document.location.protocol in browsers
+	 * @param {Object|Array} [opts.hosts={
+	 *           read: [this.applicationID + '-dsn.algolia.net'].concat([
+	 *             this.applicationID + '-1.algolianet.com',
+	 *             this.applicationID + '-2.algolianet.com',
+	 *             this.applicationID + '-3.algolianet.com']
+	 *           ]),
+	 *           write: [this.applicationID + '.algolia.net'].concat([
+	 *             this.applicationID + '-1.algolianet.com',
+	 *             this.applicationID + '-2.algolianet.com',
+	 *             this.applicationID + '-3.algolianet.com']
+	 *           ]) - The hosts to use for Algolia Search API.
+	 *           If you provide them, you will less benefit from our HA implementation
+	 */
+	function AlgoliaSearchCore(applicationID, apiKey, opts) {
+	  var debug = __webpack_require__(504)('algoliasearch');
+
+	  var clone = __webpack_require__(495);
+	  var isArray = __webpack_require__(499);
+	  var map = __webpack_require__(500);
+
+	  var usage = 'Usage: algoliasearch(applicationID, apiKey, opts)';
+
+	  if (opts._allowEmptyCredentials !== true && !applicationID) {
+	    throw new errors.AlgoliaSearchError('Please provide an application ID. ' + usage);
+	  }
+
+	  if (opts._allowEmptyCredentials !== true && !apiKey) {
+	    throw new errors.AlgoliaSearchError('Please provide an API key. ' + usage);
+	  }
+
+	  this.applicationID = applicationID;
+	  this.apiKey = apiKey;
+
+	  var defaultHosts = shuffle([
+	    this.applicationID + '-1.algolianet.com',
+	    this.applicationID + '-2.algolianet.com',
+	    this.applicationID + '-3.algolianet.com'
+	  ]);
+	  this.hosts = {
+	    read: [],
+	    write: []
+	  };
+
+	  this.hostIndex = {
+	    read: 0,
+	    write: 0
+	  };
+
+	  opts = opts || {};
+
+	  var protocol = opts.protocol || 'https:';
+	  var timeout = opts.timeout === undefined ? 2000 : opts.timeout;
+
+	  // while we advocate for colon-at-the-end values: 'http:' for `opts.protocol`
+	  // we also accept `http` and `https`. It's a common error.
+	  if (!/:$/.test(protocol)) {
+	    protocol = protocol + ':';
+	  }
+
+	  if (opts.protocol !== 'http:' && opts.protocol !== 'https:') {
+	    throw new errors.AlgoliaSearchError('protocol must be `http:` or `https:` (was `' + opts.protocol + '`)');
+	  }
+
+	  // no hosts given, add defaults
+	  if (!opts.hosts) {
+	    this.hosts.read = [this.applicationID + '-dsn.algolia.net'].concat(defaultHosts);
+	    this.hosts.write = [this.applicationID + '.algolia.net'].concat(defaultHosts);
+	  } else if (isArray(opts.hosts)) {
+	    this.hosts.read = clone(opts.hosts);
+	    this.hosts.write = clone(opts.hosts);
+	  } else {
+	    this.hosts.read = clone(opts.hosts.read);
+	    this.hosts.write = clone(opts.hosts.write);
+	  }
+
+	  // add protocol and lowercase hosts
+	  this.hosts.read = map(this.hosts.read, prepareHost(protocol));
+	  this.hosts.write = map(this.hosts.write, prepareHost(protocol));
+	  this.requestTimeout = timeout;
+
+	  this.extraHeaders = [];
+
+	  // In some situations you might want to warm the cache
+	  this.cache = opts._cache || {};
+
+	  this._ua = opts._ua;
+	  this._useCache = opts._useCache === undefined || opts._cache ? true : opts._useCache;
+	  this._useFallback = opts.useFallback === undefined ? true : opts.useFallback;
+
+	  this._setTimeout = opts._setTimeout;
+
+	  debug('init done, %j', this);
+	}
+
+	/*
+	 * Get the index object initialized
+	 *
+	 * @param indexName the name of index
+	 * @param callback the result callback with one argument (the Index instance)
+	 */
+	AlgoliaSearchCore.prototype.initIndex = function(indexName) {
+	  return new IndexCore(this, indexName);
+	};
+
+	/**
+	* Add an extra field to the HTTP request
+	*
+	* @param name the header field name
+	* @param value the header field value
+	*/
+	AlgoliaSearchCore.prototype.setExtraHeader = function(name, value) {
+	  this.extraHeaders.push({
+	    name: name.toLowerCase(), value: value
+	  });
+	};
+
+	/**
+	* Augment sent x-algolia-agent with more data, each agent part
+	* is automatically separated from the others by a semicolon;
+	*
+	* @param algoliaAgent the agent to add
+	*/
+	AlgoliaSearchCore.prototype.addAlgoliaAgent = function(algoliaAgent) {
+	  this._ua += ';' + algoliaAgent;
+	};
+
+	/*
+	 * Wrapper that try all hosts to maximize the quality of service
+	 */
+	AlgoliaSearchCore.prototype._jsonRequest = function(initialOpts) {
+	  var requestDebug = __webpack_require__(504)('algoliasearch:' + initialOpts.url);
+
+	  var body;
+	  var cache = initialOpts.cache;
+	  var client = this;
+	  var tries = 0;
+	  var usingFallback = false;
+	  var hasFallback = client._useFallback && client._request.fallback && initialOpts.fallback;
+	  var headers;
+
+	  if (
+	    this.apiKey.length > MAX_API_KEY_LENGTH &&
+	    initialOpts.body !== undefined &&
+	    (initialOpts.body.params !== undefined || // index.search()
+	    initialOpts.body.requests !== undefined) // client.search()
+	  ) {
+	    initialOpts.body.apiKey = this.apiKey;
+	    headers = this._computeRequestHeaders(false);
+	  } else {
+	    headers = this._computeRequestHeaders();
+	  }
+
+	  if (initialOpts.body !== undefined) {
+	    body = safeJSONStringify(initialOpts.body);
+	  }
+
+	  requestDebug('request start');
+	  var debugData = [];
+
+	  function doRequest(requester, reqOpts) {
+	    var startTime = new Date();
+	    var cacheID;
+
+	    if (client._useCache) {
+	      cacheID = initialOpts.url;
+	    }
+
+	    // as we sometime use POST requests to pass parameters (like query='aa'),
+	    // the cacheID must also include the body to be different between calls
+	    if (client._useCache && body) {
+	      cacheID += '_body_' + reqOpts.body;
+	    }
+
+	    // handle cache existence
+	    if (client._useCache && cache && cache[cacheID] !== undefined) {
+	      requestDebug('serving response from cache');
+	      return client._promise.resolve(JSON.parse(cache[cacheID]));
+	    }
+
+	    // if we reached max tries
+	    if (tries >= client.hosts[initialOpts.hostType].length) {
+	      if (!hasFallback || usingFallback) {
+	        requestDebug('could not get any response');
+	        // then stop
+	        return client._promise.reject(new errors.AlgoliaSearchError(
+	          'Cannot connect to the AlgoliaSearch API.' +
+	          ' Send an email to support@algolia.com to report and resolve the issue.' +
+	          ' Application id was: ' + client.applicationID, {debugData: debugData}
+	        ));
+	      }
+
+	      requestDebug('switching to fallback');
+
+	      // let's try the fallback starting from here
+	      tries = 0;
+
+	      // method, url and body are fallback dependent
+	      reqOpts.method = initialOpts.fallback.method;
+	      reqOpts.url = initialOpts.fallback.url;
+	      reqOpts.jsonBody = initialOpts.fallback.body;
+	      if (reqOpts.jsonBody) {
+	        reqOpts.body = safeJSONStringify(reqOpts.jsonBody);
+	      }
+	      // re-compute headers, they could be omitting the API KEY
+	      headers = client._computeRequestHeaders();
+
+	      reqOpts.timeout = client.requestTimeout * (tries + 1);
+	      client.hostIndex[initialOpts.hostType] = 0;
+	      usingFallback = true; // the current request is now using fallback
+	      return doRequest(client._request.fallback, reqOpts);
+	    }
+
+	    var currentHost = client.hosts[initialOpts.hostType][client.hostIndex[initialOpts.hostType]];
+
+	    var url = currentHost + reqOpts.url;
+	    var options = {
+	      body: reqOpts.body,
+	      jsonBody: reqOpts.jsonBody,
+	      method: reqOpts.method,
+	      headers: headers,
+	      timeout: reqOpts.timeout,
+	      debug: requestDebug
+	    };
+
+	    requestDebug('method: %s, url: %s, headers: %j, timeout: %d',
+	      options.method, url, options.headers, options.timeout);
+
+	    if (requester === client._request.fallback) {
+	      requestDebug('using fallback');
+	    }
+
+	    // `requester` is any of this._request or this._request.fallback
+	    // thus it needs to be called using the client as context
+	    return requester.call(client, url, options).then(success, tryFallback);
+
+	    function success(httpResponse) {
+	      // compute the status of the response,
+	      //
+	      // When in browser mode, using XDR or JSONP, we have no statusCode available
+	      // So we rely on our API response `status` property.
+	      // But `waitTask` can set a `status` property which is not the statusCode (it's the task status)
+	      // So we check if there's a `message` along `status` and it means it's an error
+	      //
+	      // That's the only case where we have a response.status that's not the http statusCode
+	      var status = httpResponse && httpResponse.body && httpResponse.body.message && httpResponse.body.status ||
+
+	        // this is important to check the request statusCode AFTER the body eventual
+	        // statusCode because some implementations (jQuery XDomainRequest transport) may
+	        // send statusCode 200 while we had an error
+	        httpResponse.statusCode ||
+
+	        // When in browser mode, using XDR or JSONP
+	        // we default to success when no error (no response.status && response.message)
+	        // If there was a JSON.parse() error then body is null and it fails
+	        httpResponse && httpResponse.body && 200;
+
+	      requestDebug('received response: statusCode: %s, computed statusCode: %d, headers: %j',
+	        httpResponse.statusCode, status, httpResponse.headers);
+
+	      var httpResponseOk = Math.floor(status / 100) === 2;
+
+	      var endTime = new Date();
+	      debugData.push({
+	        currentHost: currentHost,
+	        headers: removeCredentials(headers),
+	        content: body || null,
+	        contentLength: body !== undefined ? body.length : null,
+	        method: reqOpts.method,
+	        timeout: reqOpts.timeout,
+	        url: reqOpts.url,
+	        startTime: startTime,
+	        endTime: endTime,
+	        duration: endTime - startTime,
+	        statusCode: status
+	      });
+
+	      if (httpResponseOk) {
+	        if (client._useCache && cache) {
+	          cache[cacheID] = httpResponse.responseText;
+	        }
+
+	        return httpResponse.body;
+	      }
+
+	      var shouldRetry = Math.floor(status / 100) !== 4;
+
+	      if (shouldRetry) {
+	        tries += 1;
+	        return retryRequest();
+	      }
+
+	      requestDebug('unrecoverable error');
+
+	      // no success and no retry => fail
+	      var unrecoverableError = new errors.AlgoliaSearchError(
+	        httpResponse.body && httpResponse.body.message, {debugData: debugData, statusCode: status}
+	      );
+
+	      return client._promise.reject(unrecoverableError);
+	    }
+
+	    function tryFallback(err) {
+	      // error cases:
+	      //  While not in fallback mode:
+	      //    - CORS not supported
+	      //    - network error
+	      //  While in fallback mode:
+	      //    - timeout
+	      //    - network error
+	      //    - badly formatted JSONP (script loaded, did not call our callback)
+	      //  In both cases:
+	      //    - uncaught exception occurs (TypeError)
+	      requestDebug('error: %s, stack: %s', err.message, err.stack);
+
+	      var endTime = new Date();
+	      debugData.push({
+	        currentHost: currentHost,
+	        headers: removeCredentials(headers),
+	        content: body || null,
+	        contentLength: body !== undefined ? body.length : null,
+	        method: reqOpts.method,
+	        timeout: reqOpts.timeout,
+	        url: reqOpts.url,
+	        startTime: startTime,
+	        endTime: endTime,
+	        duration: endTime - startTime
+	      });
+
+	      if (!(err instanceof errors.AlgoliaSearchError)) {
+	        err = new errors.Unknown(err && err.message, err);
+	      }
+
+	      tries += 1;
+
+	      // stop the request implementation when:
+	      if (
+	        // we did not generate this error,
+	        // it comes from a throw in some other piece of code
+	        err instanceof errors.Unknown ||
+
+	        // server sent unparsable JSON
+	        err instanceof errors.UnparsableJSON ||
+
+	        // max tries and already using fallback or no fallback
+	        tries >= client.hosts[initialOpts.hostType].length &&
+	        (usingFallback || !hasFallback)) {
+	        // stop request implementation for this command
+	        err.debugData = debugData;
+	        return client._promise.reject(err);
+	      }
+
+	      // When a timeout occured, retry by raising timeout
+	      if (err instanceof errors.RequestTimeout) {
+	        return retryRequestWithHigherTimeout();
+	      }
+
+	      return retryRequest();
+	    }
+
+	    function retryRequest() {
+	      requestDebug('retrying request');
+	      client.hostIndex[initialOpts.hostType] = (client.hostIndex[initialOpts.hostType] + 1) % client.hosts[initialOpts.hostType].length;
+	      return doRequest(requester, reqOpts);
+	    }
+
+	    function retryRequestWithHigherTimeout() {
+	      requestDebug('retrying request with higher timeout');
+	      client.hostIndex[initialOpts.hostType] = (client.hostIndex[initialOpts.hostType] + 1) % client.hosts[initialOpts.hostType].length;
+	      reqOpts.timeout = client.requestTimeout * (tries + 1);
+	      return doRequest(requester, reqOpts);
+	    }
+	  }
+
+	  var promise = doRequest(
+	    client._request, {
+	      url: initialOpts.url,
+	      method: initialOpts.method,
+	      body: body,
+	      jsonBody: initialOpts.body,
+	      timeout: client.requestTimeout * (tries + 1)
+	    }
+	  );
+
+	  // either we have a callback
+	  // either we are using promises
+	  if (initialOpts.callback) {
+	    promise.then(function okCb(content) {
+	      exitPromise(function() {
+	        initialOpts.callback(null, content);
+	      }, client._setTimeout || setTimeout);
+	    }, function nookCb(err) {
+	      exitPromise(function() {
+	        initialOpts.callback(err);
+	      }, client._setTimeout || setTimeout);
+	    });
+	  } else {
+	    return promise;
+	  }
+	};
+
+	/*
+	* Transform search param object in query string
+	*/
+	AlgoliaSearchCore.prototype._getSearchParams = function(args, params) {
+	  if (args === undefined || args === null) {
+	    return params;
+	  }
+	  for (var key in args) {
+	    if (key !== null && args[key] !== undefined && args.hasOwnProperty(key)) {
+	      params += params === '' ? '' : '&';
+	      params += key + '=' + encodeURIComponent(Object.prototype.toString.call(args[key]) === '[object Array]' ? safeJSONStringify(args[key]) : args[key]);
+	    }
+	  }
+	  return params;
+	};
+
+	AlgoliaSearchCore.prototype._computeRequestHeaders = function(withAPIKey) {
+	  var forEach = __webpack_require__(491);
+
+	  var requestHeaders = {
+	    'x-algolia-agent': this._ua,
+	    'x-algolia-application-id': this.applicationID
+	  };
+
+	  // browser will inline headers in the url, node.js will use http headers
+	  // but in some situations, the API KEY will be too long (big secured API keys)
+	  // so if the request is a POST and the KEY is very long, we will be asked to not put
+	  // it into headers but in the JSON body
+	  if (withAPIKey !== false) {
+	    requestHeaders['x-algolia-api-key'] = this.apiKey;
+	  }
+
+	  if (this.userToken) {
+	    requestHeaders['x-algolia-usertoken'] = this.userToken;
+	  }
+
+	  if (this.securityTags) {
+	    requestHeaders['x-algolia-tagfilters'] = this.securityTags;
+	  }
+
+	  if (this.extraHeaders) {
+	    forEach(this.extraHeaders, function addToRequestHeaders(header) {
+	      requestHeaders[header.name] = header.value;
+	    });
+	  }
+
+	  return requestHeaders;
+	};
+
+	/**
+	 * Search through multiple indices at the same time
+	 * @param  {Object[]}   queries  An array of queries you want to run.
+	 * @param {string} queries[].indexName The index name you want to target
+	 * @param {string} [queries[].query] The query to issue on this index. Can also be passed into `params`
+	 * @param {Object} queries[].params Any search param like hitsPerPage, ..
+	 * @param  {Function} callback Callback to be called
+	 * @return {Promise|undefined} Returns a promise if no callback given
+	 */
+	AlgoliaSearchCore.prototype.search = function(queries, opts, callback) {
+	  var isArray = __webpack_require__(499);
+	  var map = __webpack_require__(500);
+
+	  var usage = 'Usage: client.search(arrayOfQueries[, callback])';
+
+	  if (!isArray(queries)) {
+	    throw new Error(usage);
+	  }
+
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  } else if (opts === undefined) {
+	    opts = {};
+	  }
+
+	  var client = this;
+
+	  var postObj = {
+	    requests: map(queries, function prepareRequest(query) {
+	      var params = '';
+
+	      // allow query.query
+	      // so we are mimicing the index.search(query, params) method
+	      // {indexName:, query:, params:}
+	      if (query.query !== undefined) {
+	        params += 'query=' + encodeURIComponent(query.query);
+	      }
+
+	      return {
+	        indexName: query.indexName,
+	        params: client._getSearchParams(query.params, params)
+	      };
+	    })
+	  };
+
+	  var JSONPParams = map(postObj.requests, function prepareJSONPParams(request, requestId) {
+	    return requestId + '=' +
+	      encodeURIComponent(
+	        '/1/indexes/' + encodeURIComponent(request.indexName) + '?' +
+	        request.params
+	      );
+	  }).join('&');
+
+	  var url = '/1/indexes/*/queries';
+
+	  if (opts.strategy !== undefined) {
+	    url += '?strategy=' + opts.strategy;
+	  }
+
+	  return this._jsonRequest({
+	    cache: this.cache,
+	    method: 'POST',
+	    url: url,
+	    body: postObj,
+	    hostType: 'read',
+	    fallback: {
+	      method: 'GET',
+	      url: '/1/indexes/*',
+	      body: {
+	        params: JSONPParams
+	      }
+	    },
+	    callback: callback
+	  });
+	};
+
+	/**
+	 * Set the extra security tagFilters header
+	 * @param {string|array} tags The list of tags defining the current security filters
+	 */
+	AlgoliaSearchCore.prototype.setSecurityTags = function(tags) {
+	  if (Object.prototype.toString.call(tags) === '[object Array]') {
+	    var strTags = [];
+	    for (var i = 0; i < tags.length; ++i) {
+	      if (Object.prototype.toString.call(tags[i]) === '[object Array]') {
+	        var oredTags = [];
+	        for (var j = 0; j < tags[i].length; ++j) {
+	          oredTags.push(tags[i][j]);
+	        }
+	        strTags.push('(' + oredTags.join(',') + ')');
+	      } else {
+	        strTags.push(tags[i]);
+	      }
+	    }
+	    tags = strTags.join(',');
+	  }
+
+	  this.securityTags = tags;
+	};
+
+	/**
+	 * Set the extra user token header
+	 * @param {string} userToken The token identifying a uniq user (used to apply rate limits)
+	 */
+	AlgoliaSearchCore.prototype.setUserToken = function(userToken) {
+	  this.userToken = userToken;
+	};
+
+	/**
+	 * Clear all queries in client's cache
+	 * @return undefined
+	 */
+	AlgoliaSearchCore.prototype.clearCache = function() {
+	  this.cache = {};
+	};
+
+	/**
+	* Set the number of milliseconds a request can take before automatically being terminated.
+	*
+	* @param {Number} milliseconds
+	*/
+	AlgoliaSearchCore.prototype.setRequestTimeout = function(milliseconds) {
+	  if (milliseconds) {
+	    this.requestTimeout = parseInt(milliseconds, 10);
+	  }
+	};
+
+	function prepareHost(protocol) {
+	  return function prepare(host) {
+	    return protocol + '//' + host.toLowerCase();
+	  };
+	}
+
+	// Prototype.js < 1.7, a widely used library, defines a weird
+	// Array.prototype.toJSON function that will fail to stringify our content
+	// appropriately
+	// refs:
+	//   - https://groups.google.com/forum/#!topic/prototype-core/E-SAVvV_V9Q
+	//   - https://github.com/sstephenson/prototype/commit/038a2985a70593c1a86c230fadbdfe2e4898a48c
+	//   - http://stackoverflow.com/a/3148441/147079
+	function safeJSONStringify(obj) {
+	  /* eslint no-extend-native:0 */
+
+	  if (Array.prototype.toJSON === undefined) {
+	    return JSON.stringify(obj);
+	  }
+
+	  var toJSON = Array.prototype.toJSON;
+	  delete Array.prototype.toJSON;
+	  var out = JSON.stringify(obj);
+	  Array.prototype.toJSON = toJSON;
+
+	  return out;
+	}
+
+	function shuffle(array) {
+	  var currentIndex = array.length;
+	  var temporaryValue;
+	  var randomIndex;
+
+	  // While there remain elements to shuffle...
+	  while (currentIndex !== 0) {
+	    // Pick a remaining element...
+	    randomIndex = Math.floor(Math.random() * currentIndex);
+	    currentIndex -= 1;
+
+	    // And swap it with the current element.
+	    temporaryValue = array[currentIndex];
+	    array[currentIndex] = array[randomIndex];
+	    array[randomIndex] = temporaryValue;
+	  }
+
+	  return array;
+	}
+
+	function removeCredentials(headers) {
+	  var newHeaders = {};
+
+	  for (var headerName in headers) {
+	    if (Object.prototype.hasOwnProperty.call(headers, headerName)) {
+	      var value;
+
+	      if (headerName === 'x-algolia-api-key' || headerName === 'x-algolia-application-id') {
+	        value = '**hidden for security purposes**';
+	      } else {
+	        value = headers[headerName];
+	      }
+
+	      newHeaders[headerName] = value;
+	    }
+	  }
+
+	  return newHeaders;
+	}
+
+
+/***/ },
+/* 504 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {
+	/**
+	 * This is the web browser implementation of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = __webpack_require__(505);
+	exports.log = log;
+	exports.formatArgs = formatArgs;
+	exports.save = save;
+	exports.load = load;
+	exports.useColors = useColors;
+	exports.storage = 'undefined' != typeof chrome
+	               && 'undefined' != typeof chrome.storage
+	                  ? chrome.storage.local
+	                  : localstorage();
+
+	/**
+	 * Colors.
+	 */
+
+	exports.colors = [
+	  'lightseagreen',
+	  'forestgreen',
+	  'goldenrod',
+	  'dodgerblue',
+	  'darkorchid',
+	  'crimson'
+	];
+
+	/**
+	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+	 * and the Firebug extension (any Firefox version) are known
+	 * to support "%c" CSS customizations.
+	 *
+	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
+	 */
+
+	function useColors() {
+	  // is webkit? http://stackoverflow.com/a/16459606/376773
+	  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+	  return (typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style) ||
+	    // is firebug? http://stackoverflow.com/a/398120/376773
+	    (window.console && (console.firebug || (console.exception && console.table))) ||
+	    // is firefox >= v31?
+	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+	}
+
+	/**
+	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+	 */
+
+	exports.formatters.j = function(v) {
+	  try {
+	    return JSON.stringify(v);
+	  } catch (err) {
+	    return '[UnexpectedJSONParseError]: ' + err.message;
+	  }
+	};
+
+
+	/**
+	 * Colorize log arguments if enabled.
+	 *
+	 * @api public
+	 */
+
+	function formatArgs() {
+	  var args = arguments;
+	  var useColors = this.useColors;
+
+	  args[0] = (useColors ? '%c' : '')
+	    + this.namespace
+	    + (useColors ? ' %c' : ' ')
+	    + args[0]
+	    + (useColors ? '%c ' : ' ')
+	    + '+' + exports.humanize(this.diff);
+
+	  if (!useColors) return args;
+
+	  var c = 'color: ' + this.color;
+	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+	  // the final "%c" is somewhat tricky, because there could be other
+	  // arguments passed either before or after the %c, so we need to
+	  // figure out the correct index to insert the CSS into
+	  var index = 0;
+	  var lastC = 0;
+	  args[0].replace(/%[a-z%]/g, function(match) {
+	    if ('%%' === match) return;
+	    index++;
+	    if ('%c' === match) {
+	      // we only are interested in the *last* %c
+	      // (the user may have provided their own)
+	      lastC = index;
+	    }
+	  });
+
+	  args.splice(lastC, 0, c);
+	  return args;
+	}
+
+	/**
+	 * Invokes `console.log()` when available.
+	 * No-op when `console.log` is not a "function".
+	 *
+	 * @api public
+	 */
+
+	function log() {
+	  // this hackery is required for IE8/9, where
+	  // the `console.log` function doesn't have 'apply'
+	  return 'object' === typeof console
+	    && console.log
+	    && Function.prototype.apply.call(console.log, console, arguments);
+	}
+
+	/**
+	 * Save `namespaces`.
+	 *
+	 * @param {String} namespaces
+	 * @api private
+	 */
+
+	function save(namespaces) {
+	  try {
+	    if (null == namespaces) {
+	      exports.storage.removeItem('debug');
+	    } else {
+	      exports.storage.debug = namespaces;
+	    }
+	  } catch(e) {}
+	}
+
+	/**
+	 * Load `namespaces`.
+	 *
+	 * @return {String} returns the previously persisted debug modes
+	 * @api private
+	 */
+
+	function load() {
+	  var r;
+	  try {
+	    return exports.storage.debug;
+	  } catch(e) {}
+
+	  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+	  if (typeof process !== 'undefined' && 'env' in process) {
+	    return process.env.DEBUG;
+	  }
+	}
+
+	/**
+	 * Enable namespaces listed in `localStorage.debug` initially.
+	 */
+
+	exports.enable(load());
+
+	/**
+	 * Localstorage attempts to return the localstorage.
+	 *
+	 * This is necessary because safari throws
+	 * when a user disables cookies/localstorage
+	 * and you attempt to access it.
+	 *
+	 * @return {LocalStorage}
+	 * @api private
+	 */
+
+	function localstorage(){
+	  try {
+	    return window.localStorage;
+	  } catch (e) {}
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 505 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the common logic for both the Node.js and web browser
+	 * implementations of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = debug.debug = debug;
+	exports.coerce = coerce;
+	exports.disable = disable;
+	exports.enable = enable;
+	exports.enabled = enabled;
+	exports.humanize = __webpack_require__(506);
+
+	/**
+	 * The currently active debug mode names, and names to skip.
+	 */
+
+	exports.names = [];
+	exports.skips = [];
+
+	/**
+	 * Map of special "%n" handling functions, for the debug "format" argument.
+	 *
+	 * Valid key names are a single, lowercased letter, i.e. "n".
+	 */
+
+	exports.formatters = {};
+
+	/**
+	 * Previously assigned color.
+	 */
+
+	var prevColor = 0;
+
+	/**
+	 * Previous log timestamp.
+	 */
+
+	var prevTime;
+
+	/**
+	 * Select a color.
+	 *
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function selectColor() {
+	  return exports.colors[prevColor++ % exports.colors.length];
+	}
+
+	/**
+	 * Create a debugger with the given `namespace`.
+	 *
+	 * @param {String} namespace
+	 * @return {Function}
+	 * @api public
+	 */
+
+	function debug(namespace) {
+
+	  // define the `disabled` version
+	  function disabled() {
+	  }
+	  disabled.enabled = false;
+
+	  // define the `enabled` version
+	  function enabled() {
+
+	    var self = enabled;
+
+	    // set `diff` timestamp
+	    var curr = +new Date();
+	    var ms = curr - (prevTime || curr);
+	    self.diff = ms;
+	    self.prev = prevTime;
+	    self.curr = curr;
+	    prevTime = curr;
+
+	    // add the `color` if not set
+	    if (null == self.useColors) self.useColors = exports.useColors();
+	    if (null == self.color && self.useColors) self.color = selectColor();
+
+	    var args = new Array(arguments.length);
+	    for (var i = 0; i < args.length; i++) {
+	      args[i] = arguments[i];
+	    }
+
+	    args[0] = exports.coerce(args[0]);
+
+	    if ('string' !== typeof args[0]) {
+	      // anything else let's inspect with %o
+	      args = ['%o'].concat(args);
+	    }
+
+	    // apply any `formatters` transformations
+	    var index = 0;
+	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+	      // if we encounter an escaped % then don't increase the array index
+	      if (match === '%%') return match;
+	      index++;
+	      var formatter = exports.formatters[format];
+	      if ('function' === typeof formatter) {
+	        var val = args[index];
+	        match = formatter.call(self, val);
+
+	        // now we need to remove `args[index]` since it's inlined in the `format`
+	        args.splice(index, 1);
+	        index--;
+	      }
+	      return match;
+	    });
+
+	    // apply env-specific formatting
+	    args = exports.formatArgs.apply(self, args);
+
+	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    logFn.apply(self, args);
+	  }
+	  enabled.enabled = true;
+
+	  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+	  fn.namespace = namespace;
+
+	  return fn;
+	}
+
+	/**
+	 * Enables a debug mode by namespaces. This can include modes
+	 * separated by a colon and wildcards.
+	 *
+	 * @param {String} namespaces
+	 * @api public
+	 */
+
+	function enable(namespaces) {
+	  exports.save(namespaces);
+
+	  var split = (namespaces || '').split(/[\s,]+/);
+	  var len = split.length;
+
+	  for (var i = 0; i < len; i++) {
+	    if (!split[i]) continue; // ignore empty strings
+	    namespaces = split[i].replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.*?');
+	    if (namespaces[0] === '-') {
+	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+	    } else {
+	      exports.names.push(new RegExp('^' + namespaces + '$'));
+	    }
+	  }
+	}
+
+	/**
+	 * Disable debug output.
+	 *
+	 * @api public
+	 */
+
+	function disable() {
+	  exports.enable('');
+	}
+
+	/**
+	 * Returns true if the given mode name is enabled, false otherwise.
+	 *
+	 * @param {String} name
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	function enabled(name) {
+	  var i, len;
+	  for (i = 0, len = exports.skips.length; i < len; i++) {
+	    if (exports.skips[i].test(name)) {
+	      return false;
+	    }
+	  }
+	  for (i = 0, len = exports.names.length; i < len; i++) {
+	    if (exports.names[i].test(name)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+
+	/**
+	 * Coerce `val`.
+	 *
+	 * @param {Mixed} val
+	 * @return {Mixed}
+	 * @api private
+	 */
+
+	function coerce(val) {
+	  if (val instanceof Error) return val.stack || val.message;
+	  return val;
+	}
+
+
+/***/ },
+/* 506 */
+/***/ function(module, exports) {
+
+	/**
+	 * Helpers.
+	 */
+
+	var s = 1000
+	var m = s * 60
+	var h = m * 60
+	var d = h * 24
+	var y = d * 365.25
+
+	/**
+	 * Parse or format the given `val`.
+	 *
+	 * Options:
+	 *
+	 *  - `long` verbose formatting [false]
+	 *
+	 * @param {String|Number} val
+	 * @param {Object} options
+	 * @throws {Error} throw an error if val is not a non-empty string or a number
+	 * @return {String|Number}
+	 * @api public
+	 */
+
+	module.exports = function (val, options) {
+	  options = options || {}
+	  var type = typeof val
+	  if (type === 'string' && val.length > 0) {
+	    return parse(val)
+	  } else if (type === 'number' && isNaN(val) === false) {
+	    return options.long ?
+				fmtLong(val) :
+				fmtShort(val)
+	  }
+	  throw new Error('val is not a non-empty string or a valid number. val=' + JSON.stringify(val))
+	}
+
+	/**
+	 * Parse the given `str` and return milliseconds.
+	 *
+	 * @param {String} str
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function parse(str) {
+	  str = String(str)
+	  if (str.length > 10000) {
+	    return
+	  }
+	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str)
+	  if (!match) {
+	    return
+	  }
+	  var n = parseFloat(match[1])
+	  var type = (match[2] || 'ms').toLowerCase()
+	  switch (type) {
+	    case 'years':
+	    case 'year':
+	    case 'yrs':
+	    case 'yr':
+	    case 'y':
+	      return n * y
+	    case 'days':
+	    case 'day':
+	    case 'd':
+	      return n * d
+	    case 'hours':
+	    case 'hour':
+	    case 'hrs':
+	    case 'hr':
+	    case 'h':
+	      return n * h
+	    case 'minutes':
+	    case 'minute':
+	    case 'mins':
+	    case 'min':
+	    case 'm':
+	      return n * m
+	    case 'seconds':
+	    case 'second':
+	    case 'secs':
+	    case 'sec':
+	    case 's':
+	      return n * s
+	    case 'milliseconds':
+	    case 'millisecond':
+	    case 'msecs':
+	    case 'msec':
+	    case 'ms':
+	      return n
+	    default:
+	      return undefined
+	  }
+	}
+
+	/**
+	 * Short format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function fmtShort(ms) {
+	  if (ms >= d) {
+	    return Math.round(ms / d) + 'd'
+	  }
+	  if (ms >= h) {
+	    return Math.round(ms / h) + 'h'
+	  }
+	  if (ms >= m) {
+	    return Math.round(ms / m) + 'm'
+	  }
+	  if (ms >= s) {
+	    return Math.round(ms / s) + 's'
+	  }
+	  return ms + 'ms'
+	}
+
+	/**
+	 * Long format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function fmtLong(ms) {
+	  return plural(ms, d, 'day') ||
+	    plural(ms, h, 'hour') ||
+	    plural(ms, m, 'minute') ||
+	    plural(ms, s, 'second') ||
+	    ms + ' ms'
+	}
+
+	/**
+	 * Pluralization helper.
+	 */
+
+	function plural(ms, n, name) {
+	  if (ms < n) {
+	    return
+	  }
+	  if (ms < n * 1.5) {
+	    return Math.floor(ms / n) + ' ' + name
+	  }
+	  return Math.ceil(ms / n) + ' ' + name + 's'
+	}
+
+
+/***/ },
+/* 507 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var global = __webpack_require__(508);
+	var Promise = global.Promise || __webpack_require__(509).Promise;
+
+	// This is the standalone browser build entry point
+	// Browser implementation of the Algolia Search JavaScript client,
+	// using XMLHttpRequest, XDomainRequest and JSONP as fallback
+	module.exports = function createAlgoliasearch(AlgoliaSearch, uaSuffix) {
+	  var inherits = __webpack_require__(487);
+	  var errors = __webpack_require__(490);
+	  var inlineHeaders = __webpack_require__(511);
+	  var jsonpRequest = __webpack_require__(513);
+	  var places = __webpack_require__(514);
+	  uaSuffix = uaSuffix || '';
+
+	  if (process.env.NODE_ENV === 'debug') {
+	    __webpack_require__(504).enable('algoliasearch*');
+	  }
+
+	  function algoliasearch(applicationID, apiKey, opts) {
+	    var cloneDeep = __webpack_require__(495);
+
+	    var getDocumentProtocol = __webpack_require__(515);
+
+	    opts = cloneDeep(opts || {});
+
+	    if (opts.protocol === undefined) {
+	      opts.protocol = getDocumentProtocol();
+	    }
+
+	    opts._ua = opts._ua || algoliasearch.ua;
+
+	    return new AlgoliaSearchBrowser(applicationID, apiKey, opts);
+	  }
+
+	  algoliasearch.version = __webpack_require__(516);
+	  algoliasearch.ua = 'Algolia for vanilla JavaScript ' + uaSuffix + algoliasearch.version;
+	  algoliasearch.initPlaces = places(algoliasearch);
+
+	  // we expose into window no matter how we are used, this will allow
+	  // us to easily debug any website running algolia
+	  global.__algolia = {
+	    debug: __webpack_require__(504),
+	    algoliasearch: algoliasearch
+	  };
+
+	  var support = {
+	    hasXMLHttpRequest: 'XMLHttpRequest' in global,
+	    hasXDomainRequest: 'XDomainRequest' in global
+	  };
+
+	  if (support.hasXMLHttpRequest) {
+	    support.cors = 'withCredentials' in new XMLHttpRequest();
+	    support.timeout = 'timeout' in new XMLHttpRequest();
+	  }
+
+	  function AlgoliaSearchBrowser() {
+	    // call AlgoliaSearch constructor
+	    AlgoliaSearch.apply(this, arguments);
+	  }
+
+	  inherits(AlgoliaSearchBrowser, AlgoliaSearch);
+
+	  AlgoliaSearchBrowser.prototype._request = function request(url, opts) {
+	    return new Promise(function wrapRequest(resolve, reject) {
+	      // no cors or XDomainRequest, no request
+	      if (!support.cors && !support.hasXDomainRequest) {
+	        // very old browser, not supported
+	        reject(new errors.Network('CORS not supported'));
+	        return;
+	      }
+
+	      url = inlineHeaders(url, opts.headers);
+
+	      var body = opts.body;
+	      var req = support.cors ? new XMLHttpRequest() : new XDomainRequest();
+	      var ontimeout;
+	      var timedOut;
+
+	      // do not rely on default XHR async flag, as some analytics code like hotjar
+	      // breaks it and set it to false by default
+	      if (req instanceof XMLHttpRequest) {
+	        req.open(opts.method, url, true);
+	      } else {
+	        req.open(opts.method, url);
+	      }
+
+	      if (support.cors) {
+	        if (body) {
+	          if (opts.method === 'POST') {
+	            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Simple_requests
+	            req.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+	          } else {
+	            req.setRequestHeader('content-type', 'application/json');
+	          }
+	        }
+	        req.setRequestHeader('accept', 'application/json');
+	      }
+
+	      // we set an empty onprogress listener
+	      // so that XDomainRequest on IE9 is not aborted
+	      // refs:
+	      //  - https://github.com/algolia/algoliasearch-client-js/issues/76
+	      //  - https://social.msdn.microsoft.com/Forums/ie/en-US/30ef3add-767c-4436-b8a9-f1ca19b4812e/ie9-rtm-xdomainrequest-issued-requests-may-abort-if-all-event-handlers-not-specified?forum=iewebdevelopment
+	      req.onprogress = function noop() {};
+
+	      req.onload = load;
+	      req.onerror = error;
+
+	      if (support.timeout) {
+	        // .timeout supported by both XHR and XDR,
+	        // we do receive timeout event, tested
+	        req.timeout = opts.timeout;
+
+	        req.ontimeout = timeout;
+	      } else {
+	        ontimeout = setTimeout(timeout, opts.timeout);
+	      }
+
+	      req.send(body);
+
+	      // event object not received in IE8, at least
+	      // but we do not use it, still important to note
+	      function load(/* event */) {
+	        // When browser does not supports req.timeout, we can
+	        // have both a load and timeout event, since handled by a dumb setTimeout
+	        if (timedOut) {
+	          return;
+	        }
+
+	        if (!support.timeout) {
+	          clearTimeout(ontimeout);
+	        }
+
+	        var out;
+
+	        try {
+	          out = {
+	            body: JSON.parse(req.responseText),
+	            responseText: req.responseText,
+	            statusCode: req.status,
+	            // XDomainRequest does not have any response headers
+	            headers: req.getAllResponseHeaders && req.getAllResponseHeaders() || {}
+	          };
+	        } catch (e) {
+	          out = new errors.UnparsableJSON({
+	            more: req.responseText
+	          });
+	        }
+
+	        if (out instanceof errors.UnparsableJSON) {
+	          reject(out);
+	        } else {
+	          resolve(out);
+	        }
+	      }
+
+	      function error(event) {
+	        if (timedOut) {
+	          return;
+	        }
+
+	        if (!support.timeout) {
+	          clearTimeout(ontimeout);
+	        }
+
+	        // error event is trigerred both with XDR/XHR on:
+	        //   - DNS error
+	        //   - unallowed cross domain request
+	        reject(
+	          new errors.Network({
+	            more: event
+	          })
+	        );
+	      }
+
+	      function timeout() {
+	        if (!support.timeout) {
+	          timedOut = true;
+	          req.abort();
+	        }
+
+	        reject(new errors.RequestTimeout());
+	      }
+	    });
+	  };
+
+	  AlgoliaSearchBrowser.prototype._request.fallback = function requestFallback(url, opts) {
+	    url = inlineHeaders(url, opts.headers);
+
+	    return new Promise(function wrapJsonpRequest(resolve, reject) {
+	      jsonpRequest(url, opts, function jsonpRequestDone(err, content) {
+	        if (err) {
+	          reject(err);
+	          return;
+	        }
+
+	        resolve(content);
+	      });
+	    });
+	  };
+
+	  AlgoliaSearchBrowser.prototype._promise = {
+	    reject: function rejectPromise(val) {
+	      return Promise.reject(val);
+	    },
+	    resolve: function resolvePromise(val) {
+	      return Promise.resolve(val);
+	    },
+	    delay: function delayPromise(ms) {
+	      return new Promise(function resolveOnTimeout(resolve/* , reject*/) {
+	        setTimeout(resolve, ms);
+	      });
+	    }
+	  };
+
+	  return algoliasearch;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 508 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {if (typeof window !== "undefined") {
+	    module.exports = window;
+	} else if (typeof global !== "undefined") {
+	    module.exports = global;
+	} else if (typeof self !== "undefined"){
+	    module.exports = self;
+	} else {
+	    module.exports = {};
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 509 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var require;/* WEBPACK VAR INJECTION */(function(process, global) {/*!
+	 * @overview es6-promise - a tiny implementation of Promises/A+.
+	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+	 * @license   Licensed under MIT license
+	 *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
+	 * @version   3.3.1
+	 */
+
+	(function (global, factory) {
+	     true ? module.exports = factory() :
+	    typeof define === 'function' && define.amd ? define(factory) :
+	    (global.ES6Promise = factory());
+	}(this, (function () { 'use strict';
+
+	function objectOrFunction(x) {
+	  return typeof x === 'function' || typeof x === 'object' && x !== null;
+	}
+
+	function isFunction(x) {
+	  return typeof x === 'function';
+	}
+
+	var _isArray = undefined;
+	if (!Array.isArray) {
+	  _isArray = function (x) {
+	    return Object.prototype.toString.call(x) === '[object Array]';
+	  };
+	} else {
+	  _isArray = Array.isArray;
+	}
+
+	var isArray = _isArray;
+
+	var len = 0;
+	var vertxNext = undefined;
+	var customSchedulerFn = undefined;
+
+	var asap = function asap(callback, arg) {
+	  queue[len] = callback;
+	  queue[len + 1] = arg;
+	  len += 2;
+	  if (len === 2) {
+	    // If len is 2, that means that we need to schedule an async flush.
+	    // If additional callbacks are queued before the queue is flushed, they
+	    // will be processed by this flush that we are scheduling.
+	    if (customSchedulerFn) {
+	      customSchedulerFn(flush);
+	    } else {
+	      scheduleFlush();
+	    }
+	  }
+	};
+
+	function setScheduler(scheduleFn) {
+	  customSchedulerFn = scheduleFn;
+	}
+
+	function setAsap(asapFn) {
+	  asap = asapFn;
+	}
+
+	var browserWindow = typeof window !== 'undefined' ? window : undefined;
+	var browserGlobal = browserWindow || {};
+	var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
+
+	// test for web worker but not in IE10
+	var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
+
+	// node
+	function useNextTick() {
+	  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+	  // see https://github.com/cujojs/when/issues/410 for details
+	  return function () {
+	    return process.nextTick(flush);
+	  };
+	}
+
+	// vertx
+	function useVertxTimer() {
+	  return function () {
+	    vertxNext(flush);
+	  };
+	}
+
+	function useMutationObserver() {
+	  var iterations = 0;
+	  var observer = new BrowserMutationObserver(flush);
+	  var node = document.createTextNode('');
+	  observer.observe(node, { characterData: true });
+
+	  return function () {
+	    node.data = iterations = ++iterations % 2;
+	  };
+	}
+
+	// web worker
+	function useMessageChannel() {
+	  var channel = new MessageChannel();
+	  channel.port1.onmessage = flush;
+	  return function () {
+	    return channel.port2.postMessage(0);
+	  };
+	}
+
+	function useSetTimeout() {
+	  // Store setTimeout reference so es6-promise will be unaffected by
+	  // other code modifying setTimeout (like sinon.useFakeTimers())
+	  var globalSetTimeout = setTimeout;
+	  return function () {
+	    return globalSetTimeout(flush, 1);
+	  };
+	}
+
+	var queue = new Array(1000);
+	function flush() {
+	  for (var i = 0; i < len; i += 2) {
+	    var callback = queue[i];
+	    var arg = queue[i + 1];
+
+	    callback(arg);
+
+	    queue[i] = undefined;
+	    queue[i + 1] = undefined;
+	  }
+
+	  len = 0;
+	}
+
+	function attemptVertx() {
+	  try {
+	    var r = require;
+	    var vertx = __webpack_require__(510);
+	    vertxNext = vertx.runOnLoop || vertx.runOnContext;
+	    return useVertxTimer();
+	  } catch (e) {
+	    return useSetTimeout();
+	  }
+	}
+
+	var scheduleFlush = undefined;
+	// Decide what async method to use to triggering processing of queued callbacks:
+	if (isNode) {
+	  scheduleFlush = useNextTick();
+	} else if (BrowserMutationObserver) {
+	  scheduleFlush = useMutationObserver();
+	} else if (isWorker) {
+	  scheduleFlush = useMessageChannel();
+	} else if (browserWindow === undefined && "function" === 'function') {
+	  scheduleFlush = attemptVertx();
+	} else {
+	  scheduleFlush = useSetTimeout();
+	}
+
+	function then(onFulfillment, onRejection) {
+	  var _arguments = arguments;
+
+	  var parent = this;
+
+	  var child = new this.constructor(noop);
+
+	  if (child[PROMISE_ID] === undefined) {
+	    makePromise(child);
+	  }
+
+	  var _state = parent._state;
+
+	  if (_state) {
+	    (function () {
+	      var callback = _arguments[_state - 1];
+	      asap(function () {
+	        return invokeCallback(_state, child, callback, parent._result);
+	      });
+	    })();
+	  } else {
+	    subscribe(parent, child, onFulfillment, onRejection);
+	  }
+
+	  return child;
+	}
+
+	/**
+	  `Promise.resolve` returns a promise that will become resolved with the
+	  passed `value`. It is shorthand for the following:
+
+	  ```javascript
+	  let promise = new Promise(function(resolve, reject){
+	    resolve(1);
+	  });
+
+	  promise.then(function(value){
+	    // value === 1
+	  });
+	  ```
+
+	  Instead of writing the above, your code now simply becomes the following:
+
+	  ```javascript
+	  let promise = Promise.resolve(1);
+
+	  promise.then(function(value){
+	    // value === 1
+	  });
+	  ```
+
+	  @method resolve
+	  @static
+	  @param {Any} value value that the returned promise will be resolved with
+	  Useful for tooling.
+	  @return {Promise} a promise that will become fulfilled with the given
+	  `value`
+	*/
+	function resolve(object) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+
+	  if (object && typeof object === 'object' && object.constructor === Constructor) {
+	    return object;
+	  }
+
+	  var promise = new Constructor(noop);
+	  _resolve(promise, object);
+	  return promise;
+	}
+
+	var PROMISE_ID = Math.random().toString(36).substring(16);
+
+	function noop() {}
+
+	var PENDING = void 0;
+	var FULFILLED = 1;
+	var REJECTED = 2;
+
+	var GET_THEN_ERROR = new ErrorObject();
+
+	function selfFulfillment() {
+	  return new TypeError("You cannot resolve a promise with itself");
+	}
+
+	function cannotReturnOwn() {
+	  return new TypeError('A promises callback cannot return that same promise.');
+	}
+
+	function getThen(promise) {
+	  try {
+	    return promise.then;
+	  } catch (error) {
+	    GET_THEN_ERROR.error = error;
+	    return GET_THEN_ERROR;
+	  }
+	}
+
+	function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+	  try {
+	    then.call(value, fulfillmentHandler, rejectionHandler);
+	  } catch (e) {
+	    return e;
+	  }
+	}
+
+	function handleForeignThenable(promise, thenable, then) {
+	  asap(function (promise) {
+	    var sealed = false;
+	    var error = tryThen(then, thenable, function (value) {
+	      if (sealed) {
+	        return;
+	      }
+	      sealed = true;
+	      if (thenable !== value) {
+	        _resolve(promise, value);
+	      } else {
+	        fulfill(promise, value);
+	      }
+	    }, function (reason) {
+	      if (sealed) {
+	        return;
+	      }
+	      sealed = true;
+
+	      _reject(promise, reason);
+	    }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+	    if (!sealed && error) {
+	      sealed = true;
+	      _reject(promise, error);
+	    }
+	  }, promise);
+	}
+
+	function handleOwnThenable(promise, thenable) {
+	  if (thenable._state === FULFILLED) {
+	    fulfill(promise, thenable._result);
+	  } else if (thenable._state === REJECTED) {
+	    _reject(promise, thenable._result);
+	  } else {
+	    subscribe(thenable, undefined, function (value) {
+	      return _resolve(promise, value);
+	    }, function (reason) {
+	      return _reject(promise, reason);
+	    });
+	  }
+	}
+
+	function handleMaybeThenable(promise, maybeThenable, then$$) {
+	  if (maybeThenable.constructor === promise.constructor && then$$ === then && maybeThenable.constructor.resolve === resolve) {
+	    handleOwnThenable(promise, maybeThenable);
+	  } else {
+	    if (then$$ === GET_THEN_ERROR) {
+	      _reject(promise, GET_THEN_ERROR.error);
+	    } else if (then$$ === undefined) {
+	      fulfill(promise, maybeThenable);
+	    } else if (isFunction(then$$)) {
+	      handleForeignThenable(promise, maybeThenable, then$$);
+	    } else {
+	      fulfill(promise, maybeThenable);
+	    }
+	  }
+	}
+
+	function _resolve(promise, value) {
+	  if (promise === value) {
+	    _reject(promise, selfFulfillment());
+	  } else if (objectOrFunction(value)) {
+	    handleMaybeThenable(promise, value, getThen(value));
+	  } else {
+	    fulfill(promise, value);
+	  }
+	}
+
+	function publishRejection(promise) {
+	  if (promise._onerror) {
+	    promise._onerror(promise._result);
+	  }
+
+	  publish(promise);
+	}
+
+	function fulfill(promise, value) {
+	  if (promise._state !== PENDING) {
+	    return;
+	  }
+
+	  promise._result = value;
+	  promise._state = FULFILLED;
+
+	  if (promise._subscribers.length !== 0) {
+	    asap(publish, promise);
+	  }
+	}
+
+	function _reject(promise, reason) {
+	  if (promise._state !== PENDING) {
+	    return;
+	  }
+	  promise._state = REJECTED;
+	  promise._result = reason;
+
+	  asap(publishRejection, promise);
+	}
+
+	function subscribe(parent, child, onFulfillment, onRejection) {
+	  var _subscribers = parent._subscribers;
+	  var length = _subscribers.length;
+
+	  parent._onerror = null;
+
+	  _subscribers[length] = child;
+	  _subscribers[length + FULFILLED] = onFulfillment;
+	  _subscribers[length + REJECTED] = onRejection;
+
+	  if (length === 0 && parent._state) {
+	    asap(publish, parent);
+	  }
+	}
+
+	function publish(promise) {
+	  var subscribers = promise._subscribers;
+	  var settled = promise._state;
+
+	  if (subscribers.length === 0) {
+	    return;
+	  }
+
+	  var child = undefined,
+	      callback = undefined,
+	      detail = promise._result;
+
+	  for (var i = 0; i < subscribers.length; i += 3) {
+	    child = subscribers[i];
+	    callback = subscribers[i + settled];
+
+	    if (child) {
+	      invokeCallback(settled, child, callback, detail);
+	    } else {
+	      callback(detail);
+	    }
+	  }
+
+	  promise._subscribers.length = 0;
+	}
+
+	function ErrorObject() {
+	  this.error = null;
+	}
+
+	var TRY_CATCH_ERROR = new ErrorObject();
+
+	function tryCatch(callback, detail) {
+	  try {
+	    return callback(detail);
+	  } catch (e) {
+	    TRY_CATCH_ERROR.error = e;
+	    return TRY_CATCH_ERROR;
+	  }
+	}
+
+	function invokeCallback(settled, promise, callback, detail) {
+	  var hasCallback = isFunction(callback),
+	      value = undefined,
+	      error = undefined,
+	      succeeded = undefined,
+	      failed = undefined;
+
+	  if (hasCallback) {
+	    value = tryCatch(callback, detail);
+
+	    if (value === TRY_CATCH_ERROR) {
+	      failed = true;
+	      error = value.error;
+	      value = null;
+	    } else {
+	      succeeded = true;
+	    }
+
+	    if (promise === value) {
+	      _reject(promise, cannotReturnOwn());
+	      return;
+	    }
+	  } else {
+	    value = detail;
+	    succeeded = true;
+	  }
+
+	  if (promise._state !== PENDING) {
+	    // noop
+	  } else if (hasCallback && succeeded) {
+	      _resolve(promise, value);
+	    } else if (failed) {
+	      _reject(promise, error);
+	    } else if (settled === FULFILLED) {
+	      fulfill(promise, value);
+	    } else if (settled === REJECTED) {
+	      _reject(promise, value);
+	    }
+	}
+
+	function initializePromise(promise, resolver) {
+	  try {
+	    resolver(function resolvePromise(value) {
+	      _resolve(promise, value);
+	    }, function rejectPromise(reason) {
+	      _reject(promise, reason);
+	    });
+	  } catch (e) {
+	    _reject(promise, e);
+	  }
+	}
+
+	var id = 0;
+	function nextId() {
+	  return id++;
+	}
+
+	function makePromise(promise) {
+	  promise[PROMISE_ID] = id++;
+	  promise._state = undefined;
+	  promise._result = undefined;
+	  promise._subscribers = [];
+	}
+
+	function Enumerator(Constructor, input) {
+	  this._instanceConstructor = Constructor;
+	  this.promise = new Constructor(noop);
+
+	  if (!this.promise[PROMISE_ID]) {
+	    makePromise(this.promise);
+	  }
+
+	  if (isArray(input)) {
+	    this._input = input;
+	    this.length = input.length;
+	    this._remaining = input.length;
+
+	    this._result = new Array(this.length);
+
+	    if (this.length === 0) {
+	      fulfill(this.promise, this._result);
+	    } else {
+	      this.length = this.length || 0;
+	      this._enumerate();
+	      if (this._remaining === 0) {
+	        fulfill(this.promise, this._result);
+	      }
+	    }
+	  } else {
+	    _reject(this.promise, validationError());
+	  }
+	}
+
+	function validationError() {
+	  return new Error('Array Methods must be provided an Array');
+	};
+
+	Enumerator.prototype._enumerate = function () {
+	  var length = this.length;
+	  var _input = this._input;
+
+	  for (var i = 0; this._state === PENDING && i < length; i++) {
+	    this._eachEntry(_input[i], i);
+	  }
+	};
+
+	Enumerator.prototype._eachEntry = function (entry, i) {
+	  var c = this._instanceConstructor;
+	  var resolve$$ = c.resolve;
+
+	  if (resolve$$ === resolve) {
+	    var _then = getThen(entry);
+
+	    if (_then === then && entry._state !== PENDING) {
+	      this._settledAt(entry._state, i, entry._result);
+	    } else if (typeof _then !== 'function') {
+	      this._remaining--;
+	      this._result[i] = entry;
+	    } else if (c === Promise) {
+	      var promise = new c(noop);
+	      handleMaybeThenable(promise, entry, _then);
+	      this._willSettleAt(promise, i);
+	    } else {
+	      this._willSettleAt(new c(function (resolve$$) {
+	        return resolve$$(entry);
+	      }), i);
+	    }
+	  } else {
+	    this._willSettleAt(resolve$$(entry), i);
+	  }
+	};
+
+	Enumerator.prototype._settledAt = function (state, i, value) {
+	  var promise = this.promise;
+
+	  if (promise._state === PENDING) {
+	    this._remaining--;
+
+	    if (state === REJECTED) {
+	      _reject(promise, value);
+	    } else {
+	      this._result[i] = value;
+	    }
+	  }
+
+	  if (this._remaining === 0) {
+	    fulfill(promise, this._result);
+	  }
+	};
+
+	Enumerator.prototype._willSettleAt = function (promise, i) {
+	  var enumerator = this;
+
+	  subscribe(promise, undefined, function (value) {
+	    return enumerator._settledAt(FULFILLED, i, value);
+	  }, function (reason) {
+	    return enumerator._settledAt(REJECTED, i, reason);
+	  });
+	};
+
+	/**
+	  `Promise.all` accepts an array of promises, and returns a new promise which
+	  is fulfilled with an array of fulfillment values for the passed promises, or
+	  rejected with the reason of the first passed promise to be rejected. It casts all
+	  elements of the passed iterable to promises as it runs this algorithm.
+
+	  Example:
+
+	  ```javascript
+	  let promise1 = resolve(1);
+	  let promise2 = resolve(2);
+	  let promise3 = resolve(3);
+	  let promises = [ promise1, promise2, promise3 ];
+
+	  Promise.all(promises).then(function(array){
+	    // The array here would be [ 1, 2, 3 ];
+	  });
+	  ```
+
+	  If any of the `promises` given to `all` are rejected, the first promise
+	  that is rejected will be given as an argument to the returned promises's
+	  rejection handler. For example:
+
+	  Example:
+
+	  ```javascript
+	  let promise1 = resolve(1);
+	  let promise2 = reject(new Error("2"));
+	  let promise3 = reject(new Error("3"));
+	  let promises = [ promise1, promise2, promise3 ];
+
+	  Promise.all(promises).then(function(array){
+	    // Code here never runs because there are rejected promises!
+	  }, function(error) {
+	    // error.message === "2"
+	  });
+	  ```
+
+	  @method all
+	  @static
+	  @param {Array} entries array of promises
+	  @param {String} label optional string for labeling the promise.
+	  Useful for tooling.
+	  @return {Promise} promise that is fulfilled when all `promises` have been
+	  fulfilled, or rejected if any of them become rejected.
+	  @static
+	*/
+	function all(entries) {
+	  return new Enumerator(this, entries).promise;
+	}
+
+	/**
+	  `Promise.race` returns a new promise which is settled in the same way as the
+	  first passed promise to settle.
+
+	  Example:
+
+	  ```javascript
+	  let promise1 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 1');
+	    }, 200);
+	  });
+
+	  let promise2 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 2');
+	    }, 100);
+	  });
+
+	  Promise.race([promise1, promise2]).then(function(result){
+	    // result === 'promise 2' because it was resolved before promise1
+	    // was resolved.
+	  });
+	  ```
+
+	  `Promise.race` is deterministic in that only the state of the first
+	  settled promise matters. For example, even if other promises given to the
+	  `promises` array argument are resolved, but the first settled promise has
+	  become rejected before the other promises became fulfilled, the returned
+	  promise will become rejected:
+
+	  ```javascript
+	  let promise1 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 1');
+	    }, 200);
+	  });
+
+	  let promise2 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      reject(new Error('promise 2'));
+	    }, 100);
+	  });
+
+	  Promise.race([promise1, promise2]).then(function(result){
+	    // Code here never runs
+	  }, function(reason){
+	    // reason.message === 'promise 2' because promise 2 became rejected before
+	    // promise 1 became fulfilled
+	  });
+	  ```
+
+	  An example real-world use case is implementing timeouts:
+
+	  ```javascript
+	  Promise.race([ajax('foo.json'), timeout(5000)])
+	  ```
+
+	  @method race
+	  @static
+	  @param {Array} promises array of promises to observe
+	  Useful for tooling.
+	  @return {Promise} a promise which settles in the same way as the first passed
+	  promise to settle.
+	*/
+	function race(entries) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+
+	  if (!isArray(entries)) {
+	    return new Constructor(function (_, reject) {
+	      return reject(new TypeError('You must pass an array to race.'));
+	    });
+	  } else {
+	    return new Constructor(function (resolve, reject) {
+	      var length = entries.length;
+	      for (var i = 0; i < length; i++) {
+	        Constructor.resolve(entries[i]).then(resolve, reject);
+	      }
+	    });
+	  }
+	}
+
+	/**
+	  `Promise.reject` returns a promise rejected with the passed `reason`.
+	  It is shorthand for the following:
+
+	  ```javascript
+	  let promise = new Promise(function(resolve, reject){
+	    reject(new Error('WHOOPS'));
+	  });
+
+	  promise.then(function(value){
+	    // Code here doesn't run because the promise is rejected!
+	  }, function(reason){
+	    // reason.message === 'WHOOPS'
+	  });
+	  ```
+
+	  Instead of writing the above, your code now simply becomes the following:
+
+	  ```javascript
+	  let promise = Promise.reject(new Error('WHOOPS'));
+
+	  promise.then(function(value){
+	    // Code here doesn't run because the promise is rejected!
+	  }, function(reason){
+	    // reason.message === 'WHOOPS'
+	  });
+	  ```
+
+	  @method reject
+	  @static
+	  @param {Any} reason value that the returned promise will be rejected with.
+	  Useful for tooling.
+	  @return {Promise} a promise rejected with the given `reason`.
+	*/
+	function reject(reason) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+	  var promise = new Constructor(noop);
+	  _reject(promise, reason);
+	  return promise;
+	}
+
+	function needsResolver() {
+	  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+	}
+
+	function needsNew() {
+	  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+	}
+
+	/**
+	  Promise objects represent the eventual result of an asynchronous operation. The
+	  primary way of interacting with a promise is through its `then` method, which
+	  registers callbacks to receive either a promise's eventual value or the reason
+	  why the promise cannot be fulfilled.
+
+	  Terminology
+	  -----------
+
+	  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+	  - `thenable` is an object or function that defines a `then` method.
+	  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+	  - `exception` is a value that is thrown using the throw statement.
+	  - `reason` is a value that indicates why a promise was rejected.
+	  - `settled` the final resting state of a promise, fulfilled or rejected.
+
+	  A promise can be in one of three states: pending, fulfilled, or rejected.
+
+	  Promises that are fulfilled have a fulfillment value and are in the fulfilled
+	  state.  Promises that are rejected have a rejection reason and are in the
+	  rejected state.  A fulfillment value is never a thenable.
+
+	  Promises can also be said to *resolve* a value.  If this value is also a
+	  promise, then the original promise's settled state will match the value's
+	  settled state.  So a promise that *resolves* a promise that rejects will
+	  itself reject, and a promise that *resolves* a promise that fulfills will
+	  itself fulfill.
+
+
+	  Basic Usage:
+	  ------------
+
+	  ```js
+	  let promise = new Promise(function(resolve, reject) {
+	    // on success
+	    resolve(value);
+
+	    // on failure
+	    reject(reason);
+	  });
+
+	  promise.then(function(value) {
+	    // on fulfillment
+	  }, function(reason) {
+	    // on rejection
+	  });
+	  ```
+
+	  Advanced Usage:
+	  ---------------
+
+	  Promises shine when abstracting away asynchronous interactions such as
+	  `XMLHttpRequest`s.
+
+	  ```js
+	  function getJSON(url) {
+	    return new Promise(function(resolve, reject){
+	      let xhr = new XMLHttpRequest();
+
+	      xhr.open('GET', url);
+	      xhr.onreadystatechange = handler;
+	      xhr.responseType = 'json';
+	      xhr.setRequestHeader('Accept', 'application/json');
+	      xhr.send();
+
+	      function handler() {
+	        if (this.readyState === this.DONE) {
+	          if (this.status === 200) {
+	            resolve(this.response);
+	          } else {
+	            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+	          }
+	        }
+	      };
+	    });
+	  }
+
+	  getJSON('/posts.json').then(function(json) {
+	    // on fulfillment
+	  }, function(reason) {
+	    // on rejection
+	  });
+	  ```
+
+	  Unlike callbacks, promises are great composable primitives.
+
+	  ```js
+	  Promise.all([
+	    getJSON('/posts'),
+	    getJSON('/comments')
+	  ]).then(function(values){
+	    values[0] // => postsJSON
+	    values[1] // => commentsJSON
+
+	    return values;
+	  });
+	  ```
+
+	  @class Promise
+	  @param {function} resolver
+	  Useful for tooling.
+	  @constructor
+	*/
+	function Promise(resolver) {
+	  this[PROMISE_ID] = nextId();
+	  this._result = this._state = undefined;
+	  this._subscribers = [];
+
+	  if (noop !== resolver) {
+	    typeof resolver !== 'function' && needsResolver();
+	    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+	  }
+	}
+
+	Promise.all = all;
+	Promise.race = race;
+	Promise.resolve = resolve;
+	Promise.reject = reject;
+	Promise._setScheduler = setScheduler;
+	Promise._setAsap = setAsap;
+	Promise._asap = asap;
+
+	Promise.prototype = {
+	  constructor: Promise,
+
+	  /**
+	    The primary way of interacting with a promise is through its `then` method,
+	    which registers callbacks to receive either a promise's eventual value or the
+	    reason why the promise cannot be fulfilled.
+	  
+	    ```js
+	    findUser().then(function(user){
+	      // user is available
+	    }, function(reason){
+	      // user is unavailable, and you are given the reason why
+	    });
+	    ```
+	  
+	    Chaining
+	    --------
+	  
+	    The return value of `then` is itself a promise.  This second, 'downstream'
+	    promise is resolved with the return value of the first promise's fulfillment
+	    or rejection handler, or rejected if the handler throws an exception.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return user.name;
+	    }, function (reason) {
+	      return 'default name';
+	    }).then(function (userName) {
+	      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+	      // will be `'default name'`
+	    });
+	  
+	    findUser().then(function (user) {
+	      throw new Error('Found user, but still unhappy');
+	    }, function (reason) {
+	      throw new Error('`findUser` rejected and we're unhappy');
+	    }).then(function (value) {
+	      // never reached
+	    }, function (reason) {
+	      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+	      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+	    });
+	    ```
+	    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      throw new PedagogicalException('Upstream error');
+	    }).then(function (value) {
+	      // never reached
+	    }).then(function (value) {
+	      // never reached
+	    }, function (reason) {
+	      // The `PedgagocialException` is propagated all the way down to here
+	    });
+	    ```
+	  
+	    Assimilation
+	    ------------
+	  
+	    Sometimes the value you want to propagate to a downstream promise can only be
+	    retrieved asynchronously. This can be achieved by returning a promise in the
+	    fulfillment or rejection handler. The downstream promise will then be pending
+	    until the returned promise is settled. This is called *assimilation*.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return findCommentsByAuthor(user);
+	    }).then(function (comments) {
+	      // The user's comments are now available
+	    });
+	    ```
+	  
+	    If the assimliated promise rejects, then the downstream promise will also reject.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return findCommentsByAuthor(user);
+	    }).then(function (comments) {
+	      // If `findCommentsByAuthor` fulfills, we'll have the value here
+	    }, function (reason) {
+	      // If `findCommentsByAuthor` rejects, we'll have the reason here
+	    });
+	    ```
+	  
+	    Simple Example
+	    --------------
+	  
+	    Synchronous Example
+	  
+	    ```javascript
+	    let result;
+	  
+	    try {
+	      result = findResult();
+	      // success
+	    } catch(reason) {
+	      // failure
+	    }
+	    ```
+	  
+	    Errback Example
+	  
+	    ```js
+	    findResult(function(result, err){
+	      if (err) {
+	        // failure
+	      } else {
+	        // success
+	      }
+	    });
+	    ```
+	  
+	    Promise Example;
+	  
+	    ```javascript
+	    findResult().then(function(result){
+	      // success
+	    }, function(reason){
+	      // failure
+	    });
+	    ```
+	  
+	    Advanced Example
+	    --------------
+	  
+	    Synchronous Example
+	  
+	    ```javascript
+	    let author, books;
+	  
+	    try {
+	      author = findAuthor();
+	      books  = findBooksByAuthor(author);
+	      // success
+	    } catch(reason) {
+	      // failure
+	    }
+	    ```
+	  
+	    Errback Example
+	  
+	    ```js
+	  
+	    function foundBooks(books) {
+	  
+	    }
+	  
+	    function failure(reason) {
+	  
+	    }
+	  
+	    findAuthor(function(author, err){
+	      if (err) {
+	        failure(err);
+	        // failure
+	      } else {
+	        try {
+	          findBoooksByAuthor(author, function(books, err) {
+	            if (err) {
+	              failure(err);
+	            } else {
+	              try {
+	                foundBooks(books);
+	              } catch(reason) {
+	                failure(reason);
+	              }
+	            }
+	          });
+	        } catch(error) {
+	          failure(err);
+	        }
+	        // success
+	      }
+	    });
+	    ```
+	  
+	    Promise Example;
+	  
+	    ```javascript
+	    findAuthor().
+	      then(findBooksByAuthor).
+	      then(function(books){
+	        // found books
+	    }).catch(function(reason){
+	      // something went wrong
+	    });
+	    ```
+	  
+	    @method then
+	    @param {Function} onFulfilled
+	    @param {Function} onRejected
+	    Useful for tooling.
+	    @return {Promise}
+	  */
+	  then: then,
+
+	  /**
+	    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+	    as the catch block of a try/catch statement.
+	  
+	    ```js
+	    function findAuthor(){
+	      throw new Error('couldn't find that author');
+	    }
+	  
+	    // synchronous
+	    try {
+	      findAuthor();
+	    } catch(reason) {
+	      // something went wrong
+	    }
+	  
+	    // async with promises
+	    findAuthor().catch(function(reason){
+	      // something went wrong
+	    });
+	    ```
+	  
+	    @method catch
+	    @param {Function} onRejection
+	    Useful for tooling.
+	    @return {Promise}
+	  */
+	  'catch': function _catch(onRejection) {
+	    return this.then(null, onRejection);
+	  }
+	};
+
+	function polyfill() {
+	    var local = undefined;
+
+	    if (typeof global !== 'undefined') {
+	        local = global;
+	    } else if (typeof self !== 'undefined') {
+	        local = self;
+	    } else {
+	        try {
+	            local = Function('return this')();
+	        } catch (e) {
+	            throw new Error('polyfill failed because global object is unavailable in this environment');
+	        }
+	    }
+
+	    var P = local.Promise;
+
+	    if (P) {
+	        var promiseToString = null;
+	        try {
+	            promiseToString = Object.prototype.toString.call(P.resolve());
+	        } catch (e) {
+	            // silently ignored
+	        }
+
+	        if (promiseToString === '[object Promise]' && !P.cast) {
+	            return;
+	        }
+	    }
+
+	    local.Promise = Promise;
+	}
+
+	polyfill();
+	// Strange compat..
+	Promise.polyfill = polyfill;
+	Promise.Promise = Promise;
+
+	return Promise;
+
+	})));
+	//# sourceMappingURL=es6-promise.map
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), (function() { return this; }())))
+
+/***/ },
+/* 510 */
+/***/ function(module, exports) {
+
+	/* (ignored) */
+
+/***/ },
+/* 511 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = inlineHeaders;
+
+	var encode = __webpack_require__(512);
+
+	function inlineHeaders(url, headers) {
+	  if (/\?/.test(url)) {
+	    url += '&';
+	  } else {
+	    url += '?';
+	  }
+
+	  return url + encode(headers);
+	}
+
+
+/***/ },
+/* 512 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	'use strict';
+
+	var stringifyPrimitive = function(v) {
+	  switch (typeof v) {
+	    case 'string':
+	      return v;
+
+	    case 'boolean':
+	      return v ? 'true' : 'false';
+
+	    case 'number':
+	      return isFinite(v) ? v : '';
+
+	    default:
+	      return '';
+	  }
+	};
+
+	module.exports = function(obj, sep, eq, name) {
+	  sep = sep || '&';
+	  eq = eq || '=';
+	  if (obj === null) {
+	    obj = undefined;
+	  }
+
+	  if (typeof obj === 'object') {
+	    return map(objectKeys(obj), function(k) {
+	      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+	      if (isArray(obj[k])) {
+	        return map(obj[k], function(v) {
+	          return ks + encodeURIComponent(stringifyPrimitive(v));
+	        }).join(sep);
+	      } else {
+	        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+	      }
+	    }).join(sep);
+
+	  }
+
+	  if (!name) return '';
+	  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+	         encodeURIComponent(stringifyPrimitive(obj));
+	};
+
+	var isArray = Array.isArray || function (xs) {
+	  return Object.prototype.toString.call(xs) === '[object Array]';
+	};
+
+	function map (xs, f) {
+	  if (xs.map) return xs.map(f);
+	  var res = [];
+	  for (var i = 0; i < xs.length; i++) {
+	    res.push(f(xs[i], i));
+	  }
+	  return res;
+	}
+
+	var objectKeys = Object.keys || function (obj) {
+	  var res = [];
+	  for (var key in obj) {
+	    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+	  }
+	  return res;
+	};
+
+
+/***/ },
+/* 513 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = jsonpRequest;
+
+	var errors = __webpack_require__(490);
+
+	var JSONPCounter = 0;
+
+	function jsonpRequest(url, opts, cb) {
+	  if (opts.method !== 'GET') {
+	    cb(new Error('Method ' + opts.method + ' ' + url + ' is not supported by JSONP.'));
+	    return;
+	  }
+
+	  opts.debug('JSONP: start');
+
+	  var cbCalled = false;
+	  var timedOut = false;
+
+	  JSONPCounter += 1;
+	  var head = document.getElementsByTagName('head')[0];
+	  var script = document.createElement('script');
+	  var cbName = 'algoliaJSONP_' + JSONPCounter;
+	  var done = false;
+
+	  window[cbName] = function(data) {
+	    removeGlobals();
+
+	    if (timedOut) {
+	      opts.debug('JSONP: Late answer, ignoring');
+	      return;
+	    }
+
+	    cbCalled = true;
+
+	    clean();
+
+	    cb(null, {
+	      body: data/* ,
+	      // We do not send the statusCode, there's no statusCode in JSONP, it will be
+	      // computed using data.status && data.message like with XDR
+	      statusCode*/
+	    });
+	  };
+
+	  // add callback by hand
+	  url += '&callback=' + cbName;
+
+	  // add body params manually
+	  if (opts.jsonBody && opts.jsonBody.params) {
+	    url += '&' + opts.jsonBody.params;
+	  }
+
+	  var ontimeout = setTimeout(timeout, opts.timeout);
+
+	  // script onreadystatechange needed only for
+	  // <= IE8
+	  // https://github.com/angular/angular.js/issues/4523
+	  script.onreadystatechange = readystatechange;
+	  script.onload = success;
+	  script.onerror = error;
+
+	  script.async = true;
+	  script.defer = true;
+	  script.src = url;
+	  head.appendChild(script);
+
+	  function success() {
+	    opts.debug('JSONP: success');
+
+	    if (done || timedOut) {
+	      return;
+	    }
+
+	    done = true;
+
+	    // script loaded but did not call the fn => script loading error
+	    if (!cbCalled) {
+	      opts.debug('JSONP: Fail. Script loaded but did not call the callback');
+	      clean();
+	      cb(new errors.JSONPScriptFail());
+	    }
+	  }
+
+	  function readystatechange() {
+	    if (this.readyState === 'loaded' || this.readyState === 'complete') {
+	      success();
+	    }
+	  }
+
+	  function clean() {
+	    clearTimeout(ontimeout);
+	    script.onload = null;
+	    script.onreadystatechange = null;
+	    script.onerror = null;
+	    head.removeChild(script);
+	  }
+
+	  function removeGlobals() {
+	    try {
+	      delete window[cbName];
+	      delete window[cbName + '_loaded'];
+	    } catch (e) {
+	      window[cbName] = window[cbName + '_loaded'] = undefined;
+	    }
+	  }
+
+	  function timeout() {
+	    opts.debug('JSONP: Script timeout');
+	    timedOut = true;
+	    clean();
+	    cb(new errors.RequestTimeout());
+	  }
+
+	  function error() {
+	    opts.debug('JSONP: Script error');
+
+	    if (done || timedOut) {
+	      return;
+	    }
+
+	    clean();
+	    cb(new errors.JSONPScriptError());
+	  }
+	}
+
+
+/***/ },
+/* 514 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = createPlacesClient;
+
+	var buildSearchMethod = __webpack_require__(489);
+
+	function createPlacesClient(algoliasearch) {
+	  return function places(appID, apiKey, opts) {
+	    var cloneDeep = __webpack_require__(495);
+
+	    opts = opts && cloneDeep(opts) || {};
+	    opts.hosts = opts.hosts || [
+	      'places-dsn.algolia.net',
+	      'places-1.algolianet.com',
+	      'places-2.algolianet.com',
+	      'places-3.algolianet.com'
+	    ];
+
+	    // allow initPlaces() no arguments => community rate limited
+	    if (arguments.length === 0 || typeof appID === 'object' || appID === undefined) {
+	      appID = '';
+	      apiKey = '';
+	      opts._allowEmptyCredentials = true;
+	    }
+
+	    var client = algoliasearch(appID, apiKey, opts);
+	    var index = client.initIndex('places');
+	    index.search = buildSearchMethod('query', '/1/places/query');
+	    return index;
+	  };
+	}
+
+
+/***/ },
+/* 515 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = getDocumentProtocol;
+
+	function getDocumentProtocol() {
+	  var protocol = window.document.location.protocol;
+
+	  // when in `file:` mode (local html file), default to `http:`
+	  if (protocol !== 'http:' && protocol !== 'https:') {
+	    protocol = 'http:';
+	  }
+
+	  return protocol;
+	}
+
+
+/***/ },
 /* 516 */
 /***/ function(module, exports) {
 
 	'use strict';
 
+	module.exports = '3.19.2';
+
+
+/***/ },
+/* 517 */,
+/* 518 */
+/***/ function(module, exports) {
+
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+		value: true
 	});
-	var APPLICATION_ID = exports.APPLICATION_ID = 'BH0GW7H4EJ';
-	var SEARCH_ONLY_API_KEY = exports.SEARCH_ONLY_API_KEY = '5a7bd5a1909a6b197df53ad56aff3968';
+	var ALGOLIA_SETTINGS = exports.ALGOLIA_SETTINGS = {
+		APPLICATION_ID: 'BH0GW7H4EJ',
+		SEARCH_ONLY_API_KEY: '5a7bd5a1909a6b197df53ad56aff3968',
+		INDEX_NAME: 'poc_restaurants'
+	};
 
 /***/ }
 /******/ ]);

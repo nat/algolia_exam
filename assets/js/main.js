@@ -1,29 +1,15 @@
 import React from 'react';
 import {render} from 'react-dom';
 import $ from 'jquery';
-import algoliasearch from 'algoliasearch';
-import algoliasearchHelper from 'algoliasearch-helper';
 import Hogan from 'hogan.js';
 import App from './components/App';
-import * as AlgoliaClient from './AlgoliaClient';
+import {algoliaHelper, ALGOLIA_QUERY_PARAMS} from './AlgoliaClient';
 
 render(<App/>, document.getElementById('app'));
 
 $(function () {
-	const INDEX_NAME = 'poc_restaurants';
-	const PARAMS = {
-		hitsPerPage: 3,
-		maxValuesPerFacet: 7,
-		index: INDEX_NAME,
-		facets: ['food_type']
-	};
 	const FACETS_ORDER_OF_DISPLAY = ['food_type'];
 	const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
-
-	// Client + Helper initialization
-	var algolia = algoliasearch(AlgoliaClient.APPLICATION_ID, 
-		AlgoliaClient.SEARCH_ONLY_API_KEY);
-	var algoliaHelper = algoliasearchHelper(algolia, INDEX_NAME, PARAMS);
 
 	// DOM BINDING
 	var $searchInput = $('#search-input');
@@ -43,12 +29,12 @@ $(function () {
 	var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 	// Input binding
-	$searchInput
-	.on('keyup', function() {
-		var query = $(this).val();
-		algoliaHelper.setQuery(query).search();
-	})
-	.focus();
+	// $searchInput
+	// .on('keyup', function() {
+	// 	var query = $(this).val();
+	// 	algoliaHelper.setQuery(query).search();
+	// })
+	// .focus();
 
 	// Search results
 	algoliaHelper.on('result', function(content, state) {
@@ -91,7 +77,7 @@ $(function () {
 				facet: facetName,
 				title: FACETS_LABELS[facetName],
 				values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-				disjunctive: $.inArray(facetName, PARAMS.disjunctiveFacets) !== -1
+				disjunctive: $.inArray(facetName, ALGOLIA_QUERY_PARAMS.disjunctiveFacets) !== -1
 			};
 			facetsHtml += facetTemplate.render(facetContent);
 		}
