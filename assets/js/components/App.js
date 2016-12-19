@@ -61,7 +61,7 @@ class App extends React.Component {
 		for (let i = 0; i < numHits; i++) {
 			// normalize stars so they always consistently show a single decimal place
 			const stars_count_fixed = parseFloat(hits[i].stars_count).toFixed(1);
-			hits[i].stars_count_fixed = parseFloat(hits[i].stars_count).toFixed(1);
+			hits[i].stars_count_fixed = stars_count_fixed;
 		}
 		return hits;
 	}

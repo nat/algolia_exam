@@ -19,11 +19,11 @@ $(function () {
 	var $pagination = $('#pagination');
 
 	// Hogan templates binding
-	var hitTemplate = Hogan.compile($('#hit-template').text());
-	var statsTemplate = Hogan.compile($('#stats-template').text());
+	// var hitTemplate = Hogan.compile($('#hit-template').text());
+	// var statsTemplate = Hogan.compile($('#stats-template').text());
 	var facetTemplate = Hogan.compile($('#facet-template').text());
 	var paginationTemplate = Hogan.compile($('#pagination-template').text());
-	var noResultsTemplate = Hogan.compile($('#no-results-template').text());
+	// var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 	// Search results
 	algoliaHelper.on('result', (content, state) => {

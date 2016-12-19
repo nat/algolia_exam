@@ -1,6 +1,7 @@
 import React from 'react';
 import Stats from './Stats';
 import Hit from './Hit';
+import Pagination from './Pagination';
 
 class MainColumn extends React.Component {
 	constructor(){
@@ -17,7 +18,7 @@ class MainColumn extends React.Component {
 							<Hit key={hit.objectID} hit={hit} />)
 					}
 				</div>
-				<div id="pagination"></div>
+				<Pagination/>
 			</div>
 		);
 	}
