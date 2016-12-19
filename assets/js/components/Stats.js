@@ -21,7 +21,7 @@ class Stats extends React.Component {
 			);			
 		} else {
 			return (
-				<div id="stats"/>
+				<div id="stats">No Results found</div>
 			);
 		}
 	}

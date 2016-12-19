@@ -32961,7 +32961,11 @@
 						)
 					);
 				} else {
-					return _react2.default.createElement("div", { id: "stats" });
+					return _react2.default.createElement(
+						"div",
+						{ id: "stats" },
+						"No Results found"
+					);
 				}
 			}
 		}]);
