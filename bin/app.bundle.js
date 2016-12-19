@@ -32653,23 +32653,27 @@
 			};
 			_this.sendQuery = _this.sendQuery.bind(_this);
 			_this.setQuery = _this.setQuery.bind(_this);
-			_this.calculateStats = _this.calculateStats.bind(_this);
+			_this.processStats = _this.processStats.bind(_this);
+			_this.processHits = _this.processHits.bind(_this);
 
 			// register algolia result event listener
 			_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
-				_this.calculateStats(content);
+				_this.processStats(content);
+				_this.processHits(content);
 			});
 
 			return _this;
 		}
 
 		_createClass(App, [{
-			key: 'calculateStats',
-			value: function calculateStats(content) {
+			key: 'processHits',
+			value: function processHits(content) {}
+		}, {
+			key: 'processStats',
+			value: function processStats(content) {
 				var _this2 = this;
 
 				var stats = {
-					initialized: true,
 					nbHits: content.nbHits,
 					nbHitsPlural: content.nbHits !== 1,
 					processingTimeSeconds: content.processingTimeMS / 1000

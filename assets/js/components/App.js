@@ -14,18 +14,23 @@ class App extends React.Component {
 		};
 		this.sendQuery = this.sendQuery.bind(this);
 		this.setQuery = this.setQuery.bind(this);
-		this.calculateStats = this.calculateStats.bind(this);
+		this.processStats = this.processStats.bind(this);
+		this.processHits = this.processHits.bind(this);
 
 		// register algolia result event listener
 		algoliaHelper.on('result', (content, state) => {
-			this.calculateStats(content);
+			this.processStats(content);
+			this.processHits(content);
 		});
 
 	}
 
-	calculateStats(content) {
+	processHits(content) {
+		
+	}
+
+	processStats(content) {
 		const stats = {
-			initialized: true,
 			nbHits: content.nbHits,
 			nbHitsPlural: content.nbHits !== 1,
 			processingTimeSeconds: content.processingTimeMS / 1000
