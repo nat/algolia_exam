@@ -1,5 +1,6 @@
 import React from 'react';
 import Stats from './Stats';
+import Hit from './Hit';
 
 class MainColumn extends React.Component {
 	constructor(){
@@ -10,7 +11,11 @@ class MainColumn extends React.Component {
 		return (
 			<div id="main">
 				<Stats stats={this.props.stats}/>
-				<div id="hits"></div>
+				<div id="hits">
+					{
+						this.props.hits.map(hit => <Hit key={hit.objectID} />)
+					}
+				</div>
 				<div id="pagination"></div>
 			</div>
 		);

@@ -90,25 +90,14 @@
 
 		// Search results
 		_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
-			renderHits(content);
 			renderFacets(content, state);
 			renderPagination(content);
 		});
 
-		function renderHits(content) {
-			// console.log(content);
-			$hits.html(hitTemplate.render(addMetadataToHits(content)));
-		}
-
-		function addMetadataToHits(content) {
-			var numHits = content.hits.length;
-			for (var i = 0; i < numHits; i++) {
-				// normalize stars so they always consistently show a single decimal place
-				var stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
-				content.hits[i].stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
-			}
-			return content;
-		}
+		// function renderHits(content) {
+		// 	// console.log(content);
+		// 	$hits.html(hitTemplate.render(addMetadataToHits(content)));
+		// }
 
 		function renderFacets(content, state) {
 			var facetsHtml = '';
@@ -32649,12 +32638,14 @@
 			_this.state = {
 				searchQuery: '',
 				facetFoodType: '',
-				stats: ''
+				stats: '',
+				hits: []
 			};
 			_this.sendQuery = _this.sendQuery.bind(_this);
 			_this.setQuery = _this.setQuery.bind(_this);
 			_this.processStats = _this.processStats.bind(_this);
 			_this.processHits = _this.processHits.bind(_this);
+			_this.addMetadataToHits = _this.addMetadataToHits.bind(_this);
 
 			// register algolia result event listener
 			_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
@@ -32667,11 +32658,19 @@
 
 		_createClass(App, [{
 			key: 'processHits',
-			value: function processHits(content) {}
+			value: function processHits(content) {
+				var _this2 = this;
+
+				this.setState({ hits: this.addMetadataToHits(content.hits) },
+				// render after state is saved:
+				function () {
+					_this2.render;
+				});
+			}
 		}, {
 			key: 'processStats',
 			value: function processStats(content) {
-				var _this2 = this;
+				var _this3 = this;
 
 				var stats = {
 					nbHits: content.nbHits,
@@ -32681,7 +32680,7 @@
 				this.setState({ stats: stats },
 				// render after state is saved:
 				function () {
-					_this2.render;
+					_this3.render;
 				});
 			}
 		}, {
@@ -32698,6 +32697,17 @@
 				this.sendQuery);
 			}
 		}, {
+			key: 'addMetadataToHits',
+			value: function addMetadataToHits(hits) {
+				var numHits = hits.length;
+				for (var i = 0; i < numHits; i++) {
+					// normalize stars so they always consistently show a single decimal place
+					var stars_count_fixed = parseFloat(hits[i].stars_count).toFixed(1);
+					hits[i].stars_count_fixed = parseFloat(hits[i].stars_count).toFixed(1);
+				}
+				return hits;
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
@@ -32705,7 +32715,9 @@
 					{ className: 'app-restaurants' },
 					_react2.default.createElement(_Header2.default, { setQuery: this.setQuery }),
 					_react2.default.createElement(_Sidebar2.default, null),
-					_react2.default.createElement(_MainColumn2.default, { stats: this.state.stats })
+					_react2.default.createElement(_MainColumn2.default, {
+						hits: this.state.hits,
+						stats: this.state.stats })
 				);
 			}
 		}]);
@@ -32848,6 +32860,10 @@
 
 	var _Stats2 = _interopRequireDefault(_Stats);
 
+	var _Hit = __webpack_require__(519);
+
+	var _Hit2 = _interopRequireDefault(_Hit);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32872,7 +32888,13 @@
 					'div',
 					{ id: 'main' },
 					_react2.default.createElement(_Stats2.default, { stats: this.props.stats }),
-					_react2.default.createElement('div', { id: 'hits' }),
+					_react2.default.createElement(
+						'div',
+						{ id: 'hits' },
+						this.props.hits.map(function (hit) {
+							return _react2.default.createElement(_Hit2.default, { key: hit.objectID });
+						})
+					),
 					_react2.default.createElement('div', { id: 'pagination' })
 				);
 			}
@@ -54316,6 +54338,55 @@
 		SEARCH_ONLY_API_KEY: '5a7bd5a1909a6b197df53ad56aff3968',
 		INDEX_NAME: 'poc_restaurants'
 	};
+
+/***/ },
+/* 519 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Hit = function (_React$Component) {
+		_inherits(Hit, _React$Component);
+
+		function Hit() {
+			_classCallCheck(this, Hit);
+
+			return _possibleConstructorReturn(this, (Hit.__proto__ || Object.getPrototypeOf(Hit)).call(this));
+		}
+
+		_createClass(Hit, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement(
+					"div",
+					{ id: "hit" },
+					"Hi"
+				);
+			}
+		}]);
+
+		return Hit;
+	}(_react2.default.Component);
+
+	exports.default = Hit;
 
 /***/ }
 /******/ ]);

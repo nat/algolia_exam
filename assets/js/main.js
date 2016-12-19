@@ -27,25 +27,14 @@ $(function () {
 
 	// Search results
 	algoliaHelper.on('result', (content, state) => {
-		renderHits(content);
 		renderFacets(content, state);
 		renderPagination(content);
 	});
 
-	function renderHits(content) {
-		// console.log(content);
-		$hits.html(hitTemplate.render(addMetadataToHits(content)));
-	}
-
-	function addMetadataToHits(content){
-		var numHits = content.hits.length;
-		for (var i = 0; i < numHits; i++) {
-			// normalize stars so they always consistently show a single decimal place
-			var stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
-			content.hits[i].stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
-		}
-		return content;
-	}
+	// function renderHits(content) {
+	// 	// console.log(content);
+	// 	$hits.html(hitTemplate.render(addMetadataToHits(content)));
+	// }
 
 	function renderFacets(content, state) {
 		var facetsHtml = '';

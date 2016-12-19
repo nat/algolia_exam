@@ -10,12 +10,14 @@ class App extends React.Component {
 		this.state = {
 			searchQuery: '',
 			facetFoodType: '',
-			stats: ''
+			stats: '',
+			hits: []
 		};
 		this.sendQuery = this.sendQuery.bind(this);
 		this.setQuery = this.setQuery.bind(this);
 		this.processStats = this.processStats.bind(this);
 		this.processHits = this.processHits.bind(this);
+		this.addMetadataToHits = this.addMetadataToHits.bind(this);
 
 		// register algolia result event listener
 		algoliaHelper.on('result', (content, state) => {
@@ -26,7 +28,9 @@ class App extends React.Component {
 	}
 
 	processHits(content) {
-		
+		this.setState({hits: this.addMetadataToHits(content.hits)},
+				// render after state is saved:
+				() => {this.render;});
 	}
 
 	processStats(content) {
@@ -52,12 +56,24 @@ class App extends React.Component {
 			this.sendQuery);
 	}
 
+	addMetadataToHits(hits){
+		const numHits = hits.length;
+		for (let i = 0; i < numHits; i++) {
+			// normalize stars so they always consistently show a single decimal place
+			const stars_count_fixed = parseFloat(hits[i].stars_count).toFixed(1);
+			hits[i].stars_count_fixed = parseFloat(hits[i].stars_count).toFixed(1);
+		}
+		return hits;
+	}
+
 	render() {
 		return(
 			<div className="app-restaurants">
 				<Header setQuery={this.setQuery}/>
 				<Sidebar/>
-				<MainColumn stats={this.state.stats}/>
+				<MainColumn 
+					hits={this.state.hits}
+					stats={this.state.stats}/>
 			</div>
 		);
 	}
