@@ -6,11 +6,24 @@ class Stats extends React.Component {
 	}
 
 	render(){
-		return (
-			<div id="stats">
-				Got Here!
-			</div>
-		);
+		if (this.props.stats.nbHits && this.props.stats.nbHits > 0){
+			return (
+				<div id="stats">
+					<span className="results-found"> 
+						{this.props.stats.nbHits} result
+						{this.props.stats.nbHitsPlural ? 's ' : ' '}
+					</span>
+						found&nbsp;
+					<span className="found-in">
+						in  {this.props.stats.processingTimeSeconds} seconds
+					</span>
+				</div>
+			);			
+		} else {
+			return (
+				<div id="stats"/>
+			);
+		}
 	}
 }
 

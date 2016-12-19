@@ -26,14 +26,14 @@ $(function () {
 	var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 	// Search results
-	algoliaHelper.on('result', function(content, state) {
+	algoliaHelper.on('result', (content, state) => {
 		renderHits(content);
-		renderStats(content);
 		renderFacets(content, state);
 		renderPagination(content);
 	});
 
 	function renderHits(content) {
+		// console.log(content);
 		$hits.html(hitTemplate.render(addMetadataToHits(content)));
 	}
 
@@ -45,15 +45,6 @@ $(function () {
 			content.hits[i].stars_count_fixed = parseFloat(content.hits[i].stars_count).toFixed(1);
 		}
 		return content;
-	}
-
-	function renderStats(content) {
-		var stats = {
-			nbHits: content.nbHits,
-			nbHits_plural: content.nbHits !== 1,
-			processingTimeSeconds: content.processingTimeMS / 1000
-		};
-		$stats.html(statsTemplate.render(stats));
 	}
 
 	function renderFacets(content, state) {

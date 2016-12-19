@@ -9,7 +9,7 @@ class MainColumn extends React.Component {
 	render(){
 		return (
 			<div id="main">
-				<Stats/>
+				<Stats stats={this.props.stats}/>
 				<div id="hits"></div>
 				<div id="pagination"></div>
 			</div>

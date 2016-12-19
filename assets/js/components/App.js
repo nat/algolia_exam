@@ -9,10 +9,31 @@ class App extends React.Component {
 		super();
 		this.state = {
 			searchQuery: '',
-			facetFoodType: ''
+			facetFoodType: '',
+			stats: ''
 		};
 		this.sendQuery = this.sendQuery.bind(this);
 		this.setQuery = this.setQuery.bind(this);
+		this.calculateStats = this.calculateStats.bind(this);
+
+		// register algolia result event listener
+		algoliaHelper.on('result', (content, state) => {
+			this.calculateStats(content);
+		});
+
+	}
+
+	calculateStats(content) {
+		const stats = {
+			initialized: true,
+			nbHits: content.nbHits,
+			nbHitsPlural: content.nbHits !== 1,
+			processingTimeSeconds: content.processingTimeMS / 1000
+		};
+		this.setState({ stats: stats },
+			// render after state is saved:
+			() => {this.render;});
+		
 	}
 
 	sendQuery(){
@@ -31,7 +52,7 @@ class App extends React.Component {
 			<div className="app-restaurants">
 				<Header setQuery={this.setQuery}/>
 				<Sidebar/>
-				<MainColumn/>
+				<MainColumn stats={this.state.stats}/>
 			</div>
 		);
 	}
