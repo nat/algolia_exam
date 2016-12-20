@@ -49,27 +49,11 @@ class App extends React.Component {
 	}
 
 	processPagination(content) {
-		const pages = [];
 		const pageNumber = content.page;
-		const nbPages = content.nbPages;
-		if (pageNumber > 3) {
-			pages.push({current: false, number: 1});
-			pages.push({current: false, number: '...', disabled: true});
-		}
-		for (let p = pageNumber - 3; p < pageNumber + 3; ++p) {
-			if (p < 0 || p >= nbPages) continue;
-			pages.push({current: pageNumber === p, number: p + 1});
-		}
-		if (pageNumber + 3 < nbPages) {
-			pages.push({current: false, number: '...', disabled: true});
-			pages.push({current: false, number: nbPages});
-		}
 		const pagination = {
-			pages: pages,
-			prev_page: pageNumber > 0 ? pageNumber : false,
-			next_page: pageNumber + 1 < nbPages ? pageNumber + 2 : false
+			next_page: pageNumber + 1 < content.nbPages ? pageNumber + 2 : false
 		};
-		this.setState({ pagination: pagination },
+		this.setState({pagination},
 			// render after state is saved:
 			() => {this.render;});
 	}

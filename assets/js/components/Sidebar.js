@@ -1,4 +1,5 @@
 import React from 'react';
+import FacetFoodType from './FacetFoodType';
 
 class Sidebar extends React.Component {
 	constructor(){
@@ -8,7 +9,9 @@ class Sidebar extends React.Component {
 	render(){
 		return (
 			<div id="sidebar">
-				<div id="facets"></div>
+				<div id="facets">
+					<FacetFoodType/>
+				</div>
 			</div>
 		);
 	}
