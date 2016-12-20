@@ -10,9 +10,9 @@ class App extends React.Component {
 		this.state = {
 			searchQuery: '',
 			facetFoodType: '',
-			stats: '',
+			stats: {},
 			hits: [],
-			pagination: ''
+			pagination: {}
 		};
 		this.sendQuery = this.sendQuery.bind(this);
 		this.setQuery = this.setQuery.bind(this);

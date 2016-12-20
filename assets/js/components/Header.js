@@ -24,4 +24,8 @@ class Header extends React.Component {
 	}
 }
 
+Header.propTypes = {
+	setQuery: React.PropTypes.func.isRequired
+};
+
 export default Header;

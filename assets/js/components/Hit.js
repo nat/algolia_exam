@@ -24,4 +24,8 @@ class Hit extends React.Component {
 	}
 }
 
+Hit.propTypes = {
+	hit: React.PropTypes.object.isRequired,
+};
+
 export default Hit;

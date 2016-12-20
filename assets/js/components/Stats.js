@@ -28,4 +28,8 @@ class Stats extends React.Component {
 	}
 }
 
+Stats.propTypes = {
+	stats: React.PropTypes.object.isRequired,
+};
+
 export default Stats;
