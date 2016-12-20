@@ -6,11 +6,12 @@ class Stats extends React.Component {
 	}
 
 	render(){
-		if (this.props.stats.nbHits && this.props.stats.nbHits > 0){
+		const nbHits = this.props.stats.nbHits;
+		if (nbHits && nbHits > 0){
 			return (
 				<div id="stats">
 					<span className="results-found"> 
-						{this.props.stats.nbHits} result
+						{nbHits} result
 						{this.props.stats.nbHitsPlural ? 's ' : ' '}
 					</span>
 						found&nbsp;

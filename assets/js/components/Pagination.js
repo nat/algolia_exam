@@ -6,16 +6,24 @@ class Pagination extends React.Component {
 	}
 
 	render(){
+		const next_page = this.props.pagination.next_page;
+
+		if(!next_page){ return <div id="pagination"/>;} 
 		return (
-			<div id="pagination"/>
+			<div id="pagination">
+				<ul>
+					<li>
+						<a 	href="#" 
+							className="go-to-page" 
+							data-page={ next_page }
+							onClick={()=> this.props.goToNextPage(next_page)}>
+							Show More
+						</a>
+					</li>
+				</ul>
+			</div>		
 		);
 	}
 }
 
 export default Pagination;
-
-  // <ul>
-  // {{#next_page}}
-  //   <li {{^next_page}}class="disabled"{{/next_page}}><a href="#" {{#next_page}}class="go-to-page" data-page="{{ next_page }}"{{/next_page}}>Show More</a></li>
-  // {{/next_page}}
-  // </ul>

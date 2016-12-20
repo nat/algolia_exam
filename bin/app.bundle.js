@@ -76,22 +76,21 @@
 
 		// DOM BINDING
 		// $sortBySelect = $('#sort-by-select');
-		var $hits = (0, _jquery2.default)('#hits');
-		var $stats = (0, _jquery2.default)('#stats');
+		// var $hits = $('#hits');
+		// var $stats = $('#stats');
 		var $facets = (0, _jquery2.default)('#facets');
-		var $pagination = (0, _jquery2.default)('#pagination');
+		// var $pagination = $('#pagination');
 
 		// Hogan templates binding
 		// var hitTemplate = Hogan.compile($('#hit-template').text());
 		// var statsTemplate = Hogan.compile($('#stats-template').text());
 		var facetTemplate = _hogan2.default.compile((0, _jquery2.default)('#facet-template').text());
-		var paginationTemplate = _hogan2.default.compile((0, _jquery2.default)('#pagination-template').text());
+		// var paginationTemplate = Hogan.compile($('#pagination-template').text());
 		// var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 		// Search results
 		_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
 			renderFacets(content, state);
-			renderPagination(content);
 		});
 
 		// function renderHits(content) {
@@ -116,36 +115,36 @@
 			$facets.html(facetsHtml);
 		}
 
-		function renderPagination(content) {
-			// console.log(content);
-			// console.log(content.page);
-			// console.log(content.nbPages);
-			var pages = [];
-			if (content.page > 3) {
-				pages.push({ current: false, number: 1 });
-				pages.push({ current: false, number: '...', disabled: true });
-			}
-			for (var p = content.page - 3; p < content.page + 3; ++p) {
-				if (p < 0 || p >= content.nbPages) continue;
-				pages.push({ current: content.page === p, number: p + 1 });
-			}
-			if (content.page + 3 < content.nbPages) {
-				pages.push({ current: false, number: '...', disabled: true });
-				pages.push({ current: false, number: content.nbPages });
-			}
-			var pagination = {
-				pages: pages,
-				prev_page: content.page > 0 ? content.page : false,
-				next_page: content.page + 1 < content.nbPages ? content.page + 2 : false
-			};
-			$pagination.html(paginationTemplate.render(pagination));
-		}
+		// function renderPagination(content) {
+		// 	console.log(content);
+		// 	// console.log(content.page);
+		// 	// console.log(content.nbPages);
+		// 	var pages = [];
+		// 	if (content.page > 3) {
+		// 		pages.push({current: false, number: 1});
+		// 		pages.push({current: false, number: '...', disabled: true});
+		// 	}
+		// 	for (var p = content.page - 3; p < content.page + 3; ++p) {
+		// 		if (p < 0 || p >= content.nbPages) continue;
+		// 		pages.push({current: content.page === p, number: p + 1});
+		// 	}
+		// 	if (content.page + 3 < content.nbPages) {
+		// 		pages.push({current: false, number: '...', disabled: true});
+		// 		pages.push({current: false, number: content.nbPages});
+		// 	}
+		// 	var pagination = {
+		// 		pages: pages,
+		// 		prev_page: content.page > 0 ? content.page : false,
+		// 		next_page: content.page + 1 < content.nbPages ? content.page + 2 : false
+		// 	};
+		// 	// $pagination.html(paginationTemplate.render(pagination));
+		// }
 
-		(0, _jquery2.default)(document).on('click', '.go-to-page', function (e) {
-			e.preventDefault();
-			(0, _jquery2.default)('html, body').animate({ scrollTop: 0 }, '500', 'swing');
-			_AlgoliaClient.algoliaHelper.setCurrentPage(+(0, _jquery2.default)(this).data('page') - 1).search();
-		});
+		// $(document).on('click', '.go-to-page', function(e) {
+		// 	// e.preventDefault();
+		// 	// $('html, body').animate({scrollTop: 0}, '500', 'swing');
+		// 	// algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
+		// });
 		(0, _jquery2.default)(document).on('click', '.toggle-refine', function (e) {
 			e.preventDefault();
 			_AlgoliaClient.algoliaHelper.toggleRefine((0, _jquery2.default)(this).data('facet'), (0, _jquery2.default)(this).data('value')).search();
@@ -32638,17 +32637,20 @@
 				searchQuery: '',
 				facetFoodType: '',
 				stats: '',
-				hits: []
+				hits: [],
+				pagination: ''
 			};
 			_this.sendQuery = _this.sendQuery.bind(_this);
 			_this.setQuery = _this.setQuery.bind(_this);
 			_this.processStats = _this.processStats.bind(_this);
 			_this.processHits = _this.processHits.bind(_this);
 			_this.addMetadataToHits = _this.addMetadataToHits.bind(_this);
+			_this.goToNextPage = _this.goToNextPage.bind(_this);
 
 			// register algolia result event listener
 			_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
 				_this.processStats(content);
+				_this.processPagination(content);
 				_this.processHits(content);
 			});
 
@@ -32681,6 +32683,42 @@
 				function () {
 					_this3.render;
 				});
+			}
+		}, {
+			key: 'processPagination',
+			value: function processPagination(content) {
+				var _this4 = this;
+
+				var pages = [];
+				var pageNumber = content.page;
+				var nbPages = content.nbPages;
+				if (pageNumber > 3) {
+					pages.push({ current: false, number: 1 });
+					pages.push({ current: false, number: '...', disabled: true });
+				}
+				for (var p = pageNumber - 3; p < pageNumber + 3; ++p) {
+					if (p < 0 || p >= nbPages) continue;
+					pages.push({ current: pageNumber === p, number: p + 1 });
+				}
+				if (pageNumber + 3 < nbPages) {
+					pages.push({ current: false, number: '...', disabled: true });
+					pages.push({ current: false, number: nbPages });
+				}
+				var pagination = {
+					pages: pages,
+					prev_page: pageNumber > 0 ? pageNumber : false,
+					next_page: pageNumber + 1 < nbPages ? pageNumber + 2 : false
+				};
+				this.setState({ pagination: pagination },
+				// render after state is saved:
+				function () {
+					_this4.render;
+				});
+			}
+		}, {
+			key: 'goToNextPage',
+			value: function goToNextPage(nextPage) {
+				_AlgoliaClient.algoliaHelper.setCurrentPage(+nextPage - 1).search();
 			}
 		}, {
 			key: 'sendQuery',
@@ -32716,7 +32754,10 @@
 					_react2.default.createElement(_Sidebar2.default, null),
 					_react2.default.createElement(_MainColumn2.default, {
 						hits: this.state.hits,
-						stats: this.state.stats })
+						stats: this.state.stats,
+						pagination: this.state.pagination,
+						goToNextPage: this.goToNextPage
+					})
 				);
 			}
 		}]);
@@ -32898,7 +32939,10 @@
 							return _react2.default.createElement(_Hit2.default, { key: hit.objectID, hit: hit });
 						})
 					),
-					_react2.default.createElement(_Pagination2.default, null)
+					_react2.default.createElement(_Pagination2.default, {
+						pagination: this.props.pagination,
+						goToNextPage: this.props.goToNextPage
+					})
 				);
 			}
 		}]);
@@ -32944,14 +32988,15 @@
 		_createClass(Stats, [{
 			key: "render",
 			value: function render() {
-				if (this.props.stats.nbHits && this.props.stats.nbHits > 0) {
+				var nbHits = this.props.stats.nbHits;
+				if (nbHits && nbHits > 0) {
 					return _react2.default.createElement(
 						"div",
 						{ id: "stats" },
 						_react2.default.createElement(
 							"span",
 							{ className: "results-found" },
-							this.props.stats.nbHits,
+							nbHits,
 							" result",
 							this.props.stats.nbHitsPlural ? 's ' : ' '
 						),
@@ -33103,7 +33148,35 @@
 		_createClass(Pagination, [{
 			key: "render",
 			value: function render() {
-				return _react2.default.createElement("div", { id: "pagination" });
+				var _this2 = this;
+
+				var next_page = this.props.pagination.next_page;
+
+				if (!next_page) {
+					return _react2.default.createElement("div", { id: "pagination" });
+				}
+				return _react2.default.createElement(
+					"div",
+					{ id: "pagination" },
+					_react2.default.createElement(
+						"ul",
+						null,
+						_react2.default.createElement(
+							"li",
+							null,
+							_react2.default.createElement(
+								"a",
+								{ href: "#",
+									className: "go-to-page",
+									"data-page": next_page,
+									onClick: function onClick() {
+										return _this2.props.goToNextPage(next_page);
+									} },
+								"Show More"
+							)
+						)
+					)
+				);
 			}
 		}]);
 
@@ -33111,12 +33184,6 @@
 	}(_react2.default.Component);
 
 	exports.default = Pagination;
-
-	// <ul>
-	// {{#next_page}}
-	//   <li {{^next_page}}class="disabled"{{/next_page}}><a href="#" {{#next_page}}class="go-to-page" data-page="{{ next_page }}"{{/next_page}}>Show More</a></li>
-	// {{/next_page}}
-	// </ul>
 
 /***/ },
 /* 189 */

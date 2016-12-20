@@ -13,22 +13,21 @@ $(function () {
 
 	// DOM BINDING
 	// $sortBySelect = $('#sort-by-select');
-	var $hits = $('#hits');
-	var $stats = $('#stats');
+	// var $hits = $('#hits');
+	// var $stats = $('#stats');
 	var $facets = $('#facets');
-	var $pagination = $('#pagination');
+	// var $pagination = $('#pagination');
 
 	// Hogan templates binding
 	// var hitTemplate = Hogan.compile($('#hit-template').text());
 	// var statsTemplate = Hogan.compile($('#stats-template').text());
 	var facetTemplate = Hogan.compile($('#facet-template').text());
-	var paginationTemplate = Hogan.compile($('#pagination-template').text());
+	// var paginationTemplate = Hogan.compile($('#pagination-template').text());
 	// var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 	// Search results
 	algoliaHelper.on('result', (content, state) => {
 		renderFacets(content, state);
-		renderPagination(content);
 	});
 
 	// function renderHits(content) {
@@ -53,36 +52,36 @@ $(function () {
 		$facets.html(facetsHtml);
 	}
 
-	function renderPagination(content) {
-		// console.log(content);
-		// console.log(content.page);
-		// console.log(content.nbPages);
-		var pages = [];
-		if (content.page > 3) {
-			pages.push({current: false, number: 1});
-			pages.push({current: false, number: '...', disabled: true});
-		}
-		for (var p = content.page - 3; p < content.page + 3; ++p) {
-			if (p < 0 || p >= content.nbPages) continue;
-			pages.push({current: content.page === p, number: p + 1});
-		}
-		if (content.page + 3 < content.nbPages) {
-			pages.push({current: false, number: '...', disabled: true});
-			pages.push({current: false, number: content.nbPages});
-		}
-		var pagination = {
-			pages: pages,
-			prev_page: content.page > 0 ? content.page : false,
-			next_page: content.page + 1 < content.nbPages ? content.page + 2 : false
-		};
-		$pagination.html(paginationTemplate.render(pagination));
-	}
+	// function renderPagination(content) {
+	// 	console.log(content);
+	// 	// console.log(content.page);
+	// 	// console.log(content.nbPages);
+	// 	var pages = [];
+	// 	if (content.page > 3) {
+	// 		pages.push({current: false, number: 1});
+	// 		pages.push({current: false, number: '...', disabled: true});
+	// 	}
+	// 	for (var p = content.page - 3; p < content.page + 3; ++p) {
+	// 		if (p < 0 || p >= content.nbPages) continue;
+	// 		pages.push({current: content.page === p, number: p + 1});
+	// 	}
+	// 	if (content.page + 3 < content.nbPages) {
+	// 		pages.push({current: false, number: '...', disabled: true});
+	// 		pages.push({current: false, number: content.nbPages});
+	// 	}
+	// 	var pagination = {
+	// 		pages: pages,
+	// 		prev_page: content.page > 0 ? content.page : false,
+	// 		next_page: content.page + 1 < content.nbPages ? content.page + 2 : false
+	// 	};
+	// 	// $pagination.html(paginationTemplate.render(pagination));
+	// }
 
-	$(document).on('click', '.go-to-page', function(e) {
-		e.preventDefault();
-		$('html, body').animate({scrollTop: 0}, '500', 'swing');
-		algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
-	});
+	// $(document).on('click', '.go-to-page', function(e) {
+	// 	// e.preventDefault();
+	// 	// $('html, body').animate({scrollTop: 0}, '500', 'swing');
+	// 	// algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
+	// });
 	$(document).on('click', '.toggle-refine', function(e) {
 		e.preventDefault();
 		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();

@@ -18,7 +18,10 @@ class MainColumn extends React.Component {
 							<Hit key={hit.objectID} hit={hit} />)
 					}
 				</div>
-				<Pagination/>
+				<Pagination 
+					pagination={this.props.pagination}
+					goToNextPage={this.props.goToNextPage}
+					/>
 			</div>
 		);
 	}
