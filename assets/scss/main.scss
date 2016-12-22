@@ -2,32 +2,15 @@
 @import './globals/_variables';
 @import './utils/mixin_background2x';
 @import './components/header';
+@import './components/sidebar';
+@import './components/hit';
+@import './components/main-column';
+@import './components/stats';
 
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   @include background-2x( 'background', 'png', 46px, 29px, center center, repeat );
-}
-
-#search-input {
-	margin: 22px 25px 25px 25px;
-	width: 770px;
-	height: 40px;
-	border-radius: 5px;
-	font-size: 15px;
-	::placeholder {
-		color: #B3B3B3;
-	}
-}
-
-#sidebar {
-	float: left;
-	margin: 0px 0 0 $left_margin;
-	padding: 5px 0 0 10px;
-	width: $sidebar_width;
-	height: 437px;
-	background-color: $primary_background_color;
-	border-right: 1px solid #CDCDCD;
 }
 
 /* FACETS
@@ -73,76 +56,6 @@ body {
 	}
 	.facet-count:hover {
 		color: #fff;
-	}
-} 
-
-
-#main {
-	width: 498px;
-	height: 400px;
-	margin: 0px 0 0 $sidebar_width + $left_margin;
-	padding: 30px 100px 12px 20px;
-	background-color: $primary_background_color;
-	border: 1px solid #CDCDCD;
-
-	.results-found {
-		font-size: 14px;
-	}
-	.found-in {
-		font-size: 12px;
-	}
-}
-
-/* HITS
-// ------------------------- */
-
-#hits {
-	/*margin: 4px 0;*/
-	/*padding: 10px 0;*/
-	/*border-top: 2px solid #eee;*/
-}
-.hit {
-	font-size: 16;
-	margin: 10px 0 0 10px;
-	width: 580px;
-	/*padding: 8px 0;*/
-	/*border-bottom: 1px solid #eee;*/
-}
-.hit-image {
-	display: inline-block;
-	width: $thumbnail_size;
-	img {
-		width: $thumbnail_size;
-		height: $thumbnail_size;
-		border-radius: 2px;
-		border-width: 1px;
-		border-color: #000;
-	}
-}
-.hit-content {
-	display: inline-block;
-	margin-left: 1%;
-	vertical-align: top;
-	.hit-name {
-		margin: 0px 0 0 0;
-		/*float: right;*/
-		/*margin-left: 20px;*/
-	}
-	.hit-stars-count {
-		color: #FFAB66;
-		display: inline;
-	}
-	.hit-reviews-count {
-		display:inline;
-		font-size: 13px;
-		font-family: 'Helvetica Neue','Open Sans', sans-serif;
-		color: #707070;
-	}
-	.hit-food_type, .hit-neighborhood {
-		font-size: 14px;
-		font-family: 'Helvetica Neue','Open Sans', sans-serif;
-		color: #707070;
-		margin: 0px 0 0 0;
 	}
 }
 

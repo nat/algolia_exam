@@ -1,0 +1,20 @@
+#sidebar {
+	float: left;
+	margin: 0px 0 0 $left_margin;
+	padding: 5px 0 0 10px;
+	width: $sidebar_width;
+	height: 437px;
+	background-color: $primary_background_color;
+	border-right: 1px solid #CDCDCD;
+}
+
+#search-input {
+	margin: 22px 25px 25px 25px;
+	width: 770px;
+	height: 40px;
+	border-radius: 5px;
+	font-size: 15px;
+	::placeholder {
+		color: #B3B3B3;
+	}
+}

@@ -1,0 +1,55 @@
+#hits {
+	/*margin: 4px 0;*/
+	/*padding: 10px 0;*/
+	/*border-top: 2px solid #eee;*/
+}
+
+.hit {
+	font-size: 16;
+	margin: 10px 0 0 10px;
+	width: 580px;
+	/*padding: 8px 0;*/
+	/*border-bottom: 1px solid #eee;*/
+}
+
+.hit-image {
+	display: inline-block;
+	width: $thumbnail_size;
+	img {
+		width: $thumbnail_size;
+		height: $thumbnail_size;
+		border-radius: 2px;
+		border-width: 1px;
+		border-color: #000;
+	}
+}
+
+.hit-content {
+	display: inline-block;
+	margin-left: 1%;
+	vertical-align: top;
+	.hit-name {
+		margin: 0px 0 0 0;
+		/*float: right;*/
+		/*margin-left: 20px;*/
+	}
+
+	.hit-stars-count {
+		color: #FFAB66;
+		display: inline;
+	}
+
+	.hit-reviews-count {
+		display:inline;
+		font-size: 13px;
+		font-family: 'Helvetica Neue','Open Sans', sans-serif;
+		color: #707070;
+	}
+
+	.hit-food_type, .hit-neighborhood {
+		font-size: 14px;
+		font-family: 'Helvetica Neue','Open Sans', sans-serif;
+		color: #707070;
+		margin: 0px 0 0 0;
+	}
+}
