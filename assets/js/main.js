@@ -45,7 +45,9 @@ $(function () {
 				facet: facetName,
 				title: FACETS_LABELS[facetName],
 				values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-				disjunctive: $.inArray(facetName, ALGOLIA_QUERY_PARAMS.disjunctiveFacets) !== -1
+				// make it work without the jquery dependency
+				disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
+					ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
 			};
 			facetsHtml += facetTemplate.render(facetContent);
 		}

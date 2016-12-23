@@ -108,7 +108,10 @@
 					facet: facetName,
 					title: FACETS_LABELS[facetName],
 					values: content.getFacetValues(facetName, { sortBy: ['isRefined:desc', 'count:desc'] }),
-					disjunctive: _jquery2.default.inArray(facetName, _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets) !== -1
+					// make it work without the jquery dependency
+					disjunctive: _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets && _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(function (x) {
+						return x === facetName;
+					}) !== -1
 				};
 				facetsHtml += facetTemplate.render(facetContent);
 			}

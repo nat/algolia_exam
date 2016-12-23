@@ -2,55 +2,6 @@
 @import './base/normalize';
 @import './base/initialize';
 @import './globals/_variables';
-@import './components/header';
-@import './components/sidebar';
-@import './components/main-column';
-@import './components/stats';
-@import './components/hit';
-@import './components/pagination';
+@import './components/all';
 
-/* FACETS
-// ------------------------- */
-
-.facet {
-	h5 {
-		margin-left: 2px;
-		font-size: 14px;
-	}
-	font-size: 13px;
-	ul {
-		margin: 0;
-		padding: 0;
-		list-style-type: none;
-	}
-	li {
-		padding: 5px 5px 0px 5px;
-		margin: 0px 7px 3px 0px;
-	}
-	li:hover {
-		a {
-			color: #fff;
-		}
-		background-color: #2897C5;
-		border-radius: 3px;
-	}
-	.facet-link {
-		line-height: 1.2;
-		text-decoration: none;
-		color: #000;
-	}
-	li:hover .facet-count, .facet-link:hover, .facet-link.facet-refined, 
-	.facet-count.facet-refined, li.facet-refined {
-		color: #fff;
-		background-color: #2897C5;
-	}
-	.facet-count {
-		position: relative;
-		float: right;
-		color: #9A9A9A;
-		margin-right: 5px;
-	}
-	.facet-count:hover {
-		color: #fff;
-	}
-}
+/* folders should be mostly self-descriptive */
