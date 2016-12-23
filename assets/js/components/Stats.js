@@ -1,9 +1,6 @@
 import React from 'react';
 
 class Stats extends React.Component {
-	constructor(){
-		super();
-	}
 
 	render(){
 		const nbHits = this.props.stats.nbHits;
@@ -29,7 +26,12 @@ class Stats extends React.Component {
 }
 
 Stats.propTypes = {
-	stats: React.PropTypes.object.isRequired,
+	// stats: React.PropTypes.object.isRequired,
+	stats: React.PropTypes.shape({
+		nbHits: React.PropTypes.number.isRequired,
+		nbHitsPlural: React.PropTypes.bool.isRequired,
+		processingTimeSeconds: React.PropTypes.number.isRequired
+	})
 };
 
 export default Stats;

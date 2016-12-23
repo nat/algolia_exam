@@ -1,9 +1,6 @@
 import React from 'react';
 
 class Hit extends React.Component {
-	constructor(){
-		super();
-	}
 
 	render(){
 		return (
@@ -24,8 +21,18 @@ class Hit extends React.Component {
 	}
 }
 
+// proptypes here help debug if proper results were returned from Algolia
+
 Hit.propTypes = {
-	hit: React.PropTypes.object.isRequired,
+	hit: React.PropTypes.shape({
+		name: React.PropTypes.string.isRequired,
+		stars_count_fixed: React.PropTypes.string.isRequired,
+		image_url: React.PropTypes.string.isRequired,
+		reviews_count: React.PropTypes.number.isRequired,
+		food_type: React.PropTypes.string.isRequired,
+		neighborhood: React.PropTypes.string.isRequired,
+		price_range: React.PropTypes.string.isRequired
+	})
 };
 
 export default Hit;

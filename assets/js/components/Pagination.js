@@ -1,9 +1,6 @@
 import React from 'react';
 
 class Pagination extends React.Component {
-	constructor(){
-		super();
-	}
 
 	render(){
 		const next_page = this.props.pagination.next_page;
@@ -27,7 +24,9 @@ class Pagination extends React.Component {
 }
 
 Pagination.propTypes = {
-	pagination: React.PropTypes.object.isRequired,
+	pagination: React.PropTypes.shape({
+		next_page: React.PropTypes.number.isRequired
+	}),
 	goToNextPage: React.PropTypes.func.isRequired
 };
 

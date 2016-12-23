@@ -32636,9 +32636,9 @@
 			_this.state = {
 				searchQuery: '',
 				facetFoodType: '',
-				stats: {},
+				stats: { nbHits: 0, nbHitsPlural: false, processingTimeSeconds: 0 },
 				hits: [],
-				pagination: {}
+				pagination: { next_page: 0 }
 			};
 			_this.sendQuery = _this.sendQuery.bind(_this);
 			_this.setQuery = _this.setQuery.bind(_this);
@@ -32689,9 +32689,10 @@
 			value: function processPagination(content) {
 				var _this4 = this;
 
-				var pageNumber = content.page;
+				var NO_MORE_PAGES = 0; // a falsey value
+				var pageNum = content.page;
 				var pagination = {
-					next_page: pageNumber + 1 < content.nbPages ? pageNumber + 2 : false
+					next_page: pageNum + 1 < content.nbPages ? pageNum + 2 : NO_MORE_PAGES
 				};
 				this.setState({ pagination: pagination },
 				// render after state is saved:
@@ -32781,7 +32782,7 @@
 		function Header() {
 			_classCallCheck(this, Header);
 
-			return _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).call(this));
+			return _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).apply(this, arguments));
 		}
 
 		_createClass(Header, [{
@@ -32853,7 +32854,7 @@
 		function Sidebar() {
 			_classCallCheck(this, Sidebar);
 
-			return _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this));
+			return _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).apply(this, arguments));
 		}
 
 		_createClass(Sidebar, [{
@@ -32906,7 +32907,7 @@
 		function FacetFoodType() {
 			_classCallCheck(this, FacetFoodType);
 
-			return _possibleConstructorReturn(this, (FacetFoodType.__proto__ || Object.getPrototypeOf(FacetFoodType)).call(this));
+			return _possibleConstructorReturn(this, (FacetFoodType.__proto__ || Object.getPrototypeOf(FacetFoodType)).apply(this, arguments));
 		}
 
 		_createClass(FacetFoodType, [{
@@ -32963,7 +32964,7 @@
 		function MainColumn() {
 			_classCallCheck(this, MainColumn);
 
-			return _possibleConstructorReturn(this, (MainColumn.__proto__ || Object.getPrototypeOf(MainColumn)).call(this));
+			return _possibleConstructorReturn(this, (MainColumn.__proto__ || Object.getPrototypeOf(MainColumn)).apply(this, arguments));
 		}
 
 		_createClass(MainColumn, [{
@@ -33029,7 +33030,7 @@
 		function Stats() {
 			_classCallCheck(this, Stats);
 
-			return _possibleConstructorReturn(this, (Stats.__proto__ || Object.getPrototypeOf(Stats)).call(this));
+			return _possibleConstructorReturn(this, (Stats.__proto__ || Object.getPrototypeOf(Stats)).apply(this, arguments));
 		}
 
 		_createClass(Stats, [{
@@ -33070,7 +33071,12 @@
 	}(_react2.default.Component);
 
 	Stats.propTypes = {
-		stats: _react2.default.PropTypes.object.isRequired
+		// stats: React.PropTypes.object.isRequired,
+		stats: _react2.default.PropTypes.shape({
+			nbHits: _react2.default.PropTypes.number.isRequired,
+			nbHitsPlural: _react2.default.PropTypes.bool.isRequired,
+			processingTimeSeconds: _react2.default.PropTypes.number.isRequired
+		})
 	};
 
 	exports.default = Stats;
@@ -33105,7 +33111,7 @@
 		function Hit() {
 			_classCallCheck(this, Hit);
 
-			return _possibleConstructorReturn(this, (Hit.__proto__ || Object.getPrototypeOf(Hit)).call(this));
+			return _possibleConstructorReturn(this, (Hit.__proto__ || Object.getPrototypeOf(Hit)).apply(this, arguments));
 		}
 
 		_createClass(Hit, [{
@@ -33161,8 +33167,18 @@
 		return Hit;
 	}(_react2.default.Component);
 
+	// proptypes here help debug if proper results were returned from Algolia
+
 	Hit.propTypes = {
-		hit: _react2.default.PropTypes.object.isRequired
+		hit: _react2.default.PropTypes.shape({
+			name: _react2.default.PropTypes.string.isRequired,
+			stars_count_fixed: _react2.default.PropTypes.string.isRequired,
+			image_url: _react2.default.PropTypes.string.isRequired,
+			reviews_count: _react2.default.PropTypes.number.isRequired,
+			food_type: _react2.default.PropTypes.string.isRequired,
+			neighborhood: _react2.default.PropTypes.string.isRequired,
+			price_range: _react2.default.PropTypes.string.isRequired
+		})
 	};
 
 	exports.default = Hit;
@@ -33197,7 +33213,7 @@
 		function Pagination() {
 			_classCallCheck(this, Pagination);
 
-			return _possibleConstructorReturn(this, (Pagination.__proto__ || Object.getPrototypeOf(Pagination)).call(this));
+			return _possibleConstructorReturn(this, (Pagination.__proto__ || Object.getPrototypeOf(Pagination)).apply(this, arguments));
 		}
 
 		_createClass(Pagination, [{
@@ -33239,7 +33255,9 @@
 	}(_react2.default.Component);
 
 	Pagination.propTypes = {
-		pagination: _react2.default.PropTypes.object.isRequired,
+		pagination: _react2.default.PropTypes.shape({
+			next_page: _react2.default.PropTypes.number.isRequired
+		}),
 		goToNextPage: _react2.default.PropTypes.func.isRequired
 	};
 

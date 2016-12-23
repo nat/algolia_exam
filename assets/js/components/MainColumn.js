@@ -4,9 +4,6 @@ import Hit from './Hit';
 import Pagination from './Pagination';
 
 class MainColumn extends React.Component {
-	constructor(){
-		super();
-	}
 
 	render(){
 		return (

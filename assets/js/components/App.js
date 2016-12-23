@@ -10,9 +10,9 @@ class App extends React.Component {
 		this.state = {
 			searchQuery: '',
 			facetFoodType: '',
-			stats: {},
+			stats: {nbHits: 0, nbHitsPlural: false, processingTimeSeconds: 0},
 			hits: [],
-			pagination: {}
+			pagination: { next_page: 0}
 		};
 		this.sendQuery = this.sendQuery.bind(this);
 		this.setQuery = this.setQuery.bind(this);
@@ -49,9 +49,10 @@ class App extends React.Component {
 	}
 
 	processPagination(content) {
-		const pageNumber = content.page;
+		const NO_MORE_PAGES = 0; // a falsey value
+		const pageNum = content.page;
 		const pagination = {
-			next_page: pageNumber + 1 < content.nbPages ? pageNumber + 2 : false
+			next_page: pageNum + 1 < content.nbPages ? pageNum + 2 : NO_MORE_PAGES
 		};
 		this.setState({pagination},
 			// render after state is saved:

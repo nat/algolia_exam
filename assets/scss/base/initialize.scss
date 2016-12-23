@@ -1,0 +1,5 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+  @include background-2x( 'background', 'png', 46px, 29px, center center, repeat );
+}

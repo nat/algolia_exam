@@ -2,9 +2,6 @@ import React from 'react';
 import FacetFoodType from './FacetFoodType';
 
 class Sidebar extends React.Component {
-	constructor(){
-		super();
-	}
 
 	render(){
 		return (

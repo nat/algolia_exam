@@ -1,17 +1,13 @@
-@import './utils/normalize.css';
-@import './globals/_variables';
 @import './utils/mixin_background2x';
+@import './base/normalize';
+@import './base/initialize';
+@import './globals/_variables';
 @import './components/header';
 @import './components/sidebar';
-@import './components/hit';
 @import './components/main-column';
 @import './components/stats';
-
-body {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 15px;
-  @include background-2x( 'background', 'png', 46px, 29px, center center, repeat );
-}
+@import './components/hit';
+@import './components/pagination';
 
 /* FACETS
 // ------------------------- */
@@ -58,20 +54,3 @@ body {
 		color: #fff;
 	}
 }
-
-/* PAGINATION
-// ------------------------- */
-
-#pagination {
-	ul {
-		list-style-type: none;
-		text-align: center;
-	}
-	a {
-		padding: 8px 12px;
-		text-decoration: none;
-		font-size: 14px;
-		color: #000;
-		border: 1px solid #CDCDCD;
-	}
-}	
