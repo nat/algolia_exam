@@ -4,7 +4,7 @@ class Stats extends React.Component {
 
 	render(){
 		const nbHits = this.props.stats.nbHits;
-		if (nbHits && nbHits > 0){
+		if (nbHits > 0){
 			return (
 				<div id="stats">
 					<span className="results-found"> 

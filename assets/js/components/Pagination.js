@@ -12,7 +12,6 @@ class Pagination extends React.Component {
 					<li>
 						<a 	href="#" 
 							className="go-to-page" 
-							data-page={ next_page }
 							onClick={()=> this.props.goToNextPage(next_page)}>
 							Show More
 						</a>

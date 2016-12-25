@@ -32649,12 +32649,14 @@
 			_this.processHits = _this.processHits.bind(_this);
 			_this.addMetadataToHits = _this.addMetadataToHits.bind(_this);
 			_this.goToNextPage = _this.goToNextPage.bind(_this);
+			_this.processFacets = _this.processFacets.bind(_this);
 
 			// register algolia result event listener
 			_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
 				_this.processStats(content);
 				_this.processPagination(content);
 				_this.processHits(content);
+				_this.processFacets(content, state);
 			});
 
 			return _this;
@@ -32663,45 +32665,33 @@
 		_createClass(App, [{
 			key: 'processHits',
 			value: function processHits(content) {
-				var _this2 = this;
-
-				this.setState({ hits: this.addMetadataToHits(content.hits) },
-				// render after state is saved:
-				function () {
-					_this2.render;
-				});
+				this.setState({ hits: this.addMetadataToHits(content.hits) });
+			}
+		}, {
+			key: 'processFacets',
+			value: function processFacets(content, state) {
+				var FACETS_ORDER_OF_DISPLAY = ['food_type'];
+				var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
 			}
 		}, {
 			key: 'processStats',
 			value: function processStats(content) {
-				var _this3 = this;
-
 				var stats = {
 					nbHits: content.nbHits,
 					nbHitsPlural: content.nbHits !== 1,
 					processingTimeSeconds: content.processingTimeMS / 1000
 				};
-				this.setState({ stats: stats },
-				// render after state is saved:
-				function () {
-					_this3.render;
-				});
+				this.setState({ stats: stats });
 			}
 		}, {
 			key: 'processPagination',
 			value: function processPagination(content) {
-				var _this4 = this;
-
 				var NO_MORE_PAGES = 0; // a falsey value
 				var pageNum = content.page;
 				var pagination = {
 					next_page: pageNum + 1 < content.nbPages ? pageNum + 2 : NO_MORE_PAGES
 				};
-				this.setState({ pagination: pagination },
-				// render after state is saved:
-				function () {
-					_this4.render;
-				});
+				this.setState({ pagination: pagination });
 			}
 		}, {
 			key: 'goToNextPage',
@@ -32887,7 +32877,7 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	  value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -32905,25 +32895,45 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var FacetFoodType = function (_React$Component) {
-		_inherits(FacetFoodType, _React$Component);
+	  _inherits(FacetFoodType, _React$Component);
 
-		function FacetFoodType() {
-			_classCallCheck(this, FacetFoodType);
+	  function FacetFoodType() {
+	    _classCallCheck(this, FacetFoodType);
 
-			return _possibleConstructorReturn(this, (FacetFoodType.__proto__ || Object.getPrototypeOf(FacetFoodType)).apply(this, arguments));
-		}
+	    return _possibleConstructorReturn(this, (FacetFoodType.__proto__ || Object.getPrototypeOf(FacetFoodType)).apply(this, arguments));
+	  }
 
-		_createClass(FacetFoodType, [{
-			key: "render",
-			value: function render() {
-				return _react2.default.createElement("div", { className: "facet" });
-			}
-		}]);
+	  _createClass(FacetFoodType, [{
+	    key: "render",
+	    value: function render() {
+	      return _react2.default.createElement(
+	        "div",
+	        { className: "facet" },
+	        _react2.default.createElement(
+	          "h5",
+	          null,
+	          "Title"
+	        )
+	      );
+	    }
+	  }]);
 
-		return FacetFoodType;
+	  return FacetFoodType;
 	}(_react2.default.Component);
 
 	exports.default = FacetFoodType;
+
+	// <h5>{{ title }}</h5>
+	// <ul>
+	//   {{#values}}
+	//   <a href="" class="facet-link toggle-refine 
+	//   {{#isRefined}}facet-refined{{/isRefined}}" data-facet="{{ facet }}" data-value="{{ name }}">
+	//     <li>
+	//       {{ name }}<span class="facet-count">{{ count }}</span>
+	//     </li>
+	//   </a>
+	//   {{/values}}
+	// </ul>
 
 /***/ },
 /* 186 */
@@ -32998,7 +33008,13 @@
 	MainColumn.propTypes = {
 		hits: _react2.default.PropTypes.array.isRequired,
 		pagination: _react2.default.PropTypes.object.isRequired,
-		goToNextPage: _react2.default.PropTypes.func.isRequired
+		goToNextPage: _react2.default.PropTypes.func.isRequired,
+		stats: _react2.default.PropTypes.shape({
+			nbHits: _react2.default.PropTypes.number.isRequired,
+			nbHitsPlural: _react2.default.PropTypes.bool.isRequired,
+			processingTimeSeconds: _react2.default.PropTypes.number.isRequired
+		})
+
 	};
 
 	exports.default = MainColumn;
@@ -33040,7 +33056,7 @@
 			key: "render",
 			value: function render() {
 				var nbHits = this.props.stats.nbHits;
-				if (nbHits && nbHits > 0) {
+				if (nbHits > 0) {
 					return _react2.default.createElement(
 						"div",
 						{ id: "stats" },
@@ -33242,7 +33258,6 @@
 								"a",
 								{ href: "#",
 									className: "go-to-page",
-									"data-page": next_page,
 									onClick: function onClick() {
 										return _this2.props.goToNextPage(next_page);
 									} },

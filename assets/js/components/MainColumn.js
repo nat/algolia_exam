@@ -27,7 +27,13 @@ class MainColumn extends React.Component {
 MainColumn.propTypes = {
 	hits: React.PropTypes.array.isRequired,
 	pagination: React.PropTypes.object.isRequired,
-	goToNextPage: React.PropTypes.func.isRequired
+	goToNextPage: React.PropTypes.func.isRequired,
+	stats: React.PropTypes.shape({
+		nbHits: React.PropTypes.number.isRequired,
+		nbHitsPlural: React.PropTypes.bool.isRequired,
+		processingTimeSeconds: React.PropTypes.number.isRequired
+	})
+
 };
 
 export default MainColumn;

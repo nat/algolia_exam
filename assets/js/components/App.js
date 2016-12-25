@@ -20,20 +20,27 @@ class App extends React.Component {
 		this.processHits = this.processHits.bind(this);
 		this.addMetadataToHits = this.addMetadataToHits.bind(this);
 		this.goToNextPage = this.goToNextPage.bind(this);
+		this.processFacets = this.processFacets.bind(this);
 
 		// register algolia result event listener
 		algoliaHelper.on('result', (content, state) => {
 			this.processStats(content);
 			this.processPagination(content);
 			this.processHits(content);
+			this.processFacets(content, state);
 		});
 
 	}
 
 	processHits(content) {
-		this.setState({hits: this.addMetadataToHits(content.hits)},
-				// render after state is saved:
-				() => {this.render;});
+		this.setState({hits: this.addMetadataToHits(content.hits)});
+	}
+
+	processFacets(content, state) {
+		const FACETS_ORDER_OF_DISPLAY = ['food_type'];
+		const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
+
+
 	}
 
 	processStats(content) {
@@ -42,9 +49,7 @@ class App extends React.Component {
 			nbHitsPlural: content.nbHits !== 1,
 			processingTimeSeconds: content.processingTimeMS / 1000
 		};
-		this.setState({ stats },
-			// render after state is saved:
-			() => {this.render;});
+		this.setState({ stats });
 		
 	}
 
@@ -54,9 +59,7 @@ class App extends React.Component {
 		const pagination = {
 			next_page: pageNum + 1 < content.nbPages ? pageNum + 2 : NO_MORE_PAGES
 		};
-		this.setState({pagination},
-			// render after state is saved:
-			() => {this.render;});
+		this.setState({pagination});
 	}
 
 	goToNextPage(nextPage){
