@@ -26,7 +26,9 @@ class MainColumn extends React.Component {
 
 MainColumn.propTypes = {
 	hits: React.PropTypes.array.isRequired,
-	pagination: React.PropTypes.object.isRequired,
+	pagination: React.PropTypes.shape({
+		next_page: React.PropTypes.number.isRequired
+	}),
 	goToNextPage: React.PropTypes.func.isRequired,
 	stats: React.PropTypes.shape({
 		nbHits: React.PropTypes.number.isRequired,
