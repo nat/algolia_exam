@@ -107,12 +107,13 @@
 				facetContent = {
 					facet: facetName,
 					title: FACETS_LABELS[facetName],
+					// values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
 					values: content.getFacetValues(facetName, { sortBy: ['isRefined:desc', 'count:desc'] }),
-					// make it work without the jquery dependency
 					disjunctive: _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets && _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(function (x) {
 						return x === facetName;
 					}) !== -1
 				};
+				console.log(content, state);
 				facetsHtml += facetTemplate.render(facetContent);
 			}
 			$facets.html(facetsHtml);
@@ -32659,6 +32660,7 @@
 				_this.processFacets(content, state);
 			});
 
+			_this.sendQuery();
 			return _this;
 		}
 
@@ -32672,6 +32674,8 @@
 			value: function processFacets(content, state) {
 				var FACETS_ORDER_OF_DISPLAY = ['food_type'];
 				var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
+				// console.log(content);
+				// console.log(state);
 			}
 		}, {
 			key: 'processStats',
@@ -33007,7 +33011,9 @@
 
 	MainColumn.propTypes = {
 		hits: _react2.default.PropTypes.array.isRequired,
-		pagination: _react2.default.PropTypes.object.isRequired,
+		pagination: _react2.default.PropTypes.shape({
+			next_page: _react2.default.PropTypes.number.isRequired
+		}),
 		goToNextPage: _react2.default.PropTypes.func.isRequired,
 		stats: _react2.default.PropTypes.shape({
 			nbHits: _react2.default.PropTypes.number.isRequired,
@@ -54643,8 +54649,8 @@
 		value: true
 	});
 	var ALGOLIA_SETTINGS = exports.ALGOLIA_SETTINGS = {
-		APPLICATION_ID: 'BH0GW7H4EJ',
-		SEARCH_ONLY_API_KEY: '5a7bd5a1909a6b197df53ad56aff3968',
+		APPLICATION_ID: 'XU96TEJLEA',
+		SEARCH_ONLY_API_KEY: 'e2621286d3ebd8cd4976f8a3a79dee0c',
 		INDEX_NAME: 'poc_restaurants'
 	};
 

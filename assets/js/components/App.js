@@ -30,6 +30,7 @@ class App extends React.Component {
 			this.processFacets(content, state);
 		});
 
+		this.sendQuery();
 	}
 
 	processHits(content) {
@@ -39,8 +40,8 @@ class App extends React.Component {
 	processFacets(content, state) {
 		const FACETS_ORDER_OF_DISPLAY = ['food_type'];
 		const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
-
-
+		// console.log(content);
+		// console.log(state);
 	}
 
 	processStats(content) {

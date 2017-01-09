@@ -44,11 +44,12 @@ $(function () {
 			facetContent = {
 				facet: facetName,
 				title: FACETS_LABELS[facetName],
+				// values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
 				values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-				// make it work without the jquery dependency
 				disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
 					ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
 			};
+			// console.log(content, state);
 			facetsHtml += facetTemplate.render(facetContent);
 		}
 		$facets.html(facetsHtml);
