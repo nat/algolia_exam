@@ -22,71 +22,33 @@ $(function () {
 	// var hitTemplate = Hogan.compile($('#hit-template').text());
 	// var statsTemplate = Hogan.compile($('#stats-template').text());
 	var facetTemplate = Hogan.compile($('#facet-template').text());
-	// var paginationTemplate = Hogan.compile($('#pagination-template').text());
-	// var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 	// Search results
 	algoliaHelper.on('result', (content, state) => {
-		renderFacets(content, state);
+		renderFacet(content, state, 'food_type');
 	});
 
-	// function renderHits(content) {
-	// 	// console.log(content);
-	// 	$hits.html(hitTemplate.render(addMetadataToHits(content)));
-	// }
-
-	function renderFacets(content, state) {
-		var facetsHtml = '';
-		var facetName = 'food_type';
-		var facetResult = content.getFacetByName(facetName);
-		var facetContent = {};
+	function renderFacet(content, state, facetName) {
+		// console.log(content, state);
+		let facetsHtml = '';
+		const facetResult = content.getFacetByName(facetName);
+		let facetContent = {};
 		if (facetResult) {
 			facetContent = {
 				facet: facetName,
 				title: FACETS_LABELS[facetName],
-				// values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-				values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-				disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
-					ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
+				values: content.getFacetValues(facetName, {sortBy: ['count:desc', 'name:asc']}),
 			};
-			// console.log(content, state);
+
 			facetsHtml += facetTemplate.render(facetContent);
 		}
 		$facets.html(facetsHtml);
 	}
 
-	// function renderPagination(content) {
-	// 	console.log(content);
-	// 	// console.log(content.page);
-	// 	// console.log(content.nbPages);
-	// 	var pages = [];
-	// 	if (content.page > 3) {
-	// 		pages.push({current: false, number: 1});
-	// 		pages.push({current: false, number: '...', disabled: true});
-	// 	}
-	// 	for (var p = content.page - 3; p < content.page + 3; ++p) {
-	// 		if (p < 0 || p >= content.nbPages) continue;
-	// 		pages.push({current: content.page === p, number: p + 1});
-	// 	}
-	// 	if (content.page + 3 < content.nbPages) {
-	// 		pages.push({current: false, number: '...', disabled: true});
-	// 		pages.push({current: false, number: content.nbPages});
-	// 	}
-	// 	var pagination = {
-	// 		pages: pages,
-	// 		prev_page: content.page > 0 ? content.page : false,
-	// 		next_page: content.page + 1 < content.nbPages ? content.page + 2 : false
-	// 	};
-	// 	// $pagination.html(paginationTemplate.render(pagination));
-	// }
-
-	// $(document).on('click', '.go-to-page', function(e) {
-	// 	// e.preventDefault();
-	// 	// $('html, body').animate({scrollTop: 0}, '500', 'swing');
-	// 	// algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
-	// });
 	$(document).on('click', '.toggle-refine', function(e) {
 		e.preventDefault();
+		// for clear UX, allow just one facet to be selected at a time (remove previous selections)
+		algoliaHelper.clearRefinements();
 		algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
 	});
 

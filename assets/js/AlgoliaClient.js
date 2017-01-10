@@ -6,7 +6,8 @@ export const ALGOLIA_QUERY_PARAMS = {
 	hitsPerPage: 3,
 	maxValuesPerFacet: 7, // demo only shows 7 food types, can increase it here
 	index: ALGOLIA_SETTINGS['INDEX_NAME'],
-	facets: ['food_type']
+	// for clear UX, used disjunctive facets to allow displaying of sibling facets
+	disjunctiveFacets: ['food_type']
 };
 
 const algoliaClient = algoliasearch(ALGOLIA_SETTINGS['APPLICATION_ID'], 

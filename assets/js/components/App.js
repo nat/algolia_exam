@@ -37,9 +37,25 @@ class App extends React.Component {
 		this.setState({hits: this.addMetadataToHits(content.hits)});
 	}
 
+	
+
 	processFacets(content, state) {
 		const FACETS_ORDER_OF_DISPLAY = ['food_type'];
 		const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
+
+		// get food_type
+		// var facetName = 'food_type';
+		// var facetResult = content.getFacetByName(facetName);
+		// const facetContent = {};
+		// if (facetResult) {
+		// 	facetContent = {
+		// 		facet: facetName,
+		// 		title: FACETS_LABELS[facetName],
+		// 		values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
+		// 		disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
+		// 			ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
+		// 	};
+		// }
 		// console.log(content);
 		// console.log(state);
 	}

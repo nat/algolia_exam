@@ -6,6 +6,9 @@ class FacetFoodType extends React.Component {
 		return (
 			<div className="facet">
 				<h5>Title</h5>
+					{
+			
+					}
 			</div>
 		);
 	}

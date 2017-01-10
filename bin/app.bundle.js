@@ -85,72 +85,33 @@
 		// var hitTemplate = Hogan.compile($('#hit-template').text());
 		// var statsTemplate = Hogan.compile($('#stats-template').text());
 		var facetTemplate = _hogan2.default.compile((0, _jquery2.default)('#facet-template').text());
-		// var paginationTemplate = Hogan.compile($('#pagination-template').text());
-		// var noResultsTemplate = Hogan.compile($('#no-results-template').text());
 
 		// Search results
 		_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
-			renderFacets(content, state);
+			renderFacet(content, state, 'food_type');
 		});
 
-		// function renderHits(content) {
-		// 	// console.log(content);
-		// 	$hits.html(hitTemplate.render(addMetadataToHits(content)));
-		// }
-
-		function renderFacets(content, state) {
+		function renderFacet(content, state, facetName) {
+			// console.log(content, state);
 			var facetsHtml = '';
-			var facetName = 'food_type';
 			var facetResult = content.getFacetByName(facetName);
 			var facetContent = {};
 			if (facetResult) {
 				facetContent = {
 					facet: facetName,
 					title: FACETS_LABELS[facetName],
-					// values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-					values: content.getFacetValues(facetName, { sortBy: ['isRefined:desc', 'count:desc'] }),
-					disjunctive: _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets && _AlgoliaClient.ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(function (x) {
-						return x === facetName;
-					}) !== -1
+					values: content.getFacetValues(facetName, { sortBy: ['count:desc', 'name:asc'] })
 				};
-				console.log(content, state);
+
 				facetsHtml += facetTemplate.render(facetContent);
 			}
 			$facets.html(facetsHtml);
 		}
 
-		// function renderPagination(content) {
-		// 	console.log(content);
-		// 	// console.log(content.page);
-		// 	// console.log(content.nbPages);
-		// 	var pages = [];
-		// 	if (content.page > 3) {
-		// 		pages.push({current: false, number: 1});
-		// 		pages.push({current: false, number: '...', disabled: true});
-		// 	}
-		// 	for (var p = content.page - 3; p < content.page + 3; ++p) {
-		// 		if (p < 0 || p >= content.nbPages) continue;
-		// 		pages.push({current: content.page === p, number: p + 1});
-		// 	}
-		// 	if (content.page + 3 < content.nbPages) {
-		// 		pages.push({current: false, number: '...', disabled: true});
-		// 		pages.push({current: false, number: content.nbPages});
-		// 	}
-		// 	var pagination = {
-		// 		pages: pages,
-		// 		prev_page: content.page > 0 ? content.page : false,
-		// 		next_page: content.page + 1 < content.nbPages ? content.page + 2 : false
-		// 	};
-		// 	// $pagination.html(paginationTemplate.render(pagination));
-		// }
-
-		// $(document).on('click', '.go-to-page', function(e) {
-		// 	// e.preventDefault();
-		// 	// $('html, body').animate({scrollTop: 0}, '500', 'swing');
-		// 	// algoliaHelper.setCurrentPage(+$(this).data('page') - 1).search();
-		// });
 		(0, _jquery2.default)(document).on('click', '.toggle-refine', function (e) {
 			e.preventDefault();
+			// for clear UX, allow just one facet to be selected at a time (remove previous selections)
+			_AlgoliaClient.algoliaHelper.clearRefinements();
 			_AlgoliaClient.algoliaHelper.toggleRefine((0, _jquery2.default)(this).data('facet'), (0, _jquery2.default)(this).data('value')).search();
 		});
 	});
@@ -32674,6 +32635,20 @@
 			value: function processFacets(content, state) {
 				var FACETS_ORDER_OF_DISPLAY = ['food_type'];
 				var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
+
+				// get food_type
+				// var facetName = 'food_type';
+				// var facetResult = content.getFacetByName(facetName);
+				// const facetContent = {};
+				// if (facetResult) {
+				// 	facetContent = {
+				// 		facet: facetName,
+				// 		title: FACETS_LABELS[facetName],
+				// 		values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
+				// 		disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
+				// 			ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
+				// 	};
+				// }
 				// console.log(content);
 				// console.log(state);
 			}
@@ -33314,7 +33289,8 @@
 		hitsPerPage: 3,
 		maxValuesPerFacet: 7, // demo only shows 7 food types, can increase it here
 		index: _CustomSettings.ALGOLIA_SETTINGS['INDEX_NAME'],
-		facets: ['food_type']
+		// for clear UX, used disjunctive facets to allow displaying of sibling facets
+		disjunctiveFacets: ['food_type']
 	};
 
 	var algoliaClient = (0, _algoliasearch2.default)(_CustomSettings.ALGOLIA_SETTINGS['APPLICATION_ID'], _CustomSettings.ALGOLIA_SETTINGS['SEARCH_ONLY_API_KEY']);
