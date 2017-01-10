@@ -56,10 +56,6 @@
 
 	var _jquery2 = _interopRequireDefault(_jquery);
 
-	var _hogan = __webpack_require__(179);
-
-	var _hogan2 = _interopRequireDefault(_hogan);
-
 	var _App = __webpack_require__(182);
 
 	var _App2 = _interopRequireDefault(_App);
@@ -70,50 +66,47 @@
 
 	(0, _reactDom.render)(_react2.default.createElement(_App2.default, null), document.getElementById('app'));
 
-	(0, _jquery2.default)(function () {
-		var FACETS_ORDER_OF_DISPLAY = ['food_type'];
-		var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
+	// const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
 
-		// DOM BINDING
-		// $sortBySelect = $('#sort-by-select');
-		// var $hits = $('#hits');
-		// var $stats = $('#stats');
-		var $facets = (0, _jquery2.default)('#facets');
-		// var $pagination = $('#pagination');
+	// DOM BINDING
+	// $sortBySelect = $('#sort-by-select');
+	// var $hits = $('#hits');
+	// var $stats = $('#stats');
+	// var $facets = $('#facets');
+	// var $pagination = $('#pagination');
 
-		// Hogan templates binding
-		// var hitTemplate = Hogan.compile($('#hit-template').text());
-		// var statsTemplate = Hogan.compile($('#stats-template').text());
-		var facetTemplate = _hogan2.default.compile((0, _jquery2.default)('#facet-template').text());
+	// Hogan templates binding
+	// var hitTemplate = Hogan.compile($('#hit-template').text());
+	// var statsTemplate = Hogan.compile($('#stats-template').text());
+	// var facetTemplate = Hogan.compile($('#facet-template').text());
 
-		// Search results
-		_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
-			renderFacet(content, state, 'food_type');
-		});
+	// Search results
+	// algoliaHelper.on('result', (content, state) => {
+	// renderFacet(content, state, 'food_type');
+	// });
 
-		function renderFacet(content, state, facetName) {
-			// console.log(content, state);
-			var facetsHtml = '';
-			var facetResult = content.getFacetByName(facetName);
-			var facetContent = {};
-			if (facetResult) {
-				facetContent = {
-					facet: facetName,
-					title: FACETS_LABELS[facetName],
-					values: content.getFacetValues(facetName, { sortBy: ['count:desc', 'name:asc'] })
-				};
+	// function renderFacet(content, state, facetName) {
+	// 	// console.log(content, state);
+	// 	let facetsHtml = '';
+	// 	const facetResult = content.getFacetByName(facetName);
+	// 	let facetContent = {};
+	// 	if (facetResult) {
+	// 		facetContent = {
+	// 			facet: facetName,
+	// 			title: FACETS_LABELS[facetName],
+	// 			values: content.getFacetValues(facetName, {sortBy: ['count:desc', 'name:asc']}),
+	// 		};
+	// 		facetsHtml += facetTemplate.render(facetContent);
+	// 	}
+	// 	$facets.html(facetsHtml);
+	// }
 
-				facetsHtml += facetTemplate.render(facetContent);
-			}
-			$facets.html(facetsHtml);
-		}
-
-		(0, _jquery2.default)(document).on('click', '.toggle-refine', function (e) {
-			e.preventDefault();
-			// for clear UX, allow just one facet to be selected at a time (remove previous selections)
-			_AlgoliaClient.algoliaHelper.clearRefinements();
-			_AlgoliaClient.algoliaHelper.toggleRefine((0, _jquery2.default)(this).data('facet'), (0, _jquery2.default)(this).data('value')).search();
-		});
+	(0, _jquery2.default)(document).on('click', '.toggle-refine', function (e) {
+		e.preventDefault();
+		// For clear/simple UX, allow just one facet to be selected at a time
+		// (by removing any previous facet selections)
+		_AlgoliaClient.algoliaHelper.clearRefinements();
+		_AlgoliaClient.algoliaHelper.toggleRefine((0, _jquery2.default)(this).data('facet'), (0, _jquery2.default)(this).data('value')).search();
 	});
 
 /***/ },
@@ -32582,6 +32575,14 @@
 
 	var _AlgoliaClient = __webpack_require__(190);
 
+	var _jquery = __webpack_require__(178);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
+	var _hogan = __webpack_require__(179);
+
+	var _hogan2 = _interopRequireDefault(_hogan);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32589,6 +32590,9 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// to remove
+
 
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
@@ -32600,7 +32604,7 @@
 
 			_this.state = {
 				searchQuery: '',
-				facetFoodType: '',
+				facetFoodType: { title: '', facet: '', values: [] },
 				stats: { nbHits: 0, nbHitsPlural: false, processingTimeSeconds: 0 },
 				hits: [],
 				pagination: { next_page: 0 }
@@ -32611,14 +32615,14 @@
 			_this.processHits = _this.processHits.bind(_this);
 			_this.addMetadataToHits = _this.addMetadataToHits.bind(_this);
 			_this.goToNextPage = _this.goToNextPage.bind(_this);
-			_this.processFacets = _this.processFacets.bind(_this);
+			_this.processFacet = _this.processFacet.bind(_this);
 
 			// register algolia result event listener
 			_AlgoliaClient.algoliaHelper.on('result', function (content, state) {
 				_this.processStats(content);
 				_this.processPagination(content);
 				_this.processHits(content);
-				_this.processFacets(content, state);
+				_this.processFacet(content, state, 'food_type');
 			});
 
 			_this.sendQuery();
@@ -32631,26 +32635,27 @@
 				this.setState({ hits: this.addMetadataToHits(content.hits) });
 			}
 		}, {
-			key: 'processFacets',
-			value: function processFacets(content, state) {
-				var FACETS_ORDER_OF_DISPLAY = ['food_type'];
+			key: 'processFacet',
+			value: function processFacet(content, state, facetName) {
+				var $facets = (0, _jquery2.default)('#facets');
+				var facetTemplate = _hogan2.default.compile((0, _jquery2.default)('#facet-template').text());
 				var FACETS_LABELS = { food_type: 'Cuisine / Food Type' };
+				// console.log(content, state);
+				var facetsHtml = '';
+				var facetResult = content.getFacetByName(facetName);
+				var facetContent = {};
+				if (facetResult && facetName === 'food_type') {
+					facetContent = {
+						facet: facetName,
+						title: FACETS_LABELS[facetName],
+						values: content.getFacetValues(facetName, { sortBy: ['count:desc', 'name:asc'] })
+					};
+					this.setState({ facetFoodType: facetContent });
 
-				// get food_type
-				// var facetName = 'food_type';
-				// var facetResult = content.getFacetByName(facetName);
-				// const facetContent = {};
-				// if (facetResult) {
-				// 	facetContent = {
-				// 		facet: facetName,
-				// 		title: FACETS_LABELS[facetName],
-				// 		values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-				// 		disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
-				// 			ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
-				// 	};
-				// }
-				// console.log(content);
-				// console.log(state);
+					// console.log(facetContent);
+					facetsHtml += facetTemplate.render(facetContent);
+				}
+				// $facets.html(facetsHtml);
 			}
 		}, {
 			key: 'processStats',
@@ -32708,7 +32713,7 @@
 					'div',
 					{ className: 'app-restaurants' },
 					_react2.default.createElement(_Header2.default, { setQuery: this.setQuery }),
-					_react2.default.createElement(_Sidebar2.default, null),
+					_react2.default.createElement(_Sidebar2.default, { facetFoodType: this.state.facetFoodType }),
 					_react2.default.createElement(_MainColumn2.default, {
 						hits: this.state.hits,
 						stats: this.state.stats,
@@ -32838,7 +32843,11 @@
 					_react2.default.createElement(
 						'div',
 						{ id: 'facets' },
-						_react2.default.createElement(_FacetFoodType2.default, null)
+						_react2.default.createElement(_FacetFoodType2.default, {
+							facetName: this.props.facetFoodType.facet,
+							title: this.props.facetFoodType.title,
+							values: this.props.facetFoodType.values
+						})
 					)
 				);
 			}
@@ -32853,10 +32862,10 @@
 /* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+		value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -32864,6 +32873,10 @@
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _FacetValue = __webpack_require__(522);
+
+	var _FacetValue2 = _interopRequireDefault(_FacetValue);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32874,45 +32887,48 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var FacetFoodType = function (_React$Component) {
-	  _inherits(FacetFoodType, _React$Component);
+		_inherits(FacetFoodType, _React$Component);
 
-	  function FacetFoodType() {
-	    _classCallCheck(this, FacetFoodType);
+		function FacetFoodType() {
+			_classCallCheck(this, FacetFoodType);
 
-	    return _possibleConstructorReturn(this, (FacetFoodType.__proto__ || Object.getPrototypeOf(FacetFoodType)).apply(this, arguments));
-	  }
+			return _possibleConstructorReturn(this, (FacetFoodType.__proto__ || Object.getPrototypeOf(FacetFoodType)).apply(this, arguments));
+		}
 
-	  _createClass(FacetFoodType, [{
-	    key: "render",
-	    value: function render() {
-	      return _react2.default.createElement(
-	        "div",
-	        { className: "facet" },
-	        _react2.default.createElement(
-	          "h5",
-	          null,
-	          "Title"
-	        )
-	      );
-	    }
-	  }]);
+		_createClass(FacetFoodType, [{
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
 
-	  return FacetFoodType;
+				return _react2.default.createElement(
+					'div',
+					{ className: 'facet' },
+					_react2.default.createElement(
+						'h5',
+						null,
+						this.props.title
+					),
+					_react2.default.createElement(
+						'ul',
+						null,
+						this.props.values.map(function (facetValue) {
+							return _react2.default.createElement(_FacetValue2.default, {
+								count: facetValue.count,
+								facetName: _this2.props.facetName,
+								isRefined: facetValue.isRefined,
+								key: facetValue.name,
+								name: facetValue.name
+							});
+						})
+					)
+				);
+			}
+		}]);
+
+		return FacetFoodType;
 	}(_react2.default.Component);
 
 	exports.default = FacetFoodType;
-
-	// <h5>{{ title }}</h5>
-	// <ul>
-	//   {{#values}}
-	//   <a href="" class="facet-link toggle-refine 
-	//   {{#isRefined}}facet-refined{{/isRefined}}" data-facet="{{ facet }}" data-value="{{ name }}">
-	//     <li>
-	//       {{ name }}<span class="facet-count">{{ count }}</span>
-	//     </li>
-	//   </a>
-	//   {{/values}}
-	// </ul>
 
 /***/ },
 /* 186 */
@@ -54629,6 +54645,68 @@
 		SEARCH_ONLY_API_KEY: 'e2621286d3ebd8cd4976f8a3a79dee0c',
 		INDEX_NAME: 'poc_restaurants'
 	};
+
+/***/ },
+/* 522 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var FacetValue = function (_React$Component) {
+		_inherits(FacetValue, _React$Component);
+
+		function FacetValue() {
+			_classCallCheck(this, FacetValue);
+
+			return _possibleConstructorReturn(this, (FacetValue.__proto__ || Object.getPrototypeOf(FacetValue)).apply(this, arguments));
+		}
+
+		_createClass(FacetValue, [{
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'a',
+					{ href: '',
+						className: 'facet-link toggle-refine ' + (this.props.isRefined ? 'facet-refined' : ''),
+						'data-facet': this.props.facetName,
+						'data-value': this.props.name
+					},
+					_react2.default.createElement(
+						'li',
+						null,
+						this.props.name,
+						_react2.default.createElement(
+							'span',
+							{ className: 'facet-count' },
+							this.props.count
+						)
+					)
+				);
+			}
+		}]);
+
+		return FacetValue;
+	}(_react2.default.Component);
+
+	exports.default = FacetValue;
 
 /***/ }
 /******/ ]);

@@ -4,15 +4,19 @@ import Sidebar from './Sidebar';
 import MainColumn from './MainColumn';
 import {algoliaHelper} from '../AlgoliaClient';
 
+// to remove
+import $ from 'jquery';
+import Hogan from 'hogan.js';
+
 class App extends React.Component {
 	constructor(){
 		super();
 		this.state = {
 			searchQuery: '',
-			facetFoodType: '',
+			facetFoodType: {title: '', facet:'', values: []},
 			stats: {nbHits: 0, nbHitsPlural: false, processingTimeSeconds: 0},
 			hits: [],
-			pagination: { next_page: 0}
+			pagination: {next_page: 0}
 		};
 		this.sendQuery = this.sendQuery.bind(this);
 		this.setQuery = this.setQuery.bind(this);
@@ -20,14 +24,14 @@ class App extends React.Component {
 		this.processHits = this.processHits.bind(this);
 		this.addMetadataToHits = this.addMetadataToHits.bind(this);
 		this.goToNextPage = this.goToNextPage.bind(this);
-		this.processFacets = this.processFacets.bind(this);
+		this.processFacet = this.processFacet.bind(this);
 
 		// register algolia result event listener
 		algoliaHelper.on('result', (content, state) => {
 			this.processStats(content);
 			this.processPagination(content);
 			this.processHits(content);
-			this.processFacets(content, state);
+			this.processFacet(content, state, 'food_type');
 		});
 
 		this.sendQuery();
@@ -37,27 +41,27 @@ class App extends React.Component {
 		this.setState({hits: this.addMetadataToHits(content.hits)});
 	}
 
-	
 
-	processFacets(content, state) {
-		const FACETS_ORDER_OF_DISPLAY = ['food_type'];
+	processFacet(content, state, facetName) {
+		const $facets = $('#facets');
+		const facetTemplate = Hogan.compile($('#facet-template').text());
 		const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
+		// console.log(content, state);
+		let facetsHtml = '';
+		const facetResult = content.getFacetByName(facetName);
+		let facetContent = {};
+		if (facetResult && facetName === 'food_type') {
+			facetContent = {
+				facet: facetName,
+				title: FACETS_LABELS[facetName],
+				values: content.getFacetValues(facetName, {sortBy: ['count:desc', 'name:asc']}),
+			};
+			this.setState({facetFoodType: facetContent});
 
-		// get food_type
-		// var facetName = 'food_type';
-		// var facetResult = content.getFacetByName(facetName);
-		// const facetContent = {};
-		// if (facetResult) {
-		// 	facetContent = {
-		// 		facet: facetName,
-		// 		title: FACETS_LABELS[facetName],
-		// 		values: content.getFacetValues(facetName, {sortBy: ['isRefined:desc', 'count:desc']}),
-		// 		disjunctive: ALGOLIA_QUERY_PARAMS.disjunctiveFacets && 
-		// 			ALGOLIA_QUERY_PARAMS.disjunctiveFacets.findIndex(x => x === facetName) !== -1
-		// 	};
-		// }
-		// console.log(content);
-		// console.log(state);
+			// console.log(facetContent);
+			facetsHtml += facetTemplate.render(facetContent);
+		}
+		// $facets.html(facetsHtml);
 	}
 
 	processStats(content) {
@@ -108,7 +112,7 @@ class App extends React.Component {
 		return(
 			<div className="app-restaurants">
 				<Header setQuery={this.setQuery}/>
-				<Sidebar/>
+				<Sidebar facetFoodType={this.state.facetFoodType} />
 				<MainColumn 
 					hits={this.state.hits}
 					stats={this.state.stats}

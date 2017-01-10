@@ -7,7 +7,11 @@ class Sidebar extends React.Component {
 		return (
 			<div id="sidebar">
 				<div id="facets">
-					<FacetFoodType/>
+					<FacetFoodType
+						facetName = {this.props.facetFoodType.facet}
+						title = {this.props.facetFoodType.title}
+						values = {this.props.facetFoodType.values}
+					/>
 				</div>
 			</div>
 		);

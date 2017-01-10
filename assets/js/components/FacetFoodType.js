@@ -1,29 +1,27 @@
 import React from 'react';
+import FacetValue from './FacetValue';
 
 class FacetFoodType extends React.Component {
 
 	render(){
 		return (
 			<div className="facet">
-				<h5>Title</h5>
+				<h5>{this.props.title}</h5>
+				<ul>
 					{
-			
+						this.props.values.map(facetValue => 
+							<FacetValue 
+								count={facetValue.count}
+								facetName={this.props.facetName}
+								isRefined={facetValue.isRefined}
+								key={facetValue.name}
+								name={facetValue.name}
+							/>)
 					}
+				</ul>
 			</div>
 		);
 	}
 }
 
 export default FacetFoodType;
-
-        // <h5>{{ title }}</h5>
-        // <ul>
-        //   {{#values}}
-        //   <a href="" class="facet-link toggle-refine 
-        //   {{#isRefined}}facet-refined{{/isRefined}}" data-facet="{{ facet }}" data-value="{{ name }}">
-        //     <li>
-        //       {{ name }}<span class="facet-count">{{ count }}</span>
-        //     </li>
-        //   </a>
-        //   {{/values}}
-        // </ul>
