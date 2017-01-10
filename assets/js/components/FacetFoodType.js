@@ -16,6 +16,7 @@ class FacetFoodType extends React.Component {
 								isRefined={facetValue.isRefined}
 								key={facetValue.name}
 								name={facetValue.name}
+								refineFacet={this.props.refineFacet}
 							/>)
 					}
 				</ul>
@@ -23,5 +24,14 @@ class FacetFoodType extends React.Component {
 		);
 	}
 }
+
+FacetFoodType.propTypes = {
+	facetFoodType: React.PropTypes.shape({
+		facetName: React.PropTypes.string.isRequired,
+		title: React.PropTypes.string.isRequired,
+		values: React.PropTypes.array.isRequired
+	}),
+	refineFacet: React.PropTypes.func.isRequired
+};
 
 export default FacetFoodType;

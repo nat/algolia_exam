@@ -42,10 +42,10 @@ render(<App/>, document.getElementById('app'));
 // 	$facets.html(facetsHtml);
 // }
 
-$(document).on('click', '.toggle-refine', function(e) {
-	e.preventDefault();
-	// For clear/simple UX, allow just one facet to be selected at a time
-	// (by removing any previous facet selections)
-	algoliaHelper.clearRefinements();
-	algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
-});
+// $(document).on('click', '.toggle-refine', function(e) {
+// 	e.preventDefault();
+// 	// For clear/simple UX, allow just one facet to be selected at a time
+// 	// (by removing any previous facet selections)
+// 	algoliaHelper.clearRefinements();
+// 	algoliaHelper.toggleRefine($(this).data('facet'), $(this).data('value')).search();
+// });
