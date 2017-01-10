@@ -30,7 +30,6 @@ class App extends React.Component {
 			this.processHits(content);
 			this.processFacet(content, state, 'food_type');
 		});
-
 		this.sendQuery();
 	}
 
