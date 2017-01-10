@@ -48,10 +48,6 @@ class App extends React.Component {
 		algoliaHelper.setCurrentPage(+nextPage - 1).search();
 	}
 
-	processHits(content) {
-		this.setState({hits: this.addMetadataToHits(content.hits)});
-	}
-
 	processFacet(content, state, facetName) {
 		const FACETS_LABELS = {food_type: 'Cuisine / Food Type'};
 		const facetResult = content.getFacetByName(facetName);
@@ -64,6 +60,10 @@ class App extends React.Component {
 			};
 			this.setState({facetFoodType: facetContent});
 		}
+	}
+
+	processHits(content) {
+		this.setState({hits: this.addMetadataToHits(content.hits)});
 	}
 
 	processPagination(content) {
@@ -87,7 +87,7 @@ class App extends React.Component {
 
 	refineFacet(e, facetName, facetValue){
 		e.preventDefault();
-		// For clear/simple UX, allow just one facet to be selected at a time
+		// For a clear/simple UX, allow just one facet to be selected at a time
 		// (by removing any previous facet selections)
 		algoliaHelper.clearRefinements();
 		algoliaHelper.toggleRefine(facetName, facetValue).search();		
@@ -100,8 +100,8 @@ class App extends React.Component {
 	setQuery(newSearchQuery){
 		// set the search
 		this.setState({searchQuery: newSearchQuery},
-			// send query after state is saved:
-			this.sendQuery);
+		// send query after state is saved:
+		this.sendQuery);
 	}
 
 	render() {

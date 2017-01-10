@@ -6,8 +6,6 @@ class FacetValue extends React.Component {
 		return (
 			<a 	href="" 
 				className={`facet-link toggle-refine ${this.props.isRefined ? 'facet-refined' : ''}`} 
-				data-facet={this.props.facetName} 
-				data-value={this.props.name}
 				onClick={(e) => this.props.refineFacet(e, this.props.facetName, this.props.name)}
 			>
 				<li>
