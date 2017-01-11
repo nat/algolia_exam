@@ -410,7 +410,7 @@ body {
   @media all and (-webkit-min-device-pixel-ratio: 1.5), all and (-o-min-device-pixel-ratio: 3 / 2), all and (min--moz-device-pixel-ratio: 1.5), all and (min-device-pixel-ratio: 1.5) {
     /* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/initialize.scss */
     body {
-      background-image: url("background_2x.png"); } }
+      background-image: url("background_2X.png"); } }
 
 /* note: sidebar_width is increased from the sketch source due to the width of data */
 /* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_header.scss */
