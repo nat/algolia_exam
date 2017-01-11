@@ -4,7 +4,7 @@
 @mixin background-2x($path, $ext: "png", $w: auto, $h: auto, $pos: left top, $repeat: no-repeat) {
 
   $at1x_path: "#{$path}.#{$ext}";
-  $at2x_path: "#{$path}@2x.#{$ext}";
+  $at2x_path: "#{$path}_2X.#{$ext}";
  
   background-image: url("#{$at1x_path}");
   background-size: $w $h;
