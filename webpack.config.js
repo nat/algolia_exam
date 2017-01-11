@@ -1,25 +1,27 @@
 var webpack = require('webpack');
 var path = require('path');
 
-var SRC_DIR = path.resolve(__dirname, 'assets/js');
+var SRC_DIR = path.resolve(__dirname, 'assets');
 var OUT_DIR = path.resolve(__dirname, 'bin');
 
 module.exports = {
-    entry: SRC_DIR + '/main.js',
-    output: {
-        path: OUT_DIR,
-        filename: 'app.bundle.js',
-    },
-    module: {
-        loaders: [{
-            test: /\.js?$/,
-            include: SRC_DIR,
-            exclude: /node_modules/,
-            loader: 'babel',
-        }]
-    },
-    plugins: [
-        new webpack.ProvidePlugin({
+	entry: SRC_DIR + '/js/main.js',
+	output: {
+		path: OUT_DIR,
+		filename: 'app.bundle.js',
+	},
+	module: {
+		loaders: [
+			{
+				test: /\.js?$/,
+				include: SRC_DIR + '/js',
+				exclude: /node_modules/,
+				loader: 'babel',
+			}
+		]
+	},
+	plugins: [
+		new webpack.ProvidePlugin({
             // You can optionally assign namespaces here
             // $: "jquery",
             // jQuery: "jquery",
@@ -27,7 +29,7 @@ module.exports = {
             // "algoliasearch": 'algoliasearch' //,
             // "window.algoliasearchHelper": 'algoliasearch-helper'
             // Hogan: "hogan.js"
-        })
+		})
     //     new webpack.optimize.UglifyJsPlugin({
     //         compress: {
     //             warnings: false,
@@ -36,7 +38,7 @@ module.exports = {
     //             comments: false,
     //         },
     //     }),
-    ]
+	]
 };
 
 var compiler = webpack(module.exports);

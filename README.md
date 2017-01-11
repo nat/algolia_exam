@@ -1,6 +1,11 @@
 ### CSE Test - Place2Eat
 Algolia exam POC (proof of concept) site of Nathan Wharton.
-See the source code here: https://github.com/nat/algolia_exam
+source code: https://github.com/nat/algolia_exam
+
+# *New* Introduction
+Previously, I submitted a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and I rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. Further, I worked on improving/simplifying the UX by enabling a default query returning all results, and by implementing food_type as a disjunctive facet (so sibling facet values can be displayed). Unlike a disjunctive facet, however, I intentionally allowed only one facet to be displayed at a time (for usability/simplicity). I could easily update to allow multiple facet values to be selected, for instance. If I had more time I'd make css work for webpack, and I'd implement number of stars facet as described here. I'd obviously clean up my facetting sass then, etc:
+http://stackoverflow.com/questions/1987524/turn-a-number-into-star-rating-display-using-jquery-and-css among other things! :)
+
 
 # Instructions for Installation of CSE Test - Place2Eat
 
@@ -11,7 +16,7 @@ See the source code here: https://github.com/nat/algolia_exam
 ## Download
 * Clone the git repository (using e.g: `git clone https://github.com/nat/algolia_exam.git`) to your local machine.
 * Run `npm install` to download the dependencies (from the project root)
-* Or run `npm run server`
+* Or run `npm run watch`
 
 # If you want to install from scratch in your own environment do the following:
 
@@ -27,24 +32,18 @@ See the source code here: https://github.com/nat/algolia_exam
 * Under the index tab, click on "Display" and set "Attributes for Faceting" to `foot_type` and `stars_count`.
 
 ## Configure Your HTML
-* edit the `assets/js/main.js` file and set `var APPLICATION_ID = '0OCVIREAOB';`
-	and
-	`var SEARCH_ONLY_API_KEY = 'a4a59fd80b0436442ed0e8dbaf48e449';`
-	to Algolia's settings.
+* edit the `assets/js/CustomSettings.js` file and set `ALGOLIA_SETTINGS.APPLICATION_ID`
+	and `ALGOLIA_SETTINGS.SEARCH_ONLY_API_KEY` to Algolia's settings.
 
 ## Start Node
 * Run `npm install` to download the dependencies
-* Then run `npm run dev` to create a server, and automatically refresh the page every time on of the `*.scss`, `*.less`, `*.html` files get updated.
-* Or run `npm run server` if you only want to run the server
+* Then run `npm run server` to create a server, and automatically refresh the page every time on of the `*.scss`, `*.less`, `*.html` files get updated.
+* Or run `npm run watch` if you only want to run the server
 
 ## Type!
+When visiting http://localhost:3000 in your browser
 * Enter 'a' or anything in the search bar - and you'll start seeing results.
-
 If you have any questions, do not hesitate to contact me!
-
-## Addendum
-If I had extra time, I'd start implementing the display of stars as described here:
-http://stackoverflow.com/questions/1987524/turn-a-number-into-star-rating-display-using-jquery-and-css among other things! :)
 
 ## Original Exam Instructions (for reference):
 
