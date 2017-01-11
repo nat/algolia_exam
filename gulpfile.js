@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+// var webpack = require('webpack-stream');
 var browserSync = require('browser-sync').create();
 var sass = require('gulp-sass');
 var less = require('gulp-less-sourcemap');
@@ -6,7 +7,8 @@ var less = require('gulp-less-sourcemap');
 // Static Server
 gulp.task('serve', function() {
     browserSync.init({
-        server: "."
+        server: ".",
+        open: "local"
     });
 });
 
@@ -14,6 +16,7 @@ gulp.task('serve', function() {
 gulp.task('watch', ['serve', 'sass', 'less'], function() {
     gulp.watch("assets/scss/*.scss", ['sass']);
     gulp.watch("assets/less/*.less", ['less']);
+    gulp.watch("assets/js/**/*.js").on('change', browserSync.reload);
     gulp.watch("*.html").on('change', browserSync.reload);
 });
 

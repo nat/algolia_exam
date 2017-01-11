@@ -1,0 +1,5 @@
+export const ALGOLIA_SETTINGS = {
+	APPLICATION_ID: 'XU96TEJLEA',
+	SEARCH_ONLY_API_KEY: 'e2621286d3ebd8cd4976f8a3a79dee0c',
+	INDEX_NAME: 'poc_restaurants'
+};

@@ -1,0 +1,17 @@
+#header {
+	height: 83px;
+	width: 820px;
+	margin: 50px 0px 0px $left_margin;
+	background-color: #1C688E;
+}
+
+#search-input {
+	margin: 22px 25px 25px 25px;
+	width: 770px;
+	height: 40px;
+	border-radius: 5px;
+	font-size: 15px;
+	::placeholder {
+		color: #B3B3B3;
+	}
+}
