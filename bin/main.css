@@ -1,6 +1,7 @@
-/****************************
- HIGH PPI DISPLAY BACKGROUNDS
-*****************************/
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+/*# sourceMappingURL=main.css.map */****/
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 /**
  * 1. Set default font family to sans-serif.
@@ -403,14 +404,14 @@ th {
 body {
   font-family: "Open Sans", sans-serif;
   font-size: 15px;
-  background-image: url("bin/background.png");
+  background-image: url("background.png");
   background-size: 46px 29px;
   background-position: center center;
   background-repeat: repeat; }
   @media all and (-webkit-min-device-pixel-ratio: 1.5), all and (-o-min-device-pixel-ratio: 3 / 2), all and (min--moz-device-pixel-ratio: 1.5), all and (min-device-pixel-ratio: 1.5) {
     /* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/initialize.scss */
     body {
-      background-image: url("bin/background@2x.png"); } }
+      background-image: url("background@2x.png"); } }
 
 /* note: sidebar_width is increased from the sketch source due to the width of data */
 /* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_header.scss */
