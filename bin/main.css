@@ -1,0 +1,576 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+/*# sourceMappingURL=main.css.map */****/
+/*! normalize.css v3.0.2 | MIT License | git.io/normalize */
+/**
+ * 1. Set default font family to sans-serif.
+ * 2. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+/* line 9, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+html {
+  font-family: sans-serif;
+  /* 1 */
+  -ms-text-size-adjust: 100%;
+  /* 2 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */ }
+
+/**
+ * Remove default margin.
+ */
+/* line 19, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+body {
+  margin: 0; }
+
+/* HTML5 display definitions
+   ========================================================================== */
+/**
+ * Correct `block` display not defined for any HTML5 element in IE 8/9.
+ * Correct `block` display not defined for `details` or `summary` in IE 10/11
+ * and Firefox.
+ * Correct `block` display not defined for `main` in IE 11.
+ */
+/* line 33, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block; }
+
+/**
+ * 1. Correct `inline-block` display not defined in IE 8/9.
+ * 2. Normalize vertical alignment of `progress` in Chrome, Firefox, and Opera.
+ */
+/* line 54, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+audio,
+canvas,
+progress,
+video {
+  display: inline-block;
+  /* 1 */
+  vertical-align: baseline;
+  /* 2 */ }
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+/* line 67, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+audio:not([controls]) {
+  display: none;
+  height: 0; }
+
+/**
+ * Address `[hidden]` styling not present in IE 8/9/10.
+ * Hide the `template` element in IE 8/9/11, Safari, and Firefox < 22.
+ */
+/* line 77, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+[hidden],
+template {
+  display: none; }
+
+/* Links
+   ========================================================================== */
+/**
+ * Remove the gray background color from active links in IE 10.
+ */
+/* line 89, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+a {
+  background-color: transparent; }
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+/* line 97, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+a:active,
+a:hover {
+  outline: 0; }
+
+/* Text-level semantics
+   ========================================================================== */
+/**
+ * Address styling not present in IE 8/9/10/11, Safari, and Chrome.
+ */
+/* line 109, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+abbr[title] {
+  border-bottom: 1px dotted; }
+
+/**
+ * Address style set to `bolder` in Firefox 4+, Safari, and Chrome.
+ */
+/* line 117, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+b,
+strong {
+  font-weight: bold; }
+
+/**
+ * Address styling not present in Safari and Chrome.
+ */
+/* line 126, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+dfn {
+  font-style: italic; }
+
+/**
+ * Address variable `h1` font-size and margin within `section` and `article`
+ * contexts in Firefox 4+, Safari, and Chrome.
+ */
+/* line 135, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0; }
+
+/**
+ * Address styling not present in IE 8/9.
+ */
+/* line 144, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+mark {
+  background: #ff0;
+  color: #000; }
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+/* line 153, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+small {
+  font-size: 80%; }
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+/* line 161, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline; }
+
+/* line 169, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+sup {
+  top: -0.5em; }
+
+/* line 173, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+sub {
+  bottom: -0.25em; }
+
+/* Embedded content
+   ========================================================================== */
+/**
+ * Remove border when inside `a` element in IE 8/9/10.
+ */
+/* line 184, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+img {
+  border: 0; }
+
+/**
+ * Correct overflow not hidden in IE 9/10/11.
+ */
+/* line 192, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+svg:not(:root) {
+  overflow: hidden; }
+
+/* Grouping content
+   ========================================================================== */
+/**
+ * Address margin not present in IE 8/9 and Safari.
+ */
+/* line 203, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+figure {
+  margin: 1em 40px; }
+
+/**
+ * Address differences between Firefox and other browsers.
+ */
+/* line 211, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0; }
+
+/**
+ * Contain overflow in all browsers.
+ */
+/* line 221, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+pre {
+  overflow: auto; }
+
+/**
+ * Address odd `em`-unit font size rendering in all browsers.
+ */
+/* line 229, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em; }
+
+/* Forms
+   ========================================================================== */
+/**
+ * Known limitation: by default, Chrome and Safari on OS X allow very limited
+ * styling of `select`, unless a `border` property is set.
+ */
+/**
+ * 1. Correct color not being inherited.
+ *    Known issue: affects color of disabled elements.
+ * 2. Correct font properties not being inherited.
+ * 3. Address margins set differently in Firefox 4+, Safari, and Chrome.
+ */
+/* line 252, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit;
+  /* 1 */
+  font: inherit;
+  /* 2 */
+  margin: 0;
+  /* 3 */ }
+
+/**
+ * Address `overflow` set to `hidden` in IE 8/9/10/11.
+ */
+/* line 266, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+button {
+  overflow: visible; }
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Firefox, IE 8/9/10/11, and Opera.
+ * Correct `select` style inheritance in Firefox.
+ */
+/* line 277, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+button,
+select {
+  text-transform: none; }
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ */
+/* line 290, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+button,
+html input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button;
+  /* 2 */
+  cursor: pointer;
+  /* 3 */ }
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+/* line 302, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+button[disabled],
+html input[disabled] {
+  cursor: default; }
+
+/**
+ * Remove inner padding and border in Firefox 4+.
+ */
+/* line 311, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0; }
+
+/**
+ * Address Firefox 4+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+/* line 322, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+input {
+  line-height: normal; }
+
+/**
+ * It's recommended that you don't attempt to style these elements.
+ * Firefox's implementation doesn't respect box-sizing, padding, or width.
+ *
+ * 1. Address box sizing set to `content-box` in IE 8/9/10.
+ * 2. Remove excess padding in IE 8/9/10.
+ */
+/* line 334, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box;
+  /* 1 */
+  padding: 0;
+  /* 2 */ }
+
+/**
+ * Fix the cursor style for Chrome's increment/decrement buttons. For certain
+ * `font-size` values of the `input`, it causes the cursor style of the
+ * decrement button to change from `default` to `text`.
+ */
+/* line 346, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto; }
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari and Chrome
+ *    (include `-moz` to future-proof).
+ */
+/* line 357, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+input[type="search"] {
+  -webkit-appearance: textfield;
+  /* 1 */
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  /* 2 */
+  box-sizing: content-box; }
+
+/**
+ * Remove inner padding and search cancel button in Safari and Chrome on OS X.
+ * Safari (but not Chrome) clips the cancel button when the search input has
+ * padding (and `textfield` appearance).
+ */
+/* line 370, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none; }
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+/* line 379, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em; }
+
+/**
+ * 1. Correct `color` not being inherited in IE 8/9/10/11.
+ * 2. Remove padding so people aren't caught out if they zero out fieldsets.
+ */
+/* line 390, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+legend {
+  border: 0;
+  /* 1 */
+  padding: 0;
+  /* 2 */ }
+
+/**
+ * Remove default vertical scrollbar in IE 8/9/10/11.
+ */
+/* line 399, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+textarea {
+  overflow: auto; }
+
+/**
+ * Don't inherit the `font-weight` (applied by a rule above).
+ * NOTE: the default cannot safely be changed in Chrome and Safari on OS X.
+ */
+/* line 408, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+optgroup {
+  font-weight: bold; }
+
+/* Tables
+   ========================================================================== */
+/**
+ * Remove most spacing between table cells.
+ */
+/* line 419, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/* line 424, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/normalize.css */
+td,
+th {
+  padding: 0; }
+
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/initialize.scss */
+body {
+  font-family: "Open Sans", sans-serif;
+  font-size: 15px;
+  background-image: url("background.png");
+  background-size: 46px 29px;
+  background-position: center center;
+  background-repeat: repeat; }
+  @media all and (-webkit-min-device-pixel-ratio: 1.5), all and (-o-min-device-pixel-ratio: 3 / 2), all and (min--moz-device-pixel-ratio: 1.5), all and (min-device-pixel-ratio: 1.5) {
+    /* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/base/initialize.scss */
+    body {
+      background-image: url("background@2x.png"); } }
+
+/* note: sidebar_width is increased from the sketch source due to the width of data */
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_header.scss */
+#header {
+  height: 83px;
+  width: 820px;
+  margin: 50px 0px 0px 102px;
+  background-color: #1C688E; }
+
+/* line 8, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_header.scss */
+#search-input {
+  margin: 22px 25px 25px 25px;
+  width: 770px;
+  height: 40px;
+  border-radius: 5px;
+  font-size: 15px; }
+  /* line 14, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_header.scss */
+  #search-input ::placeholder {
+    color: #B3B3B3; }
+
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_sidebar.scss */
+#sidebar {
+  float: left;
+  margin: 0px 0 0 102px;
+  padding: 5px 0 0 10px;
+  width: 200px;
+  height: 437px;
+  background-color: #fff;
+  border-right: 1px solid #CDCDCD; }
+
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_main-column.scss */
+#main {
+  width: 498px;
+  height: 400px;
+  margin: 0px 0 0 302px;
+  padding: 30px 100px 12px 20px;
+  background-color: #fff;
+  border: 1px solid #CDCDCD; }
+
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_stats.scss */
+.results-found {
+  font-size: 14px; }
+
+/* line 4, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_stats.scss */
+.found-in {
+  font-size: 12px; }
+
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+#hits {
+  /*margin: 4px 0;*/
+  /*padding: 10px 0;*/
+  /*border-top: 2px solid #eee;*/ }
+
+/* line 7, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+.hit {
+  font-size: 16px;
+  margin: 10px 0 0 10px;
+  width: 580px;
+  /*padding: 8px 0;*/
+  /*border-bottom: 1px solid #eee;*/ }
+
+/* line 15, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+.hit-image {
+  display: inline-block;
+  width: 80px; }
+  /* line 18, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+  .hit-image img {
+    width: 80px;
+    height: 80px;
+    border-radius: 2px;
+    border-width: 1px;
+    border-color: #000; }
+
+/* line 27, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+.hit-content {
+  display: inline-block;
+  margin-left: 1%;
+  vertical-align: top; }
+  /* line 31, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+  .hit-content .hit-name {
+    margin: 0px 0 0 0;
+    /*float: right;*/
+    /*margin-left: 20px;*/ }
+  /* line 37, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+  .hit-content .hit-stars-count {
+    color: #FFAB66;
+    display: inline; }
+  /* line 42, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+  .hit-content .hit-reviews-count {
+    display: inline;
+    font-size: 13px;
+    font-family: 'Helvetica Neue','Open Sans', sans-serif;
+    color: #707070; }
+  /* line 49, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_hit.scss */
+  .hit-content .hit-food_type, .hit-content .hit-neighborhood {
+    font-size: 14px;
+    font-family: 'Helvetica Neue','Open Sans', sans-serif;
+    color: #707070;
+    margin: 0px 0 0 0; }
+
+/* line 2, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_pagination.scss */
+#pagination ul {
+  list-style-type: none;
+  text-align: center; }
+
+/* line 6, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_pagination.scss */
+#pagination a {
+  padding: 8px 12px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #000;
+  border: 1px solid #CDCDCD; }
+
+/* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+.facet {
+  font-size: 13px; }
+  /* line 2, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+  .facet h5 {
+    margin-left: 2px;
+    font-size: 14px; }
+  /* line 9, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+  .facet ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none; }
+  /* line 15, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+  .facet li {
+    padding: 5px 5px 0px 5px;
+    margin: 0px 7px 3px 0px; }
+  /* line 20, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+  .facet li:hover {
+    background-color: #2897C5;
+    border-radius: 3px; }
+    /* line 21, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+    .facet li:hover a {
+      color: #fff; }
+
+/* line 29, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+.facet-link {
+  line-height: 1.2;
+  text-decoration: none;
+  color: #000; }
+
+/* line 35, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+.facet-count {
+  position: relative;
+  float: right;
+  color: #9A9A9A;
+  margin-right: 5px; }
+
+/* line 42, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+.facet-count:hover {
+  color: #fff; }
+
+/* line 46, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_facets.scss */
+.facet-refined, .facet-refined .facet-count, .facet-refined li, li:hover .facet-count, .facet-link:hover {
+  color: #fff;
+  background-color: #2897C5; }
+
+/* folders should be mostly self-descriptive */
+
+/*# sourceMappingURL=../../scss */
