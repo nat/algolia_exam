@@ -4,8 +4,9 @@ source code: https://github.com/nat/algolia_exam.
 working demo (subject to key expiration): https://nat.github.io/algolia_exam/
 
 # *New* Introduction
-Previously, I submitted a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and I rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. Further, I worked on improving/simplifying the UX by enabling a default query returning all results, and by implementing food_type as a disjunctive facet (so sibling facet values can be displayed). Unlike a disjunctive facet, however, I intentionally allowed only one facet to be displayed at a time (for usability/simplicity). I could easily update to allow multiple facet values to be selected, for instance. If I had more time I'd make css work for webpack, and I'd implement number of stars facet as described here. I'd obviously clean up my facetting sass then, etc:
-http://stackoverflow.com/questions/1987524/turn-a-number-into-star-rating-display-using-jquery-and-css among other things! :)
+Previously, I submitted a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and I rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. I also worked on improving/simplifying the UX. 
+
+As always is the case, there are many things I could improve with more time, but I hope you enjoy the project as it is, and as a demonstration of what I was able to accomplish. Thank you!
 
 # Instructions for Installation of CSE Test - Place2Eat
 

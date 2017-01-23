@@ -21999,7 +21999,12 @@
 					_react2.default.createElement(_Pagination2.default, {
 						pagination: this.props.pagination,
 						goToNextPage: this.props.goToNextPage
-					})
+					}),
+					_react2.default.createElement(
+						'div',
+						{ id: 'AlgoliaLogo' },
+						_react2.default.createElement('img', { src: '/assets/css/Algolia_logo_bg-white.jpg' })
+					)
 				);
 			}
 		}]);
