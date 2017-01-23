@@ -450,6 +450,11 @@ body {
   background-color: #fff;
   border: 1px solid #CDCDCD; }
 
+/* line 10, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_main-column.scss */
+#AlgoliaLogo img {
+  width: 60px;
+  float: right; }
+
 /* line 1, /Users/n/code/algolia_exam_clone/algolia_exam/assets/scss/components/_stats.scss */
 .results-found {
   font-size: 14px; }

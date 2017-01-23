@@ -17,7 +17,7 @@ class Pagination extends React.Component {
 						</a>
 					</li>
 				</ul>
-			</div>		
+			</div>	
 		);
 	}
 }
