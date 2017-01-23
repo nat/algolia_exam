@@ -20,7 +20,7 @@ class MainColumn extends React.Component {
 					goToNextPage={this.props.goToNextPage}
 				/>
 				<div id="AlgoliaLogo">
-					<img src="/algolia_exam/assets/css/Algolia_logo_bg-white.jpg" />
+					<img src="algolia_exam/assets/css/Algolia_logo_bg-white.jpg" />
 				</div>
 			</div>
 		);
