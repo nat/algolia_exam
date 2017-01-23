@@ -19,9 +19,6 @@ class MainColumn extends React.Component {
 					pagination={this.props.pagination}
 					goToNextPage={this.props.goToNextPage}
 				/>
-				<div id="AlgoliaLogo">
-					<img src="nat.github.io/algolia_exam/assets/css/Algolia_logo_bg-white.jpg" />
-				</div>
 			</div>
 		);
 	}
