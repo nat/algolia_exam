@@ -22101,7 +22101,6 @@
 	}(_react2.default.Component);
 
 	Stats.propTypes = {
-		// stats: React.PropTypes.object.isRequired,
 		stats: _react2.default.PropTypes.shape({
 			nbHits: _react2.default.PropTypes.number.isRequired,
 			nbHitsPlural: _react2.default.PropTypes.bool.isRequired,

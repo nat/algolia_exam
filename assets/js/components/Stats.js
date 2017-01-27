@@ -26,7 +26,6 @@ class Stats extends React.Component {
 }
 
 Stats.propTypes = {
-	// stats: React.PropTypes.object.isRequired,
 	stats: React.PropTypes.shape({
 		nbHits: React.PropTypes.number.isRequired,
 		nbHitsPlural: React.PropTypes.bool.isRequired,
