@@ -1,6 +1,10 @@
 import React from 'react';
 
 class Header extends React.Component {
+	// do an initial focus into the search field for better UX
+	componentDidMount(){
+		this.searchinput.focus();
+	}
 
 	render(){
 		return (

@@ -21678,6 +21678,13 @@
 		}
 
 		_createClass(Header, [{
+			key: "componentDidMount",
+
+			// do an initial focus into the search field for better UX
+			value: function componentDidMount() {
+				this.searchinput.focus();
+			}
+		}, {
 			key: "render",
 			value: function render() {
 				var _this2 = this;
