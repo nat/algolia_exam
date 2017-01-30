@@ -29540,12 +29540,17 @@
 			}
 		}, {
 			key: 'refineFacet',
-			value: function refineFacet(e, facetName, facetValue) {
+			value: function refineFacet(e, isRefined, facetName, facetValue) {
 				e.preventDefault();
 				// For a clear/simple UX, allow just one facet to be selected at a time
 				// (by removing any previous facet selections)
 				_AlgoliaClient.algoliaHelper.clearRefinements();
 				_AlgoliaClient.algoliaHelper.toggleRefine(facetName, facetValue).search();
+
+				// UX tweak: I could add this to remove filter on extra click.
+				// if(isRefined){
+				// 	algoliaHelper.removeDisjunctiveFacetRefinement(facetName, facetValue).search();	
+				// }
 			}
 		}, {
 			key: 'sendQuery',
@@ -29857,7 +29862,7 @@
 					{ href: '',
 						className: 'facet-link toggle-refine ' + (this.props.isRefined ? 'facet-refined' : ''),
 						onClick: function onClick(e) {
-							return _this2.props.refineFacet(e, _this2.props.facetName, _this2.props.name);
+							return _this2.props.refineFacet(e, _this2.props.isRefined, _this2.props.facetName, _this2.props.name);
 						}
 					},
 					_react2.default.createElement(
