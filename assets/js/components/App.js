@@ -88,13 +88,10 @@ class App extends React.Component {
 		e.preventDefault();
 		// For a clear/simple UX, allow just one facet to be selected at a time
 		// (by removing any previous facet selections)
+		// I could remove the clearRefinements to enable multiple filters
+		//  and filter toggling, but this is a bit more complex for the user.
 		algoliaHelper.clearRefinements();
 		algoliaHelper.toggleRefine(facetName, facetValue).search();
-		
-		// UX tweak: I could add this to remove filter on extra click.
-		// if(isRefined){
-		// 	algoliaHelper.removeDisjunctiveFacetRefinement(facetName, facetValue).search();	
-		// }
 	}
 
 	sendQuery(){
