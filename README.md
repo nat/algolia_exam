@@ -1,12 +1,12 @@
 ### CSE Test - Place2Eat
-Algolia exam POC (proof of concept) site of Nathan Wharton.
-source code: https://github.com/nat/algolia_exam.
+Algolia exam POC (proof of concept) site of Nathaniel Wharton.
+source code: https://github.com/nat/algolia_with_react.
 working demo (subject to key expiration): https://nat.github.io/algolia_exam/
 
-# *New* Introduction
-Previously, I submitted a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and I rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. I also worked on improving/simplifying the UX. 
+# Introduction
+Previously, I created a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. I also improved/simplifyied the UX. 
 
-As always is the case, there are many things I could improve with more time, but I hope you enjoy the project as it is, and as a demonstration of what I was able to accomplish. Thank you!
+As always is the case, there are many things I could improve with more time, but I hope you enjoy the project as it is!
 
 # Instructions for Installation of CSE Test - Place2Eat
 
@@ -15,7 +15,7 @@ As always is the case, there are many things I could improve with more time, but
 * ruby (version 2.3.0 was used for development)(only needed if you want to implement this POC in your own Algolia index)
 
 ## Download
-* Clone the git repository (using e.g: `git clone https://github.com/nat/algolia_exam.git`) to your local machine.
+* Clone the git repository (using e.g: `git clone https://github.com/nat/algolia_with_react.git`) to your local machine.
 * Run `npm install` to download the dependencies (from the project root)
 * Or run `npm run watch`
 
@@ -46,15 +46,15 @@ When visiting http://localhost:3000 in your browser
 * Enter 'a' or anything in the search bar - and you'll start seeing results.
 If you have any questions, do not hesitate to contact me!
 
-## Original Exam Instructions (for reference):
+## Original Specification (for reference) (Source: Algolia):
 
-Our sales team has recently been contacted by a large restaurant reservation website, for who it as identified as strategic to build a demo. As a Customer Solutions Engineer, you're asked to build a small prototype that, using the dataset and UI they have provided us, highlights the benefits of a great search experience.
+Our sales team has recently been contacted by a large restaurant reservation website, for who it as identified as strategic to build a demo. As an Engineer, you're asked to build a small prototype that, using the dataset and UI they have provided us, highlights the benefits of a great search experience.
 
 * Push the provided dataset to an Algolia index
 * Produce the HTML markup and CSS needed to reproduce the UI provided by the client. To do so, you can write with vanilla CSS or a processor of your choice. We've provided configs for Sass and LESS.
 * Using the Algolia JS Helper ([documentation](https://www.algolia.com/doc/guides/search/instant-search/algoliahelperjs)), implement an as-you-type search experience that enables users to easily find restaurants: both by passing a search query and/or filtering on the "type of cuisine".
 
-![image](https://github.com/nat/algolia_exam/blob/master/resources/mockups/regular-version.png)
+![image](https://github.com/nat/algolia_with_react/blob/master/resources/mockups/regular-version.png)
 *Screenshot of the demo once completed*
 
 **Important Notes**
@@ -72,7 +72,7 @@ Our sales team has recently been contacted by a large restaurant reservation web
 ### Bonus
 If you have time, feel free to add a star-based rating in the search results, and eventually in the sidebar.
 
-![image](https://github.com/nat/algolia_exam/blob/master/resources/mockups/full-version.png)
+![image](https://github.com/nat/algolia_with_react/blob/master/resources/mockups/full-version.png)
 
 
 # Evaluation criteria:
@@ -90,9 +90,6 @@ Once you're happy with what you've done
 
 * Create a Github public repository to host the code *(including the import script if you have one)*
 * Publish it using GitHub's gh-pages so we can interact with it
-
-
-Happy coding!
 
 **Note:** 
 The provided dataset has been created using https://github.com/sosedoff/opentable project.
