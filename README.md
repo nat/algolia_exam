@@ -69,12 +69,6 @@ Our sales team has recently been contacted by a large restaurant reservation web
 * Feel free to use any front-end tooling with which you're the most confortable.
 * The blue highlight in the sidebar is an active / over state.
 
-### Bonus
-If you have time, feel free to add a star-based rating in the search results, and eventually in the sidebar.
-
-![image](https://github.com/nat/algolia_with_react/blob/master/resources/mockups/full-version.png)
-
-
 # Evaluation criteria:
 The goal of this test is to evaluate your ability to build a front-end implementation using Algolia.
 
@@ -83,7 +77,6 @@ The goal of this test is to evaluate your ability to build a front-end implement
 * Overall look'n'feel of the demo: relevance, UI & UX
 * Quality of the code: legibility and re-usability
 * Attention given to details
-
 
 # Deliverable:
 Once you're happy with what you've done 
