@@ -1,14 +1,14 @@
-### CSE Test - Place2Eat
+### Algolia with React
 [Algolia exam POC (proof of concept) source code](https://github.com/nat/algolia_with_react) site of Nathaniel Wharton.
 
 [working demo](https://nat.github.io/algolia_with_react/) (subject to key expiration)
 
 # Introduction
-Previously, I created a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. I also improved/simplifyied the UX. 
+This is an example Proof of Concept (POC) of using React/ES6 Modules and Algolia. I previously created a version of this application based on JQuery and Hogan templates. I removed these dependencies and rewrote the app teaching myself/using React, Algolia, ES6 Modules, modular SASS, and Webpack. The UX was simplified.
 
-As always is the case, there are many things I could improve with more time, but I hope you enjoy the project as it is!
+There are many things I could improve with more time, but I hope you enjoy the project as it is!
 
-# Instructions for Installation of CSE Test - Place2Eat
+# Instructions for Installation
 
 ## Install Dependencies
 * node.js (version 7.1.0 was used for development)
@@ -79,7 +79,6 @@ The goal of this test is to evaluate your ability to build a front-end implement
 * Attention given to details
 
 # Deliverable:
-Once you're happy with what you've done 
 
 * Create a Github public repository to host the code *(including the import script if you have one)*
 * Publish it using GitHub's gh-pages so we can interact with it
