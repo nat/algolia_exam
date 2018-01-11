@@ -1,7 +1,7 @@
 ### CSE Test - Place2Eat
 Algolia exam POC (proof of concept) site of Nathaniel Wharton.
 source code: https://github.com/nat/algolia_with_react.
-working demo (subject to key expiration): https://nat.github.io/algolia_exam/
+working demo (subject to key expiration): https://nat.github.io/algolia_with_react/
 
 # Introduction
 Previously, I created a version of this application based on JQuery and Hogan templates. In response to helpful feedback, I removed these dependencies and rewrote the app teaching myself/using React, ES6 Modules, using more-modular SASS, and Webpack. I also improved/simplifyied the UX. 
