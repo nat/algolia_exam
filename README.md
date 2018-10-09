@@ -1,7 +1,7 @@
 ### Algolia with React
-[Algolia exam POC (proof of concept) source code](https://github.com/nat/algolia_with_react) site of Nathaniel Wharton.
+[Algolia exam POC (proof of concept) source code](https://github.com/whartonn/algolia_with_react) site of Nathaniel Wharton.
 
-[working demo](https://nat.github.io/algolia_with_react/) (subject to key expiration)
+[working demo](https://whartonn.github.io/algolia_with_react/) (subject to key expiration)
 
 # Introduction
 This is an example Proof of Concept (POC) of using React/ES6 Modules and Algolia. I previously created a version of this application based on JQuery and Hogan templates. I removed these dependencies and rewrote the app teaching myself/using React, Algolia, ES6 Modules, modular SASS, and Webpack. The UX was simplified.
@@ -15,7 +15,7 @@ There are many things I could improve with more time, but I hope you enjoy the p
 * ruby (version 2.3.0 was used for development)(only needed if you want to implement this POC in your own Algolia index)
 
 ## Download
-* Clone the git repository (using e.g: `git clone https://github.com/nat/algolia_with_react.git`) to your local machine.
+* Clone the git repository (using e.g: `git clone https://github.com/whartonn/algolia_with_react.git`) to your local machine.
 * Run `npm install` to download the dependencies (from the project root)
 * Or run `npm run watch`
 
@@ -54,7 +54,7 @@ Our sales team has recently been contacted by a large restaurant reservation web
 * Produce the HTML markup and CSS needed to reproduce the UI provided by the client. To do so, you can write with vanilla CSS or a processor of your choice. We've provided configs for Sass and LESS.
 * Using the Algolia JS Helper ([documentation](https://www.algolia.com/doc/guides/search/instant-search/algoliahelperjs)), implement an as-you-type search experience that enables users to easily find restaurants: both by passing a search query and/or filtering on the "type of cuisine".
 
-![image](https://github.com/nat/algolia_with_react/blob/master/resources/mockups/regular-version.png)
+![image](https://github.com/whartonn/algolia_with_react/blob/master/resources/mockups/regular-version.png)
 *Screenshot of the demo once completed*
 
 **Important Notes**
